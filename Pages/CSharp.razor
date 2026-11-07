@@ -1,0 +1,200 @@
+@page "/csharp"
+
+<PageTitle>C#에서 쓰기 · Jyuno</PageTitle>
+
+<div class="doc-hero">
+    <div class="container">
+        <span class="eyebrow">Embedding Guide</span>
+        <h1>C# 프로그램에 Jyuno 붙이기</h1>
+        <p class="lead">Jyuno는 C# 프로그램에 플러그인 기능을 쉽게 추가하기 위해 만들어졌습니다. 런타임을 만들고, 함수 몇 개를 추가하고, 스크립트를 실행하면 끝이에요.</p>
+    </div>
+</div>
+
+<div class="container doc-layout">
+    <aside class="doc-toc">
+        <div class="doc-toc-inner">
+            <div class="doc-toc-title">목차</div>
+            @foreach (var (id, label) in toc)
+            {
+                <a href="@($"csharp#{id}")">@label</a>
+            }
+        </div>
+    </aside>
+
+    <article class="doc">
+        <section id="install">
+            <h2>설치</h2>
+            <p>NuGet에서 설치할수 있습니다. 라이브러리는 .NET 6 이상에서 동작해요.</p>
+            <CodeBlock Code="dotnet add package Jyuno" Lang="shell" />
+        </section>
+
+        <section id="quickstart">
+            <h2>빠른 시작</h2>
+            <CodeBlock Code="@Quick" Lang="csharp" Title="Program.cs" />
+            <p>먼저 <code>Runtime</code>을 만들고, 거기서 <code>Interpreter</code>를 만들어 실행합니다.</p>
+        </section>
+
+        <section id="runtime">
+            <h2>런타임 (Runtime)</h2>
+            <p>Jyuno의 실행 관리자입니다. 여기에 전역 함수와 변수를 추가하고, 여기서 인터프리터를 만듭니다.</p>
+            <p>스크립트를 하나만 실행한다면 필요 없어 보일수 있지만, 여러 스크립트를 실행할 때 인터프리터마다 함수를 추가하는 과정을 생략하려고 런타임으로 묶습니다. 런타임에 추가한 함수/변수는 그 런타임에서 만든 모든 인터프리터가 쓸수 있어요.</p>
+
+            <h3 id="commands">명령어 묶음 고르기</h3>
+            <p>생성자에 <code>AddJyunoCommandType</code> 플래그를 넘겨, 스크립트가 쓸수 있는 기본 명령어를 고릅니다.</p>
+            <table class="table">
+                <thead><tr><th>플래그</th><th>포함되는 명령어</th></tr></thead>
+                <tbody>
+                    <tr><td><code>Essential</code></td><td>int, add, equal 같은 필수 명령어. 항상 포함되며 뺄수 없어요.</td></tr>
+                    <tr><td><code>Console</code></td><td>console.write, console.readline 등</td></tr>
+                    <tr><td><code>Math</code></td><td>math.sin, math.pow, math.pi 등</td></tr>
+                    <tr><td><code>File</code> <span class="tag tag-red">주의</span></td><td>file.read, file.write, directory.list 등. 사용자의 파일을 다룰수 있어요.</td></tr>
+                    <tr><td><code>Default</code></td><td>Essential | Console | Math (보안에 해가 없는 기본 기능)</td></tr>
+                    <tr><td><code>All</code></td><td>File까지 전부</td></tr>
+                </tbody>
+            </table>
+            <CodeBlock Code="@Flags" Lang="csharp" />
+
+            <h3 id="functions">함수와 변수 추가</h3>
+            <p><code>AddFunction</code>은 인자 배열을 받아 값을 돌려주는 함수를, <code>AddVariable</code>은 getter/setter 쌍을 등록합니다. 이름에 점(<code>.</code>)을 넣어 <code>game.player.hp</code>처럼 네임스페이스처럼 쓸수 있어요.</p>
+            <CodeBlock Code="@AddFunctions" Lang="csharp" />
+            <div class="callout">Jyuno의 정수는 <code>long</code>, 실수는 <code>double</code>입니다. 인자를 받을 때는 <code>Convert.ToInt64</code> 같은 변환을 쓰는 게 안전해요. 반환값이 없는 함수는 <code>null</code>을 돌려주세요.</div>
+            <p>스크립트에서는 이렇게 씁니다.</p>
+            <CodeBlock Code="@UseFunctions" Runnable="false" Title="mod.jyuno" />
+        </section>
+
+        <section id="interpreter">
+            <h2>인터프리터 (Interpreter)</h2>
+            <p>Jyuno 코드를 직접 실행하는 실행기입니다. 인터프리터에도 함수/변수를 추가할수 있지만, 전역이 아닌 그 인터프리터만의 지역 함수/변수예요.</p>
+            <ul>
+                <li><code>Run()</code>은 스크립트를 실행하고, <code>return</code>으로 반환된 값을 돌려줍니다. 문법 오류가 있는 줄을 만나면 멈추고 <code>GrammarError</code>를 반환해요.</li>
+                <li><code>ExecuteLine()</code>으로 한 줄씩 실행할수도 있지만, <code>if</code>, <code>while</code>, <code>goto</code> 처럼 실행 위치를 옮기는 키워드는 <code>Run()</code>에서만 쓸수 있습니다.</li>
+                <li>스크립트가 런타임의 전역 함수/변수를 삭제해도 그 인터프리터에서만 삭제되고, 다른 인터프리터에는 영향이 없습니다.</li>
+                <li><code>CurrentExecuteLine</code>으로 실행 중인 줄 번호를 알수 있어요.</li>
+            </ul>
+            <CodeBlock Code="@RunResult" Lang="csharp" />
+        </section>
+
+        <section id="safety">
+            <h2>안전하게 실행하기</h2>
+            <p>Jyuno의 보안 모델은 단순합니다. <b>주지 않은 명령어는 존재하지 않습니다.</b> 처음부터 파일을 조작하는 명령어를 넣지 않으면, 스크립트는 그런 일을 할 방법이 없고 없는 명령어 때문에 오류를 내고 끝날 뿐이에요.</p>
+            <p>여기에 더해 인터프리터마다 다음 옵션으로 스크립트를 더 묶어둘수 있습니다.</p>
+            <table class="table">
+                <thead><tr><th>속성</th><th>기본값</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td><code>EnableRemoveVariable</code></td><td><code>true</code></td><td><code>false</code>면 <code>이름 =</code> 삭제 연산을 하면 예외가 납니다.</td></tr>
+                    <tr><td><code>BlockSubstitute</code></td><td><code>false</code></td><td><code>true</code>면 변수 대입을 막습니다. 정해진 함수만 호출하는 스크립트에 적합해요.</td></tr>
+                </tbody>
+            </table>
+            <CodeBlock Code="@Safety" Lang="csharp" />
+            <div class="callout">재귀 호출은 최대 <code>Interpreter.MaxCallDepth</code>(200)번까지만 중첩되어, 무한 재귀로 프로그램이 죽지 않습니다. 단, 무한 반복문은 스크립트가 끝나지 않으니 별도 스레드에서 실행하는 등 호스트가 대비해야 해요. (이 사이트는 웹 워커에서 실행하고 중지 버튼으로 워커를 종료합니다.)</div>
+        </section>
+
+        <section id="isolation">
+            <h2>여러 스크립트 격리</h2>
+            <p>런타임 하나에서 여러 인터프리터를 만들면, 전역 함수는 공유하지만 각 스크립트의 변수와 삭제 연산은 서로 독립적입니다. 런타임은 아직 Dispose 되지 않은 인터프리터 목록(<code>runtime.Interpreters</code>)도 알려줘요.</p>
+            <CodeBlock Code="@Isolation" Lang="csharp" />
+        </section>
+
+        <section id="prompt">
+            <h2>JyunoPrompt</h2>
+            <p>콘솔에서 Jyuno를 바로 실행해 보고 싶다면 <a href="https://github.com/jyunrcaea/JyunoPrompt" target="_blank" rel="noopener">JyunoPrompt</a>를 쓰세요. 인자 없이 실행하면 대화형 프롬프트가, 파일 경로를 넘기면 그 파일을 실행합니다.</p>
+            <div class="doc-next">
+                <a class="btn btn-primary" href="playground">플레이그라운드에서 써보기 →</a>
+                <a class="btn btn-ghost" href="guide">문법 가이드 →</a>
+            </div>
+        </section>
+    </article>
+</div>
+
+@code {
+    readonly (string, string)[] toc = {
+        ("install", "설치"),
+        ("quickstart", "빠른 시작"),
+        ("runtime", "런타임"),
+        ("commands", "명령어 묶음"),
+        ("functions", "함수와 변수 추가"),
+        ("interpreter", "인터프리터"),
+        ("safety", "안전하게 실행하기"),
+        ("isolation", "여러 스크립트 격리"),
+        ("prompt", "JyunoPrompt"),
+    };
+
+    const string Quick = """
+        using Jyuno;
+
+        Runtime runtime = new();
+        Interpreter interpreter = runtime.Create(File.ReadAllLines("code.txt"));
+        interpreter.Run();
+        """;
+
+    const string Flags = """
+        // 콘솔 + 수학 (기본값)
+        var runtime = new Runtime();
+
+        // 수학만 (콘솔 입출력도 막기)
+        var mathOnly = new Runtime(Runtime.AddJyunoCommandType.Math);
+
+        // 모든 명령어 (신뢰할수 있는 스크립트에만!)
+        var trusted = new Runtime(Runtime.AddJyunoCommandType.All);
+        """;
+
+    const string AddFunctions = """
+        var runtime = new Runtime(Runtime.AddJyunoCommandType.Default);
+
+        // 함수: object?[] 인자 → object? 반환
+        runtime.AddFunction("game.spawn", args => {
+            string name = (string)args[0]!;
+            long count = Convert.ToInt64(args[1]);
+            world.Spawn(name, (int)count);
+            return null;
+        });
+
+        // 변수: getter / setter
+        runtime.AddVariable("game.player.hp",
+            get: () => (long)player.Hp,
+            set: value => player.Hp = (int)Convert.ToInt64(value));
+        """;
+
+    const string UseFunctions = """
+        game.spawn "slime" 3
+        console.writeline "현재 체력: {1}" game.player.hp
+        game.player.hp = add game.player.hp 10
+        """;
+
+    const string RunResult = """
+        using Jyuno;
+        using Jyuno.Language;
+
+        using var interpreter = runtime.Create(lines);
+        try
+        {
+            object? result = interpreter.Run();
+            if (result is GrammarError error)
+                Console.WriteLine(error);            // 문법 오류: ... (3 줄)
+            else
+                Console.WriteLine($"반환값: {result}");
+        }
+        catch (JyunoException e)
+        {
+            // 없는 함수 호출, 0으로 나누기 같은 실행 중 오류
+            Console.WriteLine($"실행 오류: {e.Message}");
+        }
+        """;
+
+    const string Safety = """
+        var plugin = runtime.Create(lines);
+        plugin.EnableRemoveVariable = false; // 'console.write =' 같은 삭제 금지
+        plugin.BlockSubstitute = true;       // 'x = 1' 같은 대입 금지
+        plugin.Run();
+        """;
+
+    const string Isolation = """
+        var runtime = new Runtime();
+        runtime.AddFunction("log", args => { logger.Info(args[0]); return null; });
+
+        var a = runtime.Create(new[] { "log =" });          // a에서 log 삭제
+        var b = runtime.Create(new[] { "log \"hello\"" });  // b에서는 여전히 사용 가능
+        a.Run();
+        b.Run();
+        """;
+}

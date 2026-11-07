@@ -1,0 +1,313 @@
+@page "/playground"
+@using System.Text.Json
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject PlaygroundState State
+@inject NavigationManager Navigation
+
+<PageTitle>플레이그라운드 · Jyuno</PageTitle>
+
+<div class="pg">
+    <div class="pg-toolbar">
+        <div class="pg-toolbar-left">
+            <label class="select">
+                <span class="sr-only">예제 선택</span>
+                <select value="@exampleId" @onchange="OnExampleChanged">
+                    <option value="" disabled>예제 불러오기…</option>
+                    @foreach (var (group, items) in Examples.Groups)
+                    {
+                        <optgroup label="@group">
+                            @foreach (var example in items)
+                            {
+                                <option value="@example.Id">@example.Title</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </label>
+            <span class="pg-desc">@description</span>
+        </div>
+        <div class="pg-toolbar-right">
+            <span class="engine engine-@engineState" title="@engineTitle">
+                <span class="engine-dot"></span>
+                @(engineState switch { "ready" => "엔진 준비됨", "error" => "엔진 오류", _ => "엔진 불러오는 중…" })
+            </span>
+            <button class="btn btn-ghost btn-sm" @onclick="Share" disabled="@(playground is null)">@shareLabel</button>
+            @if (running)
+            {
+                <button class="btn btn-stop" @onclick="Stop">■ 중지</button>
+            }
+            else
+            {
+                <button class="btn btn-primary btn-run" @onclick="Run" disabled="@(playground is null || engineState == "error")">
+                    ▶ 실행 <kbd>Ctrl</kbd><kbd>↵</kbd>
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="pg-main" @ref="root">
+        <section class="pane pg-editor-pane">
+            <div class="pane-head">
+                <span class="pane-title"><span class="file-dot"></span>script.jyuno</span>
+                <span class="pane-hint">줄 번호는 goto와 같이 0부터 · Tab 들여쓰기</span>
+            </div>
+            <div class="pg-editor" data-editor></div>
+        </section>
+
+        <div class="pg-side">
+            <section class="pane pg-output @(running ? "is-running" : "")">
+                <div class="pane-head">
+                    <span class="pane-title">터미널 <span class="term-title">@terminalTitle</span></span>
+                    <span class="pane-hint"><span class="elapsed" data-elapsed></span></span>
+                </div>
+                <pre class="terminal" data-terminal></pre>
+                <div class="pg-result">
+                    @if (running)
+                    {
+                        <span class="result result-running"><span class="spinner"></span> 실행 중… 무한 반복이라면 중지 버튼을 누르세요</span>
+                    }
+                    else if (stoppedMs is not null)
+                    {
+                        <span class="result result-stopped">■ 중지됨 · @FormatMs(stoppedMs.Value)</span>
+                    }
+                    else if (result is null)
+                    {
+                        <span class="result result-idle">@(engineState == "ready" ? "실행 버튼을 누르거나 Ctrl+Enter를 눌러보세요." : engineState == "error" ? engineError : "브라우저 안에 .NET 런타임을 준비하고 있어요…")</span>
+                    }
+                    else if (result.Status == "ok")
+                    {
+                        <span class="result result-ok">✓ 완료 · @FormatMs(result.ElapsedMs)</span>
+                        @if (result.Value is not null && result.Value != "null")
+                        {
+                            <span class="result-value">반환값 <code>@result.Value</code> <small>@result.ValueType</small></span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="result result-error">
+                            ✕ @(result.Status == "grammar" ? "문법 오류" : "실행 오류")@(result.Line >= 0 ? $" · {result.Line}번 줄" : "")
+                        </span>
+                        <span class="result-message">@result.Message@(result.ExceptionType is null ? "" : $" ({result.ExceptionType})")</span>
+                    }
+                    @if (result?.InputExhausted == true && !running)
+                    {
+                        <span class="result-hint">입력이 부족해서 console.readline이 null을 받았어요. 아래 입력 칸에 줄을 더 적어주세요.</span>
+                    }
+                </div>
+            </section>
+
+            <section class="pane pg-stdin">
+                <div class="pane-head">
+                    <span class="pane-title">입력 <small>console.readline이 한 줄씩 읽어요</small></span>
+                </div>
+                <textarea class="stdin" spellcheck="false" placeholder="여기에 적은 내용이 표준 입력으로 들어갑니다." @bind="stdin" @bind:event="oninput"></textarea>
+            </section>
+
+            <section class="pane pg-options">
+                <button class="pane-head pane-toggle" @onclick="() => optionsOpen = !optionsOpen" aria-expanded="@optionsOpen">
+                    <span class="pane-title">🛡️ 샌드박스 설정 <small>호스트(C#)가 허락할 명령어</small></span>
+                    <span class="chevron @(optionsOpen ? "open" : "")">⌄</span>
+                </button>
+                @if (optionsOpen)
+                {
+                    <div class="options">
+                        <div class="options-group">
+                            <div class="options-label">명령어 묶음 <code>AddJyunoCommandType</code></div>
+                            <Toggle @bind-Value="options.Console" Label="Console" Note="console.write, readline …" />
+                            <Toggle @bind-Value="options.Math" Label="Math" Note="math.sin, math.pow, math.pi …" />
+                            <Toggle @bind-Value="options.File" Label="File" Note="브라우저 안의 가상 디스크라 안전해요" Danger="true" />
+                        </div>
+                        <div class="options-group">
+                            <div class="options-label">이 사이트가 추가한 함수 <code>AddFunction</code></div>
+                            <Toggle @bind-Value="options.Host" Label="호스트 함수" Note="random, less, greater, not, time.now, text.length, text.upper" />
+                        </div>
+                        <div class="options-group">
+                            <div class="options-label">인터프리터 잠금</div>
+                            <Toggle @bind-Value="options.EnableRemoveVariable" Label="EnableRemoveVariable" Note="끄면 '이름 =' 삭제 연산 금지" />
+                            <Toggle @bind-Value="options.BlockSubstitute" Label="BlockSubstitute" Note="켜면 변수 대입 금지" />
+                        </div>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+@code {
+    ElementReference root;
+    IJSObjectReference? module;
+    IJSObjectReference? playground;
+    DotNetObjectReference<Playground>? self;
+
+    string exampleId = "";
+    string description = "Jyuno 코드를 작성하고 실행해 보세요.";
+    string stdin = "";
+    readonly SandboxOptions options = new();
+    bool optionsOpen = true;
+
+    string engineState = "booting";
+    string engineTitle = "";
+    string engineError = "";
+    bool running;
+    SandboxResult? result;
+    double? stoppedMs;
+    string terminalTitle = "";
+    string shareLabel = "🔗 공유";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/playground.js");
+        self = DotNetObjectReference.Create(this);
+
+        string? code = await module.InvokeAsync<string?>("readSharedCode");
+        if (code is null && State.Take() is { } pending)
+        {
+            code = pending.Code;
+            stdin = pending.Stdin ?? "";
+            if (pending.Title is not null)
+                description = $"“{pending.Title}” 예제를 불러왔어요.";
+        }
+        if (code is null && Examples.Find(QueryExample()) is { } fromQuery)
+        {
+            code = fromQuery.Code;
+            ApplyExample(fromQuery);
+        }
+        code ??= await module.InvokeAsync<string?>("readSavedCode");
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            code = Examples.Hello.Code;
+            ApplyExample(Examples.Hello);
+        }
+
+        playground = await module.InvokeAsync<IJSObjectReference>("create", root, self, code);
+        StateHasChanged();
+    }
+
+    string? QueryExample()
+    {
+        var query = Navigation.ToAbsoluteUri(Navigation.Uri).Query.TrimStart('?');
+        foreach (var pair in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = pair.Split('=', 2);
+            if (parts[0] == "example" && parts.Length == 2)
+                return Uri.UnescapeDataString(parts[1]);
+        }
+        return null;
+    }
+
+    void ApplyExample(Example example)
+    {
+        exampleId = example.Id;
+        description = example.Description;
+        stdin = example.Stdin;
+        result = null;
+        stoppedMs = null;
+        terminalTitle = "";
+    }
+
+    async Task OnExampleChanged(ChangeEventArgs e)
+    {
+        if (Examples.Find(e.Value?.ToString()) is not { } example || playground is null)
+            return;
+        if (running)
+            await Stop();
+        ApplyExample(example);
+        await playground.InvokeVoidAsync("setCode", example.Code);
+    }
+
+    async Task Run()
+    {
+        if (playground is null || running)
+            return;
+        running = true;
+        result = null;
+        stoppedMs = null;
+        terminalTitle = "";
+        await playground.InvokeVoidAsync("run", stdin, JsonSerializer.Serialize(options, SandboxJsonContext.Default.SandboxOptions));
+    }
+
+    async Task Stop()
+    {
+        if (playground is null || !running)
+            return;
+        await playground.InvokeVoidAsync("stop", false);
+    }
+
+    async Task Share()
+    {
+        if (playground is null || module is null)
+            return;
+        string url = await playground.InvokeAsync<string>("shareUrl");
+        bool copied = await module.InvokeAsync<bool>("copyText", url);
+        shareLabel = copied ? "✓ 링크 복사됨" : "복사 실패";
+        StateHasChanged();
+        await Task.Delay(1800);
+        shareLabel = "🔗 공유";
+    }
+
+    [JSInvokable]
+    public void OnWorkerReady(string version, int bootMs)
+    {
+        engineState = "ready";
+        engineTitle = $"Jyuno {version} · 웹 워커 준비 {bootMs}ms";
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnWorkerError(string message)
+    {
+        engineState = "error";
+        engineError = $"엔진을 시작하지 못했어요: {message}";
+        running = false;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnRunFinished(string json)
+    {
+        running = false;
+        result = JsonSerializer.Deserialize(json, SandboxJsonContext.Default.SandboxResult);
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnStopped(double elapsedMs)
+    {
+        running = false;
+        stoppedMs = elapsedMs;
+        engineState = "booting";
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnTitle(string title)
+    {
+        terminalTitle = "· " + title;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public Task RunShortcut() => InvokeAsync(Run);
+
+    static string FormatMs(double ms) => ms < 1000 ? $"{ms:0.#}ms" : $"{ms / 1000:0.00}s";
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (playground is not null)
+            {
+                await playground.InvokeVoidAsync("dispose");
+                await playground.DisposeAsync();
+            }
+            if (module is not null)
+                await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+        self?.Dispose();
+    }
+}

@@ -1,0 +1,316 @@
+@page "/"
+@inject IJSRuntime JS
+
+<PageTitle>Jyuno · C# 앱을 위한 작고 안전한 스크립트 언어</PageTitle>
+
+<section class="hero">
+    <div class="hero-glow"></div>
+    <div class="container hero-inner">
+        <div class="hero-copy">
+            <a class="pill" href="https://www.nuget.org/packages/Jyuno" target="_blank" rel="noopener">
+                <span class="pill-tag">NuGet</span> Jyuno 1.0.0 배포 중 →
+            </a>
+            <h1>
+                C# 앱에 <span class="grad">안전한 플러그인</span>을<br />
+                붙이는 작은 언어
+            </h1>
+            <p class="lead">
+                Jyuno는 한 줄에 명령어 하나만 쓰는 가볍고 단순한 스크립트 언어입니다.
+                스크립트는 <b>호스트 프로그램이 허락한 명령어만</b> 쓸수 있어서,
+                사용자가 만든 플러그인도 마음 놓고 실행할수 있어요.
+            </p>
+            <div class="hero-actions">
+                <a class="btn btn-primary btn-lg" href="playground">▶ 브라우저에서 실행해보기</a>
+                <a class="btn btn-ghost btn-lg" href="guide">문법 둘러보기</a>
+            </div>
+            <button class="install" @onclick="CopyInstall" title="클릭해서 복사">
+                <span class="install-prompt">$</span>
+                <code>dotnet add package Jyuno</code>
+                <span class="install-copy">@(installCopied ? "복사됨 ✓" : "복사")</span>
+            </button>
+        </div>
+
+        <div class="hero-demo">
+            <div class="window">
+                <div class="window-bar">
+                    <span class="codeblock-dots"><i></i><i></i><i></i></span>
+                    <div class="tabs">
+                        @foreach (var tab in heroTabs)
+                        {
+                            <button class="tab @(heroTab == tab.Id ? "active" : "")" @onclick="() => heroTab = tab.Id">@tab.Label</button>
+                        }
+                    </div>
+                </div>
+                <div class="window-body">
+                    @if (heroTab == "script")
+                    {
+                        <CodeBlock Code="@HeroScript" Copyable="false" Class="bare" />
+                    }
+                    else if (heroTab == "host")
+                    {
+                        <CodeBlock Code="@HeroHost" Lang="csharp" Copyable="false" Class="bare" />
+                    }
+                    else
+                    {
+                        <pre class="hero-output"><span class="term-notice">$ dotnet run</span>
+안녕하세요, Jyunni님!
+플러그인이 3번 실행되었습니다.
+<span class="term-error">오류: 'file.read'은/는 존재하지 않는 함수/변수/명령어 입니다.</span>
+<span class="term-notice">→ 호스트가 주지 않은 명령어는 쓸수 없어요.</span></pre>
+                    }
+                </div>
+                <div class="window-foot">
+                    <span>@heroTabs.First(t => t.Id == heroTab).Hint</span>
+                    <a href="playground" class="window-link">플레이그라운드에서 열기 →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">왜 Jyuno인가요?</span>
+            <h2>플러그인은 쉽게, 권한은 좁게</h2>
+            <p>IronPython이나 C# 스크립트로도 플러그인을 만들수 있지만, 그 스크립트가 파일을 지우거나 정보를 빼돌리지 않는다고 확신할 방법이 없습니다. Jyuno는 처음부터 <b>명령어를 고르는 쪽이 호스트</b>입니다.</p>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🛡️</div>
+                <h3>허락한 명령어만 존재</h3>
+                <p>파일, 네트워크 같은 명령어는 호스트가 넣어주지 않으면 아예 존재하지 않습니다. 없는 명령어를 부른 스크립트는 오류를 내고 끝날 뿐이에요.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔌</div>
+                <h3>C# 함수를 한 줄로 노출</h3>
+                <p><code>runtime.AddFunction</code>, <code>AddVariable</code> 한 줄이면 C#의 함수와 값을 스크립트에서 바로 쓸수 있습니다.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📏</div>
+                <h3>한 줄에 명령어 하나</h3>
+                <p>연산자 우선순위도, 세미콜론도 없습니다. <code>함수 인자1 인자2</code> 처럼 이름 뒤에 값을 나열하면 끝. 누구나 금방 읽고 씁니다.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🧩</div>
+                <h3>스크립트마다 격리</h3>
+                <p>런타임 하나에서 인터프리터를 여러 개 만들수 있고, 한 스크립트가 전역 함수를 지워도 다른 스크립트에는 영향이 없습니다.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>세밀한 잠금 옵션</h3>
+                <p>변수 삭제 금지(<code>EnableRemoveVariable</code>), 대입 금지(<code>BlockSubstitute</code>)로 스크립트가 할수 있는 일을 더 좁힐수 있어요.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔁</div>
+                <h3>필요한 건 다 있음</h3>
+                <p><code>if</code>/<code>else</code>, <code>while</code>, <code>repeat</code>, <code>break</code>, <code>goto</code>, 그리고 <code>func</code>로 만드는 재귀 함수까지.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">한눈에 보는 문법</span>
+            <h2>5분이면 다 읽는 언어</h2>
+            <p>모든 줄은 <code>함수 인자...</code>, <code>변수 = 값</code>, 또는 키워드로 시작합니다. 괄호로 감싸면 그 안을 먼저 실행해서 값으로 씁니다.</p>
+        </div>
+        <div class="syntax-grid">
+            <div class="syntax-card">
+                <h3>값과 변수</h3>
+                <CodeBlock Code="@SyntaxVariables" Runnable="true" Title="variables.jyuno" />
+                <p>선언 없이 대입하면 바로 변수가 됩니다. 타입은 동적이고 관대해요.</p>
+            </div>
+            <div class="syntax-card">
+                <h3>조건과 반복</h3>
+                <CodeBlock Code="@SyntaxFlow" Runnable="true" Title="flow.jyuno" />
+                <p>블록은 <code>end</code>로 닫습니다. 들여쓰기는 자유예요.</p>
+            </div>
+            <div class="syntax-card">
+                <h3>함수</h3>
+                <CodeBlock Code="@SyntaxFunc" Runnable="true" Title="func.jyuno" />
+                <p><code>param</code>은 쓴 순서대로 인자를 받습니다. 재귀는 200단계까지.</p>
+            </div>
+        </div>
+        <div class="center">
+            <a class="btn btn-ghost" href="guide">전체 문법 가이드 보기 →</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">C# 프로그램에 붙이기</span>
+            <h2>세 단계면 플러그인 시스템 완성</h2>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h3>패키지 설치</h3>
+                    <p>NuGet에서 <code>Jyuno</code> 패키지를 추가합니다.</p>
+                    <CodeBlock Code="dotnet add package Jyuno" Lang="shell" />
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h3>런타임과 명령어 준비</h3>
+                    <p>쓸 명령어 묶음을 고르고, 내 프로그램의 함수를 추가합니다.</p>
+                    <CodeBlock Code="@StepRuntime" Lang="csharp" />
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h3>스크립트 실행</h3>
+                    <p>인터프리터를 만들어 실행하면, <code>return</code> 값이나 문법 오류를 돌려줍니다.</p>
+                    <CodeBlock Code="@StepRun" Lang="csharp" />
+                </div>
+            </div>
+        </div>
+        <div class="center">
+            <a class="btn btn-ghost" href="csharp">C# 연동 자세히 보기 →</a>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">솔직한 소개</span>
+            <h2>잘하는 것과 못하는 것</h2>
+        </div>
+        <div class="proscons">
+            <div class="pros">
+                <h3>✓ 이럴 때 좋아요</h3>
+                <ul>
+                    <li>사용자가 만든 스크립트를 안전하게 실행해야 할 때</li>
+                    <li>C#의 함수와 변수를 스크립트에 쉽게 열어주고 싶을 때</li>
+                    <li>게임 이벤트, 자동화 매크로, 설정 로직처럼 짧은 스크립트</li>
+                    <li>배우기 쉬운 문법이 필요할 때</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h3>✕ 이럴 땐 다른 걸 쓰세요</h3>
+                <ul>
+                    <li><b>매우 느립니다.</b> 반복문에서 파이썬보다 약 100배 느려요.</li>
+                    <li>클래스와 구조체가 없습니다.</li>
+                    <li>비교 연산자는 <code>equal</code> 뿐이라, 크기 비교는 호스트가 함수로 제공해야 해요.</li>
+                    <li>무거운 계산이나 큰 프로그램</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container cta-inner">
+        <div>
+            <h2>지금 바로 써보세요</h2>
+            <p>설치 없이, 브라우저 안에서 진짜 Jyuno 인터프리터가 돌아갑니다.</p>
+        </div>
+        <a class="btn btn-light btn-lg" href="playground">플레이그라운드 열기 →</a>
+    </div>
+</section>
+
+@code {
+    record HeroTab(string Id, string Label, string Hint);
+
+    readonly HeroTab[] heroTabs = {
+        new("script", "plugin.jyuno", "사용자가 작성한 플러그인 스크립트"),
+        new("host", "Program.cs", "플러그인을 실행하는 C# 호스트 프로그램"),
+        new("output", "출력", "허락하지 않은 명령어는 존재하지 않습니다"),
+    };
+
+    string heroTab = "script";
+    bool installCopied;
+
+    async Task CopyInstall()
+    {
+        var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+        installCopied = await module.InvokeAsync<bool>("copyText", "dotnet add package Jyuno");
+        if (installCopied)
+        {
+            StateHasChanged();
+            await Task.Delay(1500);
+            installCopied = false;
+        }
+    }
+
+    const string HeroScript = """
+        greet "Jyunni"
+        count = 0
+        repeat 3
+            count = add count 1
+        end
+        console.writeline "플러그인이 {1}번 실행되었습니다." count
+        secret = file.read "C:/passwords.txt"
+        """;
+
+    const string HeroHost = """
+        using Jyuno;
+
+        // 콘솔, 수학 명령어만 허락 (파일 명령어는 없음)
+        var runtime = new Runtime(Runtime.AddJyunoCommandType.Default);
+
+        // 내 프로그램의 기능을 스크립트에 공개
+        runtime.AddFunction("greet", args => {
+            Console.WriteLine($"안녕하세요, {args[0]}님!");
+            return null;
+        });
+
+        var plugin = runtime.Create(File.ReadAllLines("plugin.jyuno"));
+        try { plugin.Run(); }
+        catch (JyunoException e) { Console.WriteLine($"오류: {e.Message}"); }
+        """;
+
+    const string SyntaxVariables = """
+        name = "Jyuno"
+        year = 2024
+        console.writeline (add "Hello, " name "!")
+        console.writeline "{1} + 1 = {2}" year (add year 1)
+        """;
+
+    const string SyntaxFlow = """
+        i = 1
+        repeat 5
+            if (equal (mod i 2) 0)
+                console.writeline "{1}: 짝수" i
+            else
+                console.writeline "{1}: 홀수" i
+            end
+            i = add i 1
+        end
+        """;
+
+    const string SyntaxFunc = """
+        func square
+            param n
+            return (mul n n)
+        endfunc
+
+        console.writeline (square 12)
+        """;
+
+    const string StepRuntime = """
+        using Jyuno;
+        using Jyuno.Language;
+
+        var runtime = new Runtime(Runtime.AddJyunoCommandType.Default);
+        runtime.AddFunction("player.heal", args => {
+            player.Hp += Convert.ToInt32(args[0]);
+            return player.Hp;
+        });
+        """;
+
+    const string StepRun = """
+        var interpreter = runtime.Create(File.ReadAllLines("mod.jyuno"));
+        object? result = interpreter.Run();
+        if (result is GrammarError error)
+            Console.WriteLine(error); // 문법 오류: ... (3 줄)
+        """;
+}

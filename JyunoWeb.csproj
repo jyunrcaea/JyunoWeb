@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <!-- 웹 워커에서 Jyuno를 실행하기 위한 [JSExport]/[JSImport] -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Jyuno는 문화권과 무관하게 동작하므로 ICU 데이터를 받지 않음 (다운로드 크기 절약) -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jyuno" Version="1.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Jyuno는 dynamic(Microsoft.CSharp)으로 연산하므로 트리밍으로 리플렉션 정보가 사라지지 않게 보존 -->
+    <TrimmerRootAssembly Include="Jyuno" />
+    <TrimmerRootAssembly Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jyuno · C# 앱을 위한 작고 안전한 스크립트 언어</title>
+    <meta name="description" content="Jyuno는 C# 프로그램에 안전한 플러그인 기능을 쉽게 추가하기 위한 작고 가벼운 스크립트 언어입니다. 브라우저에서 바로 실행해 보세요." />
+    <meta property="og:title" content="Jyuno" />
+    <meta property="og:description" content="C# 앱에 안전한 플러그인을 붙이는 작은 언어. 브라우저 플레이그라운드에서 바로 실행해 보세요." />
+    <meta name="theme-color" content="#0b0d17" />
+    <base href="/" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css" />
+    <link rel="preload" id="webassembly" />
+    <link rel="stylesheet" href="css/app.css" />
+    <script type="importmap"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="boot">
+            <div class="boot-logo">
+                <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#7c3aed"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bg)"/><path d="M36 15v21a11 11 0 0 1-11 11a11 11 0 0 1-10-6.5" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><rect class="boot-cursor" x="43" y="40" width="9" height="7" rx="1.5" fill="#fff"/></svg>
+            </div>
+            <div class="boot-title">Jyuno</div>
+            <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+            <div class="boot-text"></div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        예기치 못한 오류가 발생했습니다.
+        <a href="." class="reload">새로고침</a>
+        <span class="dismiss">✕</span>
+    </div>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+</body>
+
+</html>

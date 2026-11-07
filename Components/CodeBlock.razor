@@ -1,0 +1,68 @@
+@inject IJSRuntime JS
+@inject PlaygroundState Playground
+@inject NavigationManager Navigation
+
+<div class="codeblock @Class">
+    @if (Title is not null || Runnable || Copyable)
+    {
+        <div class="codeblock-head">
+            <span class="codeblock-dots"><i></i><i></i><i></i></span>
+            <span class="codeblock-title">@(Title ?? LangLabel)</span>
+            <span class="codeblock-actions">
+                @if (Copyable)
+                {
+                    <button class="chip-btn" @onclick="Copy">@(copied ? "복사됨 ✓" : "복사")</button>
+                }
+                @if (Runnable)
+                {
+                    <button class="chip-btn chip-run" @onclick="Run">▶ 실행해보기</button>
+                }
+            </span>
+        </div>
+    }
+    <pre @key="Code"><code @ref="codeElement" data-lang="@Lang">@Code</code></pre>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Code { get; set; } = "";
+    [Parameter] public string Lang { get; set; } = "jyuno";
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public bool Runnable { get; set; }
+    [Parameter] public bool Copyable { get; set; } = true;
+    [Parameter] public string? Stdin { get; set; }
+    [Parameter] public string? Class { get; set; }
+
+    ElementReference codeElement;
+    bool copied;
+    static IJSObjectReference? module;
+
+    string LangLabel => Lang switch {
+        "csharp" => "C#",
+        "shell" => "터미널",
+        _ => "Jyuno"
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+        await module.InvokeVoidAsync("highlightElement", codeElement, Lang);
+    }
+
+    async Task Copy()
+    {
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+        copied = await module.InvokeAsync<bool>("copyText", Code);
+        if (copied)
+        {
+            StateHasChanged();
+            await Task.Delay(1500);
+            copied = false;
+        }
+    }
+
+    void Run()
+    {
+        Playground.Open(Code, Stdin, Title);
+        Navigation.NavigateTo("playground");
+    }
+}

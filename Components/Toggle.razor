@@ -1,0 +1,21 @@
+<label class="toggle @(Danger && Value ? "toggle-danger" : "")">
+    <input type="checkbox" checked="@Value" @onchange="OnChange" />
+    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+    <span class="toggle-text">
+        <span class="toggle-label">@Label</span>
+        @if (Note is not null)
+        {
+            <span class="toggle-note">@Note</span>
+        }
+    </span>
+</label>
+
+@code {
+    [Parameter] public bool Value { get; set; }
+    [Parameter] public EventCallback<bool> ValueChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string? Note { get; set; }
+    [Parameter] public bool Danger { get; set; }
+
+    Task OnChange(ChangeEventArgs e) => ValueChanged.InvokeAsync(e.Value is true);
+}

@@ -1,0 +1,299 @@
+@page "/guide"
+
+<PageTitle>문법 가이드 · Jyuno</PageTitle>
+
+<div class="doc-hero">
+    <div class="container">
+        <span class="eyebrow">Language Guide</span>
+        <h1>Jyuno 문법 가이드</h1>
+        <p class="lead">Jyuno의 모든 문법을 예제와 함께 정리했습니다. 각 예제의 <b>▶ 실행해보기</b>를 누르면 플레이그라운드에서 바로 돌려볼수 있어요.</p>
+    </div>
+</div>
+
+<div class="container doc-layout">
+    <aside class="doc-toc">
+        <div class="doc-toc-inner">
+            <div class="doc-toc-title">목차</div>
+            @foreach (var (id, label) in toc)
+            {
+                <a href="@($"guide#{id}")">@label</a>
+            }
+        </div>
+    </aside>
+
+    <article class="doc">
+        <section id="basics">
+            <h2>기본 규칙</h2>
+            <p>Jyuno는 <b>한 줄에 하나의 명령어</b>만 실행하는 것이 원칙입니다. 모든 줄은 다음 중 하나예요.</p>
+            <ul>
+                <li><code>함수이름 인자1 인자2 ...</code> 함수 호출</li>
+                <li><code>변수 = 값</code> 대입 (값 자리에 함수 호출도 올수 있음)</li>
+                <li><code>if</code>, <code>while</code>, <code>func</code> 같은 키워드로 시작하는 줄</li>
+            </ul>
+            <p>연산자(<code>+</code>, <code>-</code>…)가 없는 대신 <code>add</code>, <code>sub</code> 같은 함수를 씁니다. 주석 문법은 없고, 빈 줄과 들여쓰기는 자유롭게 써도 됩니다.</p>
+            <div class="callout">줄 번호는 <b>0부터</b> 셉니다. 플레이그라운드 편집기 왼쪽의 줄 번호도 <code>goto</code>와 같은 기준이에요.</div>
+        </section>
+
+        <section id="values">
+            <h2>값 (상수)</h2>
+            <p>변수가 아닌 고정된 값 그 자체를 Jyuno에서는 상수라고 부릅니다.</p>
+            <table class="table">
+                <thead><tr><th>종류</th><th>예시</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td>정수</td><td><code>614</code>, <code>-5020</code></td><td>C#의 <code>long</code>. 범위를 넘는 정수를 적으면 문법 오류이고, 계산 결과는 오버플로우될수 있어요.</td></tr>
+                    <tr><td>실수</td><td><code>6.14</code>, <code>-0.5</code></td><td>C#의 <code>double</code>로 저장됩니다.</td></tr>
+                    <tr><td>문자열</td><td><code>'Jyuno'</code>, <code>"hello"</code></td><td>양쪽 따옴표가 같아야 합니다. <code>\</code> 다음 문자는 그대로 포함되고, <code>\n</code>은 줄바꿈이에요.</td></tr>
+                    <tr><td>불리언</td><td><code>true</code>, <code>false</code></td><td></td></tr>
+                    <tr><td>null</td><td><code>null</code></td><td>void 대신 null을 씁니다. 반환값이 없는 함수는 null을 돌려줘요.</td></tr>
+                </tbody>
+            </table>
+            <CodeBlock Code="@Values" Runnable="true" Title="values.jyuno" />
+        </section>
+
+        <section id="variables">
+            <h2>변수</h2>
+            <p>Jyuno의 변수는 Python과 JavaScript 사이 어딘가입니다. 동적 타입이고, 타입에 관대하며(<code>add 1 '2'</code> → <code>'12'</code>), 삭제도 할수 있어요.</p>
+            <h3>선언과 대입</h3>
+            <p>따로 선언할 필요 없이, 없는 변수에 값을 대입하면 그 즉시 만들어집니다.</p>
+            <CodeBlock Code="@Assign" Runnable="true" />
+            <h3>삭제</h3>
+            <p>이름 뒤에 등호만 붙이면 삭제입니다. 없는 변수를 지워도 오류가 나지 않고, 성공하면 <code>true</code>, 아니면 <code>false</code>를 돌려줍니다.</p>
+            <CodeBlock Code="@Delete" Runnable="true" />
+            <h3>상수 선언</h3>
+            <p>변수를 뒤집으면? 상수! <code>(값) = (이름)</code> 형태로 쓰면 대입이 금지된 상수가 됩니다. (다른 상수 값으로 다시 선언하는 것은 가능)</p>
+            <CodeBlock Code="@Constant" Runnable="true" />
+        </section>
+
+        <section id="calls">
+            <h2>함수 호출</h2>
+            <p>함수 이름 뒤에 인자를 차례대로 나열합니다. 반환값은 변수에 저장할수 있어요.</p>
+            <CodeBlock Code="@Calls" Runnable="true" />
+            <h3>괄호로 반환값을 인자로 쓰기</h3>
+            <p>괄호 안은 별개의 명령줄처럼 먼저 실행되고, 그 결과가 값으로 쓰입니다. 얼마든지 중첩할수 있어요.</p>
+            <CodeBlock Code="@Nested" Runnable="true" />
+            <h3>형식 문자열</h3>
+            <p><code>console.write</code>와 <code>console.writeline</code>은 C#의 <code>Console.Write(format, args)</code>를 그대로 씁니다. 형식 문자열 자신이 <code>{0}</code>이므로, 첫번째 인자는 <code>{1}</code>부터 시작해요.</p>
+            <p>함수도 변수처럼 취급되기 때문에, <code>console.write =</code> 처럼 함수를 삭제할수도 있습니다. 호스트가 제공한 함수를 지우면 그 스크립트에서만 사라져요.</p>
+        </section>
+
+        <section id="if">
+            <h2>조건문 if / else</h2>
+            <p>값이 <code>null</code>, <code>false</code>, <code>0</code>, 빈 문자열이 아니면 참입니다. 블록은 <code>end</code>로 닫아요.</p>
+            <CodeBlock Code="@If" Runnable="true" />
+            <div class="callout">비교 함수는 <code>equal</code> 하나뿐입니다. <code>equal a b c ...</code>는 모든 인자가 같으면 <code>true</code>예요. 크기 비교가 필요하면 호스트 프로그램이 함수로 제공하면 됩니다. (이 사이트의 플레이그라운드는 <code>less</code>, <code>greater</code>, <code>not</code>을 추가로 제공해요.)</div>
+        </section>
+
+        <section id="loops">
+            <h2>반복문 while / repeat / break</h2>
+            <p><code>while (값)</code>은 값이 참인 동안, <code>repeat (정수)</code>는 정해진 횟수만큼 반복합니다. <code>break</code>는 가장 안쪽 반복문을 빠져나가요. (반복문 안의 if 안에서도 쓸수 있음)</p>
+            <CodeBlock Code="@Loops" Runnable="true" />
+        </section>
+
+        <section id="goto">
+            <h2>goto와 레이블</h2>
+            <p><code>goto (정수)</code>는 해당 줄(첫 줄은 0)부터 이어서 실행합니다. <code>이름:</code>으로 레이블을 만들면 그 줄 번호가 변수에 저장되니, 줄 번호 대신 레이블 이름을 쓰면 편해요. 단, goto로 함수 안팎을 넘나들수는 없습니다.</p>
+            <CodeBlock Code="@Goto" Runnable="true" />
+        </section>
+
+        <section id="func">
+            <h2>함수 만들기 func / param / return</h2>
+            <p><code>func 이름</code>과 <code>endfunc</code> 사이가 함수 본문입니다. <code>func</code>를 만나면 함수가 만들어지기만 하고, 본문은 호출할 때 실행돼요. (그래서 호출하기 전에 먼저 만들어야 합니다.)</p>
+            <ul>
+                <li><code>param 이름</code>은 쓴 순서대로 첫번째, 두번째... 인자를 받습니다. 인자가 부족하면 <code>null</code>, 남으면 무시돼요.</li>
+                <li><code>return 값</code>으로 반환합니다. <code>return</code> 없이 끝나면 <code>null</code>.</li>
+                <li>함수 안에서 만든 변수는 함수가 끝나면 사라지고, 함수 밖의 변수는 읽고 바꿀수 있습니다.</li>
+                <li>재귀 호출은 최대 200번까지 중첩할수 있어요.</li>
+            </ul>
+            <CodeBlock Code="@Func" Runnable="true" />
+            <p>최상위에서 <code>return</code>을 쓰면 스크립트가 끝나고, 그 값이 C#의 <code>Run()</code> 반환값이 됩니다.</p>
+            <CodeBlock Code="@TopReturn" Runnable="true" />
+        </section>
+
+        <section id="commands">
+            <h2>명령어 레퍼런스</h2>
+            <p>명령어는 묶음 단위로 호스트 프로그램이 켜고 끕니다. 프로그램마다 지원하는 명령어가 다를수 있으니, 어떤 묶음을 켰는지 확인하세요.</p>
+
+            <h3>기본 <span class="tag tag-green">항상 포함</span></h3>
+            <table class="table">
+                <thead><tr><th>명령어</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td><code>int</code> / <code>int (값)</code></td><td>0을 반환하거나, 값을 정수로 변환</td></tr>
+                    <tr><td><code>double</code> / <code>double (값)</code></td><td>0.0을 반환하거나, 값을 실수로 변환</td></tr>
+                    <tr><td><code>string</code> / <code>string (값)</code></td><td>빈 문자열을 반환하거나, 값을 문자열로 변환</td></tr>
+                    <tr><td><code>bool (값)</code></td><td>값이 참인지 거짓인지</td></tr>
+                    <tr><td><code>add (값) (값) ...</code></td><td>모두 더함. 문자열이 하나라도 있으면 문자열로 이어 붙임</td></tr>
+                    <tr><td><code>sub (수) (수)</code> / <code>sub (문자열) (문자열)</code></td><td>뺄셈, 또는 문자열에서 해당 문자열을 제거</td></tr>
+                    <tr><td><code>mul (수) (수) ...</code> / <code>mul (문자열) (정수)</code></td><td>모두 곱함, 또는 문자열을 반복</td></tr>
+                    <tr><td><code>div (수) (수)</code></td><td>나눗셈 (정수끼리는 정수 나눗셈)</td></tr>
+                    <tr><td><code>mod (수) (수)</code></td><td>나머지</td></tr>
+                    <tr><td><code>equal (값) (값) ...</code></td><td>모든 인자가 같으면 true</td></tr>
+                    <tr><td><code>null</code>, <code>true</code>, <code>false</code></td><td>상수</td></tr>
+                </tbody>
+            </table>
+
+            <h3>콘솔 <span class="tag">Console</span></h3>
+            <table class="table">
+                <thead><tr><th>명령어</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td><code>console.write (값)</code> / <code>console.write (형식) (값) ...</code></td><td>출력</td></tr>
+                    <tr><td><code>console.writeline ...</code></td><td>출력 후 줄바꿈</td></tr>
+                    <tr><td><code>console.readline</code></td><td>한 줄 입력 (더 이상 입력이 없으면 null)</td></tr>
+                    <tr><td><code>console.read</code></td><td>한 글자 입력</td></tr>
+                    <tr><td><code>console.clear</code></td><td>화면 지우기</td></tr>
+                    <tr><td><code>console.title = (문자열)</code></td><td>콘솔 제목 (변수)</td></tr>
+                </tbody>
+            </table>
+
+            <h3>수학 <span class="tag">Math</span></h3>
+            <table class="table">
+                <thead><tr><th>명령어</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td><code>math.abs</code>, <code>math.sin</code>, <code>math.cos</code>, <code>math.tan</code></td><td>절댓값, 삼각함수</td></tr>
+                    <tr><td><code>math.pow (밑) (지수)</code></td><td>거듭제곱</td></tr>
+                    <tr><td><code>math.log (값)</code> / <code>math.log (값) (밑)</code></td><td>상용로그, 또는 밑을 지정한 로그</td></tr>
+                    <tr><td><code>math.log2 (값)</code></td><td>이진로그</td></tr>
+                    <tr><td><code>math.pi</code>, <code>math.tau</code>, <code>math.nan</code></td><td>상수</td></tr>
+                </tbody>
+            </table>
+
+            <h3>파일 <span class="tag tag-red">File · 주의</span></h3>
+            <p>사용자의 파일과 디렉터리를 다룰수 있으므로 기본값에는 포함되지 않습니다.</p>
+            <table class="table">
+                <thead><tr><th>명령어</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td><code>file.exist</code>, <code>file.read</code>, <code>file.write</code>, <code>file.remove</code></td><td>파일 확인, 읽기, 쓰기, 삭제</td></tr>
+                    <tr><td><code>directory.now</code>, <code>directory.exist</code>, <code>directory.files</code>, <code>directory.list</code>, <code>directory.move</code></td><td>현재 경로, 디렉터리 확인, 목록, 이동</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="tips">
+            <h2>팁</h2>
+            <p>삭제 연산은 거의 필요하지 않습니다. 함수가 끝나면 지역 변수는 자동으로 사라지니, 일관성 있는 코드를 위해 삭제 연산은 아껴 쓰세요.</p>
+            <div class="doc-next">
+                <a class="btn btn-primary" href="playground">플레이그라운드에서 써보기 →</a>
+                <a class="btn btn-ghost" href="csharp">C# 프로그램에 붙이기 →</a>
+            </div>
+        </section>
+    </article>
+</div>
+
+@code {
+    readonly (string, string)[] toc = {
+        ("basics", "기본 규칙"),
+        ("values", "값"),
+        ("variables", "변수"),
+        ("calls", "함수 호출"),
+        ("if", "조건문"),
+        ("loops", "반복문"),
+        ("goto", "goto와 레이블"),
+        ("func", "함수 만들기"),
+        ("commands", "명령어 레퍼런스"),
+        ("tips", "팁"),
+    };
+
+    const string Values = """
+        console.writeline 6145020
+        console.writeline -6.14
+        console.writeline 'I am \'Jyunni\'.'
+        console.writeline "first line\nsecond line"
+        console.writeline true
+        console.writeline (equal null null)
+        """;
+
+    const string Assign = """
+        a = 10
+        a = add a 5
+        b = add a "점"
+        console.writeline b
+        """;
+
+    const string Delete = """
+        x = 1
+        console.writeline (x =)
+        console.writeline (x =)
+        """;
+
+    const string Constant = """
+        614 = number
+        console.writeline number
+        5020 = number
+        console.writeline number
+        number = 1
+        """;
+
+    const string Calls = """
+        console.write "hello {1}" "world!"
+        console.writeline
+        a = add 10 20
+        console.writeline a
+        """;
+
+    const string Nested = """
+        console.writeline (add "결과: " (mul (add 1 2) (sub 10 4)))
+        """;
+
+    const string If = """
+        score = 85
+        if (equal (div score 10) 8)
+            console.writeline "B 학점"
+        else
+            console.writeline "B가 아니에요"
+        end
+        """;
+
+    const string Loops = """
+        n = 3
+        while n
+            console.writeline "while: {1}" n
+            n = sub n 1
+        end
+
+        i = 0
+        repeat 100
+            i = add i 1
+            if (equal i 4)
+                break
+            end
+            console.writeline "repeat: {1}" i
+        end
+        """;
+
+    const string Goto = """
+        count = 3
+        loop:
+        console.writeline count
+        count = sub count 1
+        if count
+            goto loop
+        end
+        """;
+
+    const string Func = """
+        func fact
+            param n
+            if (equal n 0)
+                return 1
+            end
+            return (mul n (fact (sub n 1)))
+        endfunc
+        console.writeline (fact 5)
+
+        func greet
+            param name
+            param greeting
+            if (equal greeting null)
+                greeting = "안녕"
+            end
+            console.writeline "{1}, {2}!" greeting name
+        endfunc
+        greet "Jyunni"
+        greet "Jyuno" "반가워"
+        """;
+
+    const string TopReturn = """
+        console.writeline "계산 중..."
+        return (mul 6 7)
+        console.writeline "이 줄은 실행되지 않아요"
+        """;
+}
