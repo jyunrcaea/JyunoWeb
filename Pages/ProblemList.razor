@@ -1,0 +1,120 @@
+@page "/problems"
+@inject IJSRuntime JS
+
+<PageTitle>문제 풀어보기 · Jyuno</PageTitle>
+
+<div class="doc-hero">
+    <div class="container">
+        <span class="eyebrow">Online Judge</span>
+        <h1>문제 풀어보기</h1>
+        <p class="lead">Jyuno로 문제를 풀고 제출하면, 브라우저 안에서 바로 채점해 드려요. 숨겨진 테스트까지 모두 통과하면 <b>맞았습니다!!</b></p>
+    </div>
+</div>
+
+<div class="container judge-list">
+    <div class="judge-summary">
+        <div class="judge-progress-card">
+            <div class="judge-progress-head">
+                <span>해결한 문제</span>
+                <b>@SolvedCount <small>/ @Problems.All.Count</small></b>
+            </div>
+            <div class="bar"><div class="bar-fill" style="width:@(Problems.All.Count == 0 ? 0 : SolvedCount * 100 / Problems.All.Count)%"></div></div>
+            <div class="judge-levels">
+                @for (int level = 1; level <= 4; level++)
+                {
+                    var l = level;
+                    var total = Problems.All.Count(p => p.Level == l);
+                    var solved = Problems.All.Count(p => p.Level == l && Status(p) == "solved");
+                    <span><LevelBadge Level="l" /> @solved/@total</span>
+                }
+            </div>
+        </div>
+        <div class="judge-env">
+            <h3>채점 환경</h3>
+            <ul>
+                <li>입력은 <b>한 줄에 값 하나씩</b> 주어져요. <code>int (console.readline)</code>으로 정수를 읽으세요.</li>
+                <li>줄 끝 공백과 마지막 빈 줄은 무시하고 출력을 비교해요.</li>
+                <li>기본·Console·Math 명령어에 더해 <code>less</code>, <code>greater</code>, <code>not</code>, <code>text.length</code>, <code>text.at</code>, <code>text.upper</code>, <code>random</code>을 쓸수 있어요.</li>
+                <li>함수 안에서 대입하면 같은 이름의 바깥 변수가 바뀌어요. 재귀 함수의 지역 변수는 <code>param</code>으로 만들면 안전해요.</li>
+                <li>Jyuno는 느린 언어라 시간 제한이 넉넉하지만, 불필요한 반복은 줄여 주세요.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="judge-filters">
+        <input class="search" type="search" placeholder="번호, 제목, 태그 검색" @bind="query" @bind:event="oninput" />
+        <div class="chips">
+            <button class="chip @(level == 0 ? "on" : "")" @onclick="() => level = 0">전체</button>
+            @for (int i = 1; i <= 4; i++)
+            {
+                var l = i;
+                <button class="chip @(level == l ? "on" : "")" @onclick="() => level = l">@Problem.LevelNames[l]</button>
+            }
+        </div>
+        <div class="chips">
+            <button class="chip @(state == "" ? "on" : "")" @onclick="@(() => state = "")">모두</button>
+            <button class="chip @(state == "unsolved" ? "on" : "")" @onclick="@(() => state = "unsolved")">안 푼 문제</button>
+            <button class="chip @(state == "solved" ? "on" : "")" @onclick="@(() => state = "solved")">푼 문제</button>
+        </div>
+    </div>
+
+    <div class="problem-table">
+        <div class="problem-row problem-head">
+            <span class="col-status"></span>
+            <span class="col-id">번호</span>
+            <span class="col-title">제목</span>
+            <span class="col-level">난이도</span>
+            <span class="col-tags">분류</span>
+        </div>
+        @foreach (var p in Filtered)
+        {
+            var status = Status(p);
+            <a class="problem-row @status" href="@($"problems/{p.Id}")">
+                <span class="col-status" title="@(status == "solved" ? "해결" : status == "tried" ? "시도함" : "")">@(status == "solved" ? "✓" : status == "tried" ? "✕" : "")</span>
+                <span class="col-id">@p.Id</span>
+                <span class="col-title">@p.Title</span>
+                <span class="col-level"><LevelBadge Level="p.Level" /></span>
+                <span class="col-tags">
+                    @foreach (var tag in p.Tags)
+                    {
+                        <span class="tag-chip" @onclick="() => query = tag" @onclick:preventDefault="true" @onclick:stopPropagation="true">@tag</span>
+                    }
+                </span>
+            </a>
+        }
+        @if (!Filtered.Any())
+        {
+            <div class="problem-empty">조건에 맞는 문제가 없어요.</div>
+        }
+    </div>
+</div>
+
+@code {
+    string query = "";
+    int level;
+    string state = "";
+    Dictionary<string, string> statuses = new();
+
+    int SolvedCount => Problems.All.Count(p => Status(p) == "solved");
+
+    string Status(Problem p) => statuses.TryGetValue(p.Id.ToString(), out var s) ? s : "";
+
+    IEnumerable<Problem> Filtered => Problems.All.Where(p =>
+        (level == 0 || p.Level == level) &&
+        (state == "" || (state == "solved") == (Status(p) == "solved")) &&
+        (string.IsNullOrWhiteSpace(query) || Matches(p, query.Trim())));
+
+    static bool Matches(Problem p, string q) =>
+        p.Id.ToString().Contains(q) ||
+        p.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+        p.Tags.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+        var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/judge.js");
+        statuses = await module.InvokeAsync<Dictionary<string, string>>("summary");
+        StateHasChanged();
+    }
+}

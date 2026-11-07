@@ -56,3 +56,13 @@ export async function copyText(text) {
         return false;
     }
 }
+
+/** 좁은 화면에서 요소가 화면 밖에 있으면 보이도록 스크롤 */
+export function revealOnNarrow(selector) {
+    if (!window.matchMedia('(max-width: 1080px)').matches) return;
+    const el = document.querySelector(selector);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top < 60 || rect.top > window.innerHeight * 0.7)
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}

@@ -9,6 +9,13 @@
 - **문법 가이드** (`/guide`) : 모든 문법과 명령어, 예제마다 "실행해보기" 버튼
 - **C#에서 쓰기** (`/csharp`) : Runtime / Interpreter / AddFunction 등 C# 연동 방법
 - **플레이그라운드** (`/playground`) : 브라우저 안에서 진짜 Jyuno 인터프리터를 실행
+- **문제 풀기** (`/problems`) : Jyuno로 푸는 온라인 저지. 43문제, 제출하면 브라우저 안에서 채점
+
+## 문제 추가하기
+문제는 [`Engine/Problems.cs`](Engine/Problems.cs)에 있습니다. 지문과 예제 입력, 숨겨진 테스트 입력을 만드는 함수(`Tests`),
+C#으로 작성한 풀이(`Solve`)를 적으면 예제 출력과 테스트 정답은 풀이로 자동 계산됩니다.
+입력은 Jyuno로 읽기 쉽도록 한 줄에 값 하나로 통일합니다. 채점은 [`Engine/Judge.cs`](Engine/Judge.cs)가 웹 워커 안에서 하며,
+줄 끝 공백과 마지막 빈 줄은 무시하고 비교합니다.
 
 ## 플레이그라운드는 어떻게 동작하나요?
 Blazor WebAssembly 앱이 NuGet의 `Jyuno` 패키지를 그대로 참조합니다.

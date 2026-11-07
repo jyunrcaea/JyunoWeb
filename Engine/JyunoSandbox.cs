@@ -104,7 +104,7 @@ public static partial class JyunoSandbox
         return e.Message;
     }
 
-    static void AddConsole(Runtime runtime , OutputBuffer output , StringReader input , Action exhausted)
+    internal static void AddConsole(Runtime runtime , IConsoleSink output , StringReader input , Action exhausted)
     {
         runtime.AddFunction("console.write" , args => {
             if (args.Length is 0)
@@ -148,7 +148,7 @@ public static partial class JyunoSandbox
         });
     }
 
-    static void AddHostFunctions(Runtime runtime)
+    internal static void AddHostFunctions(Runtime runtime)
     {
         runtime.AddFunction("random" , args => {
             // random → 0 이상 1 미만의 실수, random (최대) → 0 이상 최대 미만의 정수, random (최소) (최대) → 최소 이상 최대 미만의 정수
@@ -171,6 +171,15 @@ public static partial class JyunoSandbox
             if (args.Length is 0 || args[0] is not string s)
                 throw new JyunoException("길이를 구할 문자열이 필요합니다.");
             return (long)s.Length;
+        });
+        runtime.AddFunction("text.at" , args => {
+            // text.at (문자열) (위치) → 위치(0부터)에 있는 글자 하나
+            if (args.Length < 2 || args[0] is not string s)
+                throw new JyunoException("text.at 에는 문자열과 위치가 필요합니다.");
+            long index = ToLong(args[1]);
+            if (index < 0 || index >= s.Length)
+                throw new JyunoException($"위치 {index}은/는 문자열의 범위(0 ~ {s.Length - 1})를 벗어났습니다.");
+            return s[(int)index].ToString();
         });
         runtime.AddFunction("text.upper" , args => {
             if (args.Length is 0 || args[0] is not string s)
@@ -255,7 +264,7 @@ public static partial class JyunoSandbox
     /// 출력을 모아서 보냅니다. 반복문에서 한 글자씩 메시지를 보내면 매우 느려지므로
     /// 일정 크기나 시간이 지나면 한꺼번에 보냅니다.
     /// </summary>
-    sealed class OutputBuffer
+    sealed class OutputBuffer : IConsoleSink
     {
         public OutputBuffer(Action<string , string> post)
         {
@@ -316,6 +325,16 @@ public static partial class JyunoSandbox
             clock.Restart();
         }
     }
+}
+
+/// <summary>console.* 명령어의 출력 대상</summary>
+internal interface IConsoleSink
+{
+    void Write(string text);
+    /// <summary>console.readline으로 읽은 입력 (화면에는 보여주지만 채점 출력에는 포함하지 않음)</summary>
+    void Echo(string text);
+    void Clear();
+    void Title(string title);
 }
 
 public sealed class SandboxOptions

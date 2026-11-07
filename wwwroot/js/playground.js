@@ -4,7 +4,7 @@ import { highlightLine } from './jyuno-highlight.js';
 const STORAGE_KEY = 'jyuno.playground.code';
 const BLOCK_OPENERS = /^\s*(if|else|while|repeat|func)\b/;
 
-function resolveDotnetUrl() {
+export function resolveDotnetUrl() {
     // index.html의 importmap에 지문(fingerprint)이 붙은 dotnet.js 경로가 있음
     try {
         const map = document.querySelector('script[type="importmap"]');
@@ -17,7 +17,7 @@ function resolveDotnetUrl() {
 
 /* ───────────────────────── 편집기 ───────────────────────── */
 
-class Editor {
+export class Editor {
     constructor(host, onRunShortcut, onChange) {
         this.onChange = onChange;
         host.classList.add('editor');
@@ -42,7 +42,7 @@ class Editor {
         this.input.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
-                onRunShortcut();
+                onRunShortcut(e.shiftKey);
                 return;
             }
             if (e.key === 'Tab' && !e.ctrlKey && !e.metaKey && !e.altKey) {

@@ -1,0 +1,379 @@
+@page "/problems/{Id:int}"
+@using System.Text.Json
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<PageTitle>@(problem is null ? "문제" : $"{problem.Id}번: {problem.Title}") · Jyuno</PageTitle>
+
+@if (problem is null)
+{
+    <section class="container notfound">
+        <pre class="notfound-code"><span class="tok-kw">goto</span> <span class="tok-num">@Id</span></pre>
+        <h1>그런 문제는 없어요</h1>
+        <a class="btn btn-primary" href="problems">문제 목록으로</a>
+    </section>
+}
+else
+{
+    <div class="container problem-page">
+        <div class="problem-top">
+            <a class="crumb" href="problems">← 문제 목록</a>
+            <div class="problem-nav">
+                @if (Prev is { } prev)
+                {
+                    <a class="btn btn-ghost btn-sm" href="@($"problems/{prev.Id}")" title="@prev.Title">← @prev.Id</a>
+                }
+                @if (Next is { } next)
+                {
+                    <a class="btn btn-ghost btn-sm" href="@($"problems/{next.Id}")" title="@next.Title">@next.Id →</a>
+                }
+            </div>
+        </div>
+
+        <div class="problem-grid">
+            <article class="problem-statement">
+                <header class="problem-header">
+                    <div class="problem-id">@(problem.Id)번 @if (Solved) { <span class="solved-badge">✓ 해결</span> }</div>
+                    <h1>@problem.Title</h1>
+                    <div class="problem-meta">
+                        <LevelBadge Level="problem.Level" />
+                        <span class="meta-item">⏱ 테스트당 @(problem.TimeLimitMs / 1000.0)초</span>
+                        <span class="meta-item">🧪 테스트 @(problem.AllCases.Count)개</span>
+                        @foreach (var tag in problem.Tags)
+                        {
+                            <span class="tag-chip">@tag</span>
+                        }
+                    </div>
+                </header>
+
+                <section>
+                    <h2>문제</h2>
+                    <RichText Text="@problem.Description" />
+                </section>
+                <section>
+                    <h2>입력</h2>
+                    <RichText Text="@problem.InputSpec" />
+                </section>
+                <section>
+                    <h2>출력</h2>
+                    <RichText Text="@problem.OutputSpec" />
+                </section>
+
+                @for (int i = 0; i < problem.SampleCases.Count; i++)
+                {
+                    var sample = problem.SampleCases[i];
+                    <section class="sample">
+                        <div class="sample-box">
+                            <div class="sample-head"><h3>예제 입력 @(i + 1)</h3><CopyButton Text="@sample.Input" /></div>
+                            <pre>@(sample.Input.Length == 0 ? "(입력 없음)" : sample.Input.TrimEnd('\n'))</pre>
+                        </div>
+                        <div class="sample-box">
+                            <div class="sample-head"><h3>예제 출력 @(i + 1)</h3><CopyButton Text="@sample.Output" /></div>
+                            <pre>@sample.Output</pre>
+                        </div>
+                    </section>
+                }
+
+                @if (problem.Hint is not null)
+                {
+                    <details class="hint">
+                        <summary>💡 힌트 보기</summary>
+                        <RichText Text="@problem.Hint" />
+                    </details>
+                }
+            </article>
+
+            <div class="problem-work">
+                <section class="pane judge-editor-pane">
+                    <div class="pane-head">
+                        <span class="pane-title"><span class="file-dot"></span>@($"{problem.Id}.jyuno")</span>
+                        <span class="judge-actions">
+                            <button class="btn btn-ghost btn-sm" @onclick="ResetCode" disabled="@(judge is null || busy)" title="작성한 코드를 지우고 처음 상태로">초기화</button>
+                            <button class="btn btn-ghost btn-sm" @onclick="@(() => Start("sample"))" disabled="@(!ready || busy)">예제 실행</button>
+                            <button class="btn btn-primary btn-sm" @onclick="@(() => Start("submit"))" disabled="@(!ready || busy)">제출</button>
+                        </span>
+                    </div>
+                    <div class="pg-editor judge-editor" data-editor @ref="editorHost"></div>
+                    <div class="judge-foot">
+                        <span><span class="engine-dot @(ready ? "on" : engineError is null ? "" : "err")"></span>@(ready ? "채점기 준비됨" : engineError ?? "채점기 불러오는 중…")</span>
+                        <span class="pane-hint">Ctrl+Enter 예제 실행 · Ctrl+Shift+Enter 제출</span>
+                    </div>
+                </section>
+
+                @if (busy || result is not null)
+                {
+                    <section class="pane judge-result">
+                        @if (busy)
+                        {
+                            <div class="judge-status">
+                                <span class="verdict verdict-pending"><span class="spinner"></span> @(mode == "sample" ? "예제 실행 중" : "채점 중") @(total > 0 ? $"({Math.Min(100, done * 100 / total)}%)" : "")</span>
+                            </div>
+                            <div class="bar"><div class="bar-fill" style="width:@(total > 0 ? done * 100 / total : 3)%"></div></div>
+                        }
+                        else if (result is not null)
+                        {
+                            <div class="judge-status">
+                                <span class="@VerdictInfo.Css(result.Verdict)">@VerdictInfo.Name(result.Verdict)</span>
+                                <span class="judge-detail">
+                                    @if (resultMode == "sample")
+                                    {
+                                        <text>예제 @result.Cases.Count(c => c.Verdict == Verdicts.Accepted)/@result.Cases.Count 통과 · 최대 @FormatMs(result.MaxMs)</text>
+                                    }
+                                    else if (result.Verdict == Verdicts.Accepted)
+                                    {
+                                        <text>테스트 @(result.Total)개 모두 통과 · 최대 @FormatMs(result.MaxMs)</text>
+                                    }
+                                    else
+                                    {
+                                        <text>@(result.FailedIndex + 1)번째 테스트에서 @(VerdictInfo.Name(result.Verdict)) (@(result.Passed)개 통과)</text>
+                                    }
+                                </span>
+                            </div>
+                            @if (resultMode == "submit" && result.Verdict == Verdicts.Accepted)
+                            {
+                                <p class="judge-celebrate">🎉 축하해요! @(problem.Id)번 문제를 해결했어요.@(Next is { } n ? " 다음 문제로 가볼까요?" : "")
+                                    @if (Next is { } nextProblem)
+                                    {
+                                        <a href="@($"problems/{nextProblem.Id}")">@(nextProblem.Id)번 @nextProblem.Title →</a>
+                                    }
+                                </p>
+                            }
+                            @foreach (var c in result.Cases)
+                            {
+                                <div class="case">
+                                    @if (resultMode == "sample")
+                                    {
+                                        <div class="case-head"><span class="@VerdictInfo.Css(c.Verdict)">@VerdictInfo.Name(c.Verdict)</span> 예제 @(c.Index + 1) · @FormatMs(c.Ms)</div>
+                                    }
+                                    @if (c.Message is not null)
+                                    {
+                                        <div class="case-message">@(c.Line >= 0 ? $"{c.Line}번 줄: " : "")@c.Message</div>
+                                    }
+                                    @if (c.Verdict == Verdicts.TimeLimit && c.Expected is null)
+                                    {
+                                        <div class="case-message">@(problem.TimeLimitMs / 1000.0)초 안에 끝나지 않았어요. 무한 반복이 없는지, 더 빠른 방법이 있는지 확인해 보세요.</div>
+                                    }
+                                    @if (c.Expected is not null && c.Verdict is Verdicts.WrongAnswer or Verdicts.Accepted)
+                                    {
+                                        <div class="case-compare">
+                                            <div><div class="case-label">기대한 출력</div><pre>@c.Expected</pre></div>
+                                            <div><div class="case-label">내 출력</div><pre class="@(c.Verdict == Verdicts.WrongAnswer ? "wrong" : "")">@(string.IsNullOrEmpty(c.Actual) ? "(출력 없음)" : c.Actual)</pre></div>
+                                        </div>
+                                    }
+                                    else if (resultMode == "submit" && c.Verdict == Verdicts.WrongAnswer)
+                                    {
+                                        <div class="case-message">숨겨진 테스트라서 입력은 보여드릴수 없어요. 경계값(가장 작은 값, 가장 큰 값, 음수, 0)을 다시 생각해 보세요.</div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </section>
+                }
+
+                <section class="pane judge-history">
+                    <div class="pane-head"><span class="pane-title">내 제출 <small>이 브라우저에 저장돼요</small></span></div>
+                    @if (history.Count == 0)
+                    {
+                        <div class="history-empty">아직 제출한 적이 없어요.</div>
+                    }
+                    else
+                    {
+                        <div class="history-list">
+                            @foreach (var h in history)
+                            {
+                                <div class="history-row">
+                                    <span class="@VerdictInfo.Css(h.Verdict)">@VerdictInfo.Name(h.Verdict)</span>
+                                    <span class="history-meta">@(h.Verdict == Verdicts.Accepted ? FormatMs(h.MaxMs) : $"{h.Passed}개 통과")</span>
+                                    <span class="history-time">@FormatTime(h.Time)</span>
+                                    <button class="chip-btn" @onclick="() => LoadCode(h.Code)" disabled="@busy">코드 불러오기</button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </section>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    Problem? problem;
+    ElementReference editorHost;
+    IJSObjectReference? module;
+    IJSObjectReference? judge;
+    DotNetObjectReference<ProblemPage>? self;
+    int loadedId;
+
+    bool ready;
+    string? engineError;
+    bool busy;
+    string mode = "sample";
+    string resultMode = "sample";
+    int done, total;
+    JudgeResult? result;
+    List<Submission> history = new();
+
+    Problem? Prev => problem is null ? null : Problems.All.LastOrDefault(p => p.Id < problem.Id);
+    Problem? Next => problem is null ? null : Problems.All.FirstOrDefault(p => p.Id > problem.Id);
+    bool Solved => history.Any(h => h.Verdict == Verdicts.Accepted);
+
+    static readonly JsonSerializerOptions json = new(JsonSerializerDefaults.Web);
+
+    public sealed class Submission
+    {
+        public string Verdict { get; set; } = "";
+        public int Passed { get; set; }
+        public int Total { get; set; }
+        public double MaxMs { get; set; }
+        public string Time { get; set; } = "";
+        public string Code { get; set; } = "";
+    }
+
+    protected override void OnParametersSet()
+    {
+        problem = Problems.Find(Id);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (problem is null || loadedId == Id)
+            return;
+        // 다른 문제로 이동하면 편집기와 워커를 새로 만듦
+        await DisposeJudge();
+        loadedId = Id;
+        ready = false;
+        busy = false;
+        result = null;
+        engineError = null;
+
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/judge.js");
+        self ??= DotNetObjectReference.Create(this);
+        var raw = await module.InvokeAsync<JsonElement>("history", Id);
+        history = raw.Deserialize<List<Submission>>(json) ?? new();
+        string code = await module.InvokeAsync<string?>("readDraft", Id) ?? Template;
+        judge = await module.InvokeAsync<IJSObjectReference>("create", editorHost, self, Id, code, problem.TimeLimitMs);
+        StateHasChanged();
+    }
+
+    const string Template = "";
+
+    async Task Start(string what)
+    {
+        if (judge is null || busy || !ready)
+            return;
+        busy = true;
+        mode = what;
+        done = 0;
+        total = what == "sample" ? problem!.SampleCases.Count : problem!.AllCases.Count;
+        result = null;
+        await judge.InvokeVoidAsync("judge", what);
+        StateHasChanged();
+        await Reveal();
+    }
+
+    async Task ResetCode()
+    {
+        if (judge is null)
+            return;
+        if (!await JS.InvokeAsync<bool>("confirm", "작성한 코드를 지우고 처음 상태로 되돌릴까요?"))
+            return;
+        await judge.InvokeVoidAsync("setCode", Template);
+    }
+
+    async Task LoadCode(string code)
+    {
+        if (judge is not null)
+            await judge.InvokeVoidAsync("setCode", code);
+    }
+
+    [JSInvokable] public void OnWorkerReady() { ready = true; StateHasChanged(); }
+
+    [JSInvokable] public void OnWorkerError(string message) { engineError = "채점기 오류: " + message; StateHasChanged(); }
+
+    [JSInvokable]
+    public void OnProgress(int finished, int count)
+    {
+        done = finished;
+        total = count;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task OnFinished(string resultJson)
+    {
+        var r = JsonSerializer.Deserialize(resultJson, JudgeJsonContext.Default.JudgeResult)!;
+        if (r.Total == 0)
+            r.Total = total;
+        busy = false;
+        resultMode = mode;
+        result = r;
+        if (mode == "submit" && module is not null && judge is not null)
+        {
+            var entry = new Submission {
+                Verdict = r.Verdict,
+                Passed = r.Passed,
+                Total = r.Total,
+                MaxMs = r.MaxMs,
+                Time = DateTimeOffset.Now.ToString("o"),
+                Code = await judge.InvokeAsync<string>("getCode"),
+            };
+            var raw = await module.InvokeAsync<JsonElement>("record", Id, entry);
+            history = raw.Deserialize<List<Submission>>(json) ?? new();
+        }
+        StateHasChanged();
+        await Reveal();
+    }
+
+    async Task Reveal()
+    {
+        await Task.Yield();
+        var site = await JS.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+        await site.InvokeVoidAsync("revealOnNarrow", ".judge-result");
+    }
+
+    [JSInvokable]
+    public Task Shortcut() => InvokeAsync(() => Start("sample"));
+
+    [JSInvokable]
+    public Task SubmitShortcut() => InvokeAsync(() => Start("submit"));
+
+    static string FormatMs(double ms) => ms < 1000 ? $"{ms:0.#}ms" : $"{ms / 1000:0.00}s";
+
+    static string FormatTime(string iso)
+    {
+        if (!DateTimeOffset.TryParse(iso, out var t))
+            return "";
+        var ago = DateTimeOffset.Now - t;
+        if (ago.TotalMinutes < 1) return "방금";
+        if (ago.TotalHours < 1) return $"{(int)ago.TotalMinutes}분 전";
+        if (ago.TotalDays < 1) return $"{(int)ago.TotalHours}시간 전";
+        return t.ToLocalTime().ToString("yyyy.MM.dd HH:mm");
+    }
+
+    async Task DisposeJudge()
+    {
+        if (judge is null)
+            return;
+        try
+        {
+            await judge.InvokeVoidAsync("dispose");
+            await judge.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+        judge = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeJudge();
+        try
+        {
+            if (module is not null)
+                await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+        self?.Dispose();
+    }
+}

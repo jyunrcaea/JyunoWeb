@@ -1,0 +1,456 @@
+using System.Text;
+using static JyunoWeb.Engine.Text;
+
+namespace JyunoWeb.Engine;
+
+/// <summary>
+/// 문제 목록. 입력은 Jyuno로 읽기 쉽도록 "한 줄에 값 하나"로 통일했습니다.
+/// </summary>
+public static class Problems
+{
+    public static Problem? Find(int id) => All.FirstOrDefault(p => p.Id == id);
+
+    public static IEnumerable<string> AllTags => All.SelectMany(p => p.Tags).Distinct();
+
+    static IEnumerable<string> Many(Random r , int count , Func<Random , string> make) => Enumerable.Range(0 , count).Select(_ => make(r));
+
+    static List<long> Numbers(Random r , int count , long min , long max) => Enumerable.Range(0 , count).Select(_ => r.Next(min , max)).ToList();
+
+    static string Stars(int n , int i , bool right) => right ? new string(' ' , n - i) + new string('*' , i) : new string('*' , i);
+
+    static long Gcd(long a , long b) => b == 0 ? a : Gcd(b , a % b);
+
+    static bool IsPrime(long n)
+    {
+        if (n < 2)
+            return false;
+        for (long i = 2 ; i * i <= n ; i++)
+            if (n % i == 0)
+                return false;
+        return true;
+    }
+
+    public static readonly IReadOnlyList<Problem> All = new List<Problem>
+    {
+        new() {
+            Id = 1001, Title = "Hello, Jyuno!", Level = 1, Tags = new[] { "출력" },
+            Description = "Jyuno 온라인 저지에 오신 것을 환영합니다! `Hello, Jyuno!`를 출력하는 프로그램을 작성하세요.",
+            InputSpec = "입력은 없습니다.",
+            OutputSpec = "첫째 줄에 `Hello, Jyuno!`를 출력합니다.",
+            Samples = new[] { "" },
+            Tests = r => new[] { "" },
+            Solve = _ => "Hello, Jyuno!",
+            Hint = "`console.writeline \"문자열\"`로 한 줄을 출력할수 있어요.",
+        },
+        new() {
+            Id = 1002, Title = "A+B", Level = 1, Tags = new[] { "사칙연산", "입출력" },
+            Description = "두 정수 A와 B를 입력받은 다음, A+B를 출력하는 프로그램을 작성하세요.",
+            InputSpec = "첫째 줄에 A, 둘째 줄에 B가 주어집니다. (-1,000,000,000 ≤ A, B ≤ 1,000,000,000)",
+            OutputSpec = "A+B를 출력합니다.",
+            Samples = new[] { "1\n2", "-5\n12" },
+            Tests = r => Many(r , 8 , r => Lines(r.Next(-1_000_000_000 , 1_000_000_000) , r.Next(-1_000_000_000 , 1_000_000_000))),
+            Solve = i => (i.Long() + i.Long()).ToString(),
+            Hint = "`console.readline`은 한 줄을 문자열로 읽습니다. `int`로 정수로 바꿔야 더할수 있어요. 예: `a = int (console.readline)`",
+        },
+        new() {
+            Id = 1003, Title = "A−B", Level = 1, Tags = new[] { "사칙연산", "입출력" },
+            Description = "두 정수 A와 B를 입력받은 다음, A−B를 출력하는 프로그램을 작성하세요.",
+            InputSpec = "첫째 줄에 A, 둘째 줄에 B가 주어집니다. (-1,000,000,000 ≤ A, B ≤ 1,000,000,000)",
+            OutputSpec = "A−B를 출력합니다.",
+            Samples = new[] { "3\n2", "10\n25" },
+            Tests = r => Many(r , 8 , r => Lines(r.Next(-1_000_000_000 , 1_000_000_000) , r.Next(-1_000_000_000 , 1_000_000_000))),
+            Solve = i => (i.Long() - i.Long()).ToString(),
+        },
+        new() {
+            Id = 1004, Title = "사칙연산", Level = 1, Tags = new[] { "사칙연산" },
+            Description = "두 자연수 A와 B가 주어질 때, A+B, A−B, A×B, A÷B의 몫, A÷B의 나머지를 차례로 출력하세요.",
+            InputSpec = "첫째 줄에 A, 둘째 줄에 B가 주어집니다. (1 ≤ A, B ≤ 10,000)",
+            OutputSpec = "다섯 줄에 걸쳐 A+B, A−B, A×B, 몫, 나머지를 출력합니다.",
+            Samples = new[] { "7\n3" },
+            Tests = r => Many(r , 8 , r => Lines(r.Next(1 , 10000) , r.Next(1 , 10000))),
+            Solve = i => { long a = i.Long(), b = i.Long(); return Lines(a + b , a - b , a * b , a / b , a % b); },
+            Hint = "정수끼리 `div`하면 몫이, `mod`하면 나머지가 나옵니다.",
+        },
+        new() {
+            Id = 1005, Title = "두 수 비교하기", Level = 1, Tags = new[] { "조건문" },
+            Description = "두 정수 A와 B가 주어졌을 때, A가 B보다 크면 `>`, 작으면 `<`, 같으면 `==`를 출력하세요.",
+            InputSpec = "첫째 줄에 A, 둘째 줄에 B가 주어집니다. (-10,000 ≤ A, B ≤ 10,000)",
+            OutputSpec = "`>`, `<`, `==` 중 하나를 출력합니다.",
+            Samples = new[] { "1\n2", "10\n2", "5\n5" },
+            Tests = r => Many(r , 6 , r => Lines(r.Next(-10000 , 10000) , r.Next(-10000 , 10000))).Append("-7\n-7").Append("0\n-1"),
+            Solve = i => { long a = i.Long(), b = i.Long(); return a > b ? ">" : a < b ? "<" : "=="; },
+            Hint = "Jyuno에는 크기 비교 연산자가 없어서, 채점 환경이 제공하는 `less a b`(a<b), `greater a b`(a>b) 함수를 쓰면 됩니다.",
+        },
+        new() {
+            Id = 1006, Title = "짝수와 홀수", Level = 1, Tags = new[] { "조건문", "사칙연산" },
+            Description = "정수 N이 짝수이면 `짝수`, 홀수이면 `홀수`를 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (0 ≤ N ≤ 1,000,000,000)",
+            OutputSpec = "`짝수` 또는 `홀수`를 출력합니다.",
+            Samples = new[] { "4", "7" },
+            Tests = r => Many(r , 8 , r => r.Next(0 , 1_000_000_000).ToString()).Append("0"),
+            Solve = i => i.Long() % 2 == 0 ? "짝수" : "홀수",
+        },
+        new() {
+            Id = 1007, Title = "시험 성적", Level = 1, Tags = new[] { "조건문" },
+            Description = "시험 점수를 입력받아 90~100점은 `A`, 80~89점은 `B`, 70~79점은 `C`, 60~69점은 `D`, 나머지는 `F`를 출력하세요.",
+            InputSpec = "첫째 줄에 시험 점수가 주어집니다. (0 ≤ 점수 ≤ 100)",
+            OutputSpec = "학점을 출력합니다.",
+            Samples = new[] { "100", "79" },
+            Tests = r => new[] { "90", "89", "80", "70", "69", "60", "59", "0", "85", "73" },
+            Solve = i => i.Long() switch { >= 90 => "A", >= 80 => "B", >= 70 => "C", >= 60 => "D", _ => "F" },
+            Hint = "점수를 10으로 나눈 몫을 쓰면 비교 없이 `equal`만으로도 풀수 있어요.",
+        },
+        new() {
+            Id = 1008, Title = "윤년", Level = 1, Tags = new[] { "조건문", "사칙연산" },
+            Description = "연도가 주어졌을 때 윤년이면 `1`, 아니면 `0`을 출력하세요.\n\n윤년은 연도가 4의 배수이면서 100의 배수가 아닐 때, 또는 400의 배수일 때입니다. 예를 들어 2012년과 2000년은 윤년이지만, 1900년은 윤년이 아닙니다.",
+            InputSpec = "첫째 줄에 연도가 주어집니다. (1 ≤ 연도 ≤ 4,000)",
+            OutputSpec = "윤년이면 `1`, 아니면 `0`을 출력합니다.",
+            Samples = new[] { "2000", "1999" },
+            Tests = r => new[] { "1900", "2012", "2024", "2100", "2400", "1", "4", "100", "400", "3999" },
+            Solve = i => { long y = i.Long(); return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0 ? "1" : "0"; },
+        },
+        new() {
+            Id = 1009, Title = "사분면 고르기", Level = 1, Tags = new[] { "조건문" },
+            Description = "점 (x, y)가 몇 사분면에 있는지 출력하세요. 오른쪽 위가 1사분면이고, 반시계 방향으로 2, 3, 4사분면입니다.",
+            InputSpec = "첫째 줄에 x, 둘째 줄에 y가 주어집니다. (-1,000 ≤ x, y ≤ 1,000, x와 y는 0이 아님)",
+            OutputSpec = "사분면 번호를 출력합니다.",
+            Samples = new[] { "12\n5", "9\n-13" },
+            Tests = r => Many(r , 10 , r => Lines(r.Next(1 , 1000) * (r.Next(2) == 0 ? 1 : -1) , r.Next(1 , 1000) * (r.Next(2) == 0 ? 1 : -1))),
+            Solve = i => { long x = i.Long(), y = i.Long(); return x > 0 ? (y > 0 ? "1" : "4") : (y > 0 ? "2" : "3"); },
+        },
+        new() {
+            Id = 1010, Title = "구구단", Level = 1, Tags = new[] { "반복문" },
+            Description = "N을 입력받아 N단을 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 9)",
+            OutputSpec = "`N * 1 = N` 부터 `N * 9 = 9N` 까지 아홉 줄을 출력 형식에 맞게 출력합니다.",
+            Samples = new[] { "2" },
+            Tests = r => Enumerable.Range(1 , 9).Select(n => n.ToString()),
+            Solve = i => { long n = i.Long(); return Lines(Enumerable.Range(1 , 9).Select(k => $"{n} * {k} = {n * k}")); },
+            Hint = "`console.writeline \"{1} * {2} = {3}\" n i (mul n i)` 처럼 형식 문자열을 쓰면 편해요.",
+        },
+        new() {
+            Id = 1011, Title = "1부터 N까지의 합", Level = 1, Tags = new[] { "반복문", "수학" },
+            Description = "1부터 N까지의 합을 구하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 10,000)",
+            OutputSpec = "1부터 N까지의 합을 출력합니다.",
+            Samples = new[] { "3", "10" },
+            Tests = r => Many(r , 6 , r => r.Next(1 , 10000).ToString()).Append("1").Append("10000"),
+            Solve = i => { long n = i.Long(); return (n * (n + 1) / 2).ToString(); },
+        },
+        new() {
+            Id = 1012, Title = "N 찍기", Level = 1, Tags = new[] { "반복문" },
+            Description = "자연수 N이 주어졌을 때, 1부터 N까지 한 줄에 하나씩 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 1,000)",
+            OutputSpec = "1부터 N까지 한 줄에 하나씩 출력합니다.",
+            Samples = new[] { "5" },
+            Tests = r => Many(r , 5 , r => r.Next(1 , 1000).ToString()).Append("1").Append("1000"),
+            Solve = i => Lines(Enumerable.Range(1 , i.Int())),
+        },
+        new() {
+            Id = 1013, Title = "거꾸로 N 찍기", Level = 1, Tags = new[] { "반복문" },
+            Description = "자연수 N이 주어졌을 때, N부터 1까지 한 줄에 하나씩 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 1,000)",
+            OutputSpec = "N부터 1까지 한 줄에 하나씩 출력합니다.",
+            Samples = new[] { "5" },
+            Tests = r => Many(r , 5 , r => r.Next(1 , 1000).ToString()).Append("1").Append("1000"),
+            Solve = i => Lines(Enumerable.Range(1 , i.Int()).Reverse()),
+            Hint = "`while n` 은 n이 0이 될 때까지 반복해요.",
+        },
+        new() {
+            Id = 1014, Title = "별 찍기 1", Level = 1, Tags = new[] { "반복문", "문자열" },
+            Description = "첫째 줄에는 별 1개, 둘째 줄에는 별 2개, N번째 줄에는 별 N개를 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 100)",
+            OutputSpec = "첫째 줄부터 N번째 줄까지 차례대로 별을 출력합니다.",
+            Samples = new[] { "5" },
+            Tests = r => new[] { "1", "2", "7", "33", "100" },
+            Solve = i => { int n = i.Int(); return Lines(Enumerable.Range(1 , n).Select(k => Stars(n , k , false))); },
+            Hint = "`mul \"*\" 3` 은 `***` 입니다.",
+        },
+        new() {
+            Id = 1015, Title = "별 찍기 2", Level = 2, Tags = new[] { "반복문", "문자열" },
+            Description = "별 찍기 1과 같지만, 별을 오른쪽 기준으로 정렬해서 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 100)",
+            OutputSpec = "첫째 줄부터 N번째 줄까지 차례대로 별을 출력합니다.",
+            Samples = new[] { "5" },
+            Tests = r => new[] { "1", "2", "7", "33", "100" },
+            Solve = i => { int n = i.Int(); return Lines(Enumerable.Range(1 , n).Select(k => Stars(n , k , true))); },
+        },
+        new() {
+            Id = 1016, Title = "트리 그리기", Level = 2, Tags = new[] { "반복문", "문자열" },
+            Description = "높이가 N인 트리를 그리세요. i번째 줄에는 공백 N−i개와 별 2×i−1개를 출력합니다. 별 뒤에는 공백을 출력하지 않습니다.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 100)",
+            OutputSpec = "N줄에 걸쳐 트리를 출력합니다.",
+            Samples = new[] { "4" },
+            Tests = r => new[] { "1", "2", "9", "50", "100" },
+            Solve = i => { int n = i.Int(); return Lines(Enumerable.Range(1 , n).Select(k => new string(' ' , n - k) + new string('*' , 2 * k - 1))); },
+        },
+        new() {
+            Id = 1017, Title = "팩토리얼", Level = 1, Tags = new[] { "반복문", "수학" },
+            Description = "0 이상의 정수 N이 주어질 때, N!을 출력하세요. (0! = 1)",
+            InputSpec = "첫째 줄에 N이 주어집니다. (0 ≤ N ≤ 20)",
+            OutputSpec = "N!을 출력합니다.",
+            Samples = new[] { "5", "0" },
+            Tests = r => new[] { "1", "2", "10", "13", "17", "19", "20" },
+            Solve = i => { long n = i.Long(), f = 1; for (long k = 2 ; k <= n ; k++) f *= k; return f.ToString(); },
+        },
+        new() {
+            Id = 1018, Title = "피보나치 수", Level = 2, Tags = new[] { "반복문", "수학" },
+            Description = "피보나치 수는 F(0) = 0, F(1) = 1, F(n) = F(n−1) + F(n−2) 로 정의합니다. N이 주어질 때 F(N)을 구하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (0 ≤ N ≤ 90)",
+            OutputSpec = "F(N)을 출력합니다.",
+            Samples = new[] { "10", "1" },
+            Tests = r => new[] { "0", "2", "17", "45", "70", "89", "90" },
+            Solve = i => { long n = i.Long(), a = 0, b = 1; for (long k = 0 ; k < n ; k++) (a, b) = (b, a + b); return a.ToString(); },
+            Hint = "재귀로 풀면 너무 느려요. 앞의 두 수만 기억하면서 반복문으로 구해 보세요.",
+        },
+        new() {
+            Id = 1019, Title = "최댓값과 위치", Level = 2, Tags = new[] { "반복문", "조건문" },
+            Description = "N개의 정수가 주어질 때, 가장 큰 수와 그 수가 몇 번째 수인지 구하세요. 가장 큰 수가 여러 개라면 가장 앞에 있는 위치를 출력합니다.",
+            InputSpec = "첫째 줄에 N이 주어지고, 다음 N개의 줄에 정수가 하나씩 주어집니다. (1 ≤ N ≤ 100, 각 정수는 -1,000,000 이상 1,000,000 이하)",
+            OutputSpec = "첫째 줄에 최댓값을, 둘째 줄에 그 위치(1부터 셈)를 출력합니다.",
+            Samples = new[] { "5\n3\n29\n38\n12\n38" },
+            Tests = r => Many(r , 7 , r => ListInput(Numbers(r , (int)r.Next(1 , 100) , -1_000_000 , 1_000_000))).Append("1\n-5").Append("3\n-1\n-1\n-1"),
+            Solve = i => { int n = i.Int(); var v = Enumerable.Range(0 , n).Select(_ => i.Long()).ToList(); long m = v.Max(); return Lines(m , v.IndexOf(m) + 1); },
+        },
+        new() {
+            Id = 1020, Title = "최소, 최대", Level = 2, Tags = new[] { "반복문", "조건문" },
+            Description = "N개의 정수가 주어질 때, 최솟값과 최댓값을 구하세요.",
+            InputSpec = "첫째 줄에 N이 주어지고, 다음 N개의 줄에 정수가 하나씩 주어집니다. (1 ≤ N ≤ 100, 각 정수는 -1,000,000 이상 1,000,000 이하)",
+            OutputSpec = "최솟값과 최댓값을 공백 하나로 구분해 한 줄에 출력합니다.",
+            Samples = new[] { "5\n20\n10\n35\n30\n7" },
+            Tests = r => Many(r , 8 , r => ListInput(Numbers(r , (int)r.Next(1 , 100) , -1_000_000 , 1_000_000))).Append("1\n42"),
+            Solve = i => { int n = i.Int(); var v = Enumerable.Range(0 , n).Select(_ => i.Long()).ToList(); return $"{v.Min()} {v.Max()}"; },
+        },
+        new() {
+            Id = 1021, Title = "개수 세기", Level = 1, Tags = new[] { "반복문", "조건문" },
+            Description = "N개의 정수 중에 정수 V가 몇 개 있는지 세세요.",
+            InputSpec = "첫째 줄에 N, 둘째 줄에 V가 주어지고, 다음 N개의 줄에 정수가 하나씩 주어집니다. (1 ≤ N ≤ 100, 모든 정수는 -100 이상 100 이하)",
+            OutputSpec = "N개의 정수 중 V의 개수를 출력합니다.",
+            Samples = new[] { "11\n2\n1\n4\n1\n2\n4\n2\n4\n2\n3\n4\n4", "11\n5\n1\n4\n1\n2\n4\n2\n4\n2\n3\n4\n4" },
+            Tests = r => Many(r , 8 , r => { var v = Numbers(r , (int)r.Next(1 , 100) , -5 , 5); return Lines(v.Count , r.Next(-6 , 6) , Lines(v)); }),
+            Solve = i => { int n = i.Int(); long x = i.Long(); return Enumerable.Range(0 , n).Select(_ => i.Long()).Count(e => e == x).ToString(); },
+        },
+        new() {
+            Id = 1022, Title = "X보다 작은 수", Level = 2, Tags = new[] { "반복문", "조건문" },
+            Description = "N개의 정수와 정수 X가 주어질 때, 주어진 순서대로 X보다 작은 수를 모두 출력하세요.",
+            InputSpec = "첫째 줄에 N, 둘째 줄에 X, 다음 N개의 줄에 정수가 하나씩 주어집니다. (1 ≤ N ≤ 100, 1 ≤ X, 정수 ≤ 10,000) X보다 작은 수가 적어도 하나 있습니다.",
+            OutputSpec = "X보다 작은 수를 입력된 순서대로 공백으로 구분해 한 줄에 출력합니다.",
+            Samples = new[] { "10\n5\n1\n10\n4\n9\n2\n3\n8\n5\n7\n6" },
+            Tests = r => Many(r , 8 , r => { var v = Numbers(r , (int)r.Next(1 , 100) , 1 , 10000); long x = v.Min() + r.Next(1 , 10000); return Lines(v.Count , x , Lines(v)); }),
+            Solve = i => { int n = i.Int(); long x = i.Long(); return Words(Enumerable.Range(0 , n).Select(_ => i.Long()).Where(v => v < x)); },
+            Hint = "`console.write \"{1} \" v` 처럼 뒤에 공백을 붙여서 출력해도 괜찮아요. 줄 끝의 공백은 채점할 때 무시합니다.",
+        },
+        new() {
+            Id = 1023, Title = "세 수 정렬", Level = 2, Tags = new[] { "조건문", "정렬" },
+            Description = "정수 세 개를 작은 수부터 차례대로 출력하세요.",
+            InputSpec = "세 줄에 정수가 하나씩 주어집니다. (-1,000,000 ≤ 정수 ≤ 1,000,000)",
+            OutputSpec = "세 수를 오름차순으로 공백으로 구분해 출력합니다.",
+            Samples = new[] { "3\n1\n2" },
+            Tests = r => Many(r , 8 , r => Lines(Numbers(r , 3 , -1_000_000 , 1_000_000))).Append("5\n5\n1").Append("2\n2\n2"),
+            Solve = i => Words(new[] { i.Long() , i.Long() , i.Long() }.Order()),
+        },
+        new() {
+            Id = 1024, Title = "자릿수의 합", Level = 2, Tags = new[] { "반복문", "수학" },
+            Description = "자연수 N의 각 자리 숫자를 모두 더한 값을 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 1,000,000,000,000,000,000)",
+            OutputSpec = "각 자리 숫자의 합을 출력합니다.",
+            Samples = new[] { "1234", "1000000" },
+            Tests = r => Many(r , 7 , r => r.Next(1 , 1_000_000_000_000_000_000).ToString()).Append("1000000000000000000").Append("999999999999999999"),
+            Solve = i => i.Str().Trim().Sum(c => c - '0').ToString(),
+            Hint = "`mod n 10`은 마지막 자리, `div n 10`은 마지막 자리를 뗀 수입니다.",
+        },
+        new() {
+            Id = 1025, Title = "숫자 뒤집기", Level = 2, Tags = new[] { "반복문", "수학" },
+            Description = "자연수 N의 자릿수를 거꾸로 뒤집은 수를 출력하세요. 뒤집은 수의 앞에 오는 0은 출력하지 않습니다. (예: 1200 → 21)",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 1,000,000,000)",
+            OutputSpec = "뒤집은 수를 출력합니다.",
+            Samples = new[] { "1234", "1200" },
+            Tests = r => Many(r , 7 , r => r.Next(1 , 1_000_000_000).ToString()).Append("1000000000").Append("7"),
+            Solve = i => long.Parse(new string(i.Str().Trim().Reverse().ToArray())).ToString(),
+        },
+        new() {
+            Id = 1026, Title = "이진수", Level = 2, Tags = new[] { "반복문", "문자열", "수학" },
+            Description = "0 이상의 정수 N을 이진수로 바꿔서 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (0 ≤ N ≤ 1,000,000,000)",
+            OutputSpec = "N을 이진수로 출력합니다. N이 0이면 `0`을 출력합니다.",
+            Samples = new[] { "13", "0" },
+            Tests = r => Many(r , 7 , r => r.Next(1 , 1_000_000_000).ToString()).Append("1").Append("1024"),
+            Solve = i => Convert.ToString(i.Long() , 2),
+            Hint = "2로 나눈 나머지를 문자열 앞쪽에 하나씩 붙여 보세요. `add (string d) s`",
+        },
+        new() {
+            Id = 1027, Title = "최대공약수와 최소공배수", Level = 2, Tags = new[] { "수학", "반복문" },
+            Description = "두 자연수 A와 B의 최대공약수와 최소공배수를 구하세요.",
+            InputSpec = "첫째 줄에 A, 둘째 줄에 B가 주어집니다. (1 ≤ A, B ≤ 10,000)",
+            OutputSpec = "첫째 줄에 최대공약수, 둘째 줄에 최소공배수를 출력합니다.",
+            Samples = new[] { "24\n18" },
+            Tests = r => Many(r , 8 , r => Lines(r.Next(1 , 10000) , r.Next(1 , 10000))).Append("1\n1").Append("9973\n9973"),
+            Solve = i => { long a = i.Long(), b = i.Long(), g = Gcd(a , b); return Lines(g , a / g * b); },
+            Hint = "유클리드 호제법: gcd(a, b) = gcd(b, a mod b), gcd(a, 0) = a",
+        },
+        new() {
+            Id = 1028, Title = "소수 판별", Level = 2, Tags = new[] { "수학", "반복문" },
+            Description = "자연수 N이 소수이면 `YES`, 아니면 `NO`를 출력하세요. 소수는 1과 자기 자신만을 약수로 가지는 1보다 큰 자연수입니다.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 1,000,000)",
+            OutputSpec = "`YES` 또는 `NO`를 출력합니다.",
+            Samples = new[] { "7", "1" },
+            Tests = r => new[] { "2", "4", "9", "97", "1000", "7919", "999983", "1000000", "994009" },
+            Solve = i => IsPrime(i.Long()) ? "YES" : "NO",
+            Hint = "2부터 √N까지만 나눠 보면 충분해요. Jyuno는 느리니까 N까지 전부 나눠 보면 시간 초과가 날수 있어요.",
+        },
+        new() {
+            Id = 1029, Title = "소수의 개수", Level = 3, Tags = new[] { "수학", "반복문" },
+            Description = "M 이하의 소수가 몇 개인지 구하세요.",
+            InputSpec = "첫째 줄에 M이 주어집니다. (1 ≤ M ≤ 300)",
+            OutputSpec = "M 이하 소수의 개수를 출력합니다.",
+            Samples = new[] { "10", "2" },
+            Tests = r => new[] { "1", "3", "50", "97", "100", "199", "300" },
+            Solve = i => { long m = i.Long(); return Enumerable.Range(1 , (int)m).Count(k => IsPrime(k)).ToString(); },
+        },
+        new() {
+            Id = 1030, Title = "약수 구하기", Level = 2, Tags = new[] { "수학", "반복문" },
+            Description = "자연수 N의 약수를 모두 작은 것부터 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 3,000)",
+            OutputSpec = "N의 약수를 오름차순으로 공백으로 구분해 한 줄에 출력합니다.",
+            Samples = new[] { "12", "1" },
+            Tests = r => new[] { "2", "17", "360", "1024", "2520", "2999", "3000" },
+            Solve = i => { long n = i.Long(); return Words(Enumerable.Range(1 , (int)n).Where(k => n % k == 0)); },
+        },
+        new() {
+            Id = 1031, Title = "소인수분해", Level = 3, Tags = new[] { "수학", "반복문" },
+            Description = "정수 N을 소인수분해한 결과를 작은 소인수부터 한 줄에 하나씩 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (2 ≤ N ≤ 10,000,000)",
+            OutputSpec = "소인수를 오름차순으로 한 줄에 하나씩 출력합니다. 같은 소인수는 여러 번 출력합니다.",
+            Samples = new[] { "72", "13" },
+            Tests = r => new[] { "2", "1024", "9999991", "10000000", "9699690", "4194304", "8648640", "9999973" },
+            Solve = i => {
+                long n = i.Long();
+                var f = new List<long>();
+                for (long d = 2 ; d * d <= n ; d++)
+                    while (n % d == 0) { f.Add(d); n /= d; }
+                if (n > 1) f.Add(n);
+                return Lines(f);
+            },
+            Hint = "d×d가 N보다 커지면 남은 N은 소수예요.",
+        },
+        new() {
+            Id = 1032, Title = "콜라츠 추측", Level = 2, Tags = new[] { "반복문", "시뮬레이션" },
+            Description = "자연수 N이 짝수면 2로 나누고, 홀수면 3을 곱하고 1을 더합니다. 이 과정을 N이 1이 될 때까지 반복할 때, 몇 번 만에 1이 되는지 구하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 10,000)",
+            OutputSpec = "1이 될 때까지 반복한 횟수를 출력합니다.",
+            Samples = new[] { "6", "1" },
+            Tests = r => new[] { "2", "3", "27", "97", "871", "6171", "9999", "10000" },
+            Solve = i => { long n = i.Long(), c = 0; while (n != 1) { n = n % 2 == 0 ? n / 2 : 3 * n + 1; c++; } return c.ToString(); },
+        },
+        new() {
+            Id = 1033, Title = "거스름돈", Level = 2, Tags = new[] { "그리디", "사칙연산" },
+            Description = "1000원짜리 지폐로 N원짜리 물건을 샀습니다. 500원, 100원, 50원, 10원, 5원, 1원 동전으로 거스름돈을 줄 때, 동전 개수가 가장 적도록 하면 몇 개를 받게 될까요?",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N < 1,000)",
+            OutputSpec = "받는 동전의 개수를 출력합니다.",
+            Samples = new[] { "380", "1" },
+            Tests = r => Many(r , 8 , r => r.Next(1 , 999).ToString()).Append("999"),
+            Solve = i => { long c = 1000 - i.Long(), k = 0; foreach (long coin in new long[] { 500 , 100 , 50 , 10 , 5 , 1 }) { k += c / coin; c %= coin; } return k.ToString(); },
+        },
+        new() {
+            Id = 1034, Title = "오븐 시계", Level = 2, Tags = new[] { "사칙연산", "조건문" },
+            Description = "요리를 시작한 시각(시, 분)과 요리하는 데 걸리는 시간(분)이 주어질 때, 요리가 끝나는 시각을 구하세요. 23시 59분 다음은 0시 0분입니다.",
+            InputSpec = "첫째 줄에 시 H, 둘째 줄에 분 M, 셋째 줄에 걸리는 시간 D가 주어집니다. (0 ≤ H ≤ 23, 0 ≤ M ≤ 59, 0 ≤ D ≤ 1,000)",
+            OutputSpec = "끝나는 시각의 시와 분을 공백으로 구분해 출력합니다.",
+            Samples = new[] { "14\n30\n20", "23\n48\n25" },
+            Tests = r => Many(r , 8 , r => Lines(r.Next(0 , 23) , r.Next(0 , 59) , r.Next(0 , 1000))).Append("23\n59\n1"),
+            Solve = i => { long t = (i.Long() * 60 + i.Long() + i.Long()) % 1440; return $"{t / 60} {t % 60}"; },
+        },
+        new() {
+            Id = 1035, Title = "이항 계수", Level = 3, Tags = new[] { "수학", "반복문" },
+            Description = "자연수 N과 정수 K가 주어질 때, 이항 계수 C(N, K)를 구하세요. (N개 중 K개를 고르는 경우의 수)",
+            InputSpec = "첫째 줄에 N, 둘째 줄에 K가 주어집니다. (1 ≤ N ≤ 30, 0 ≤ K ≤ N)",
+            OutputSpec = "C(N, K)를 출력합니다.",
+            Samples = new[] { "5\n2", "10\n0" },
+            Tests = r => new[] { "30\n15", "1\n1", "20\n10", "30\n1", "29\n14", "17\n9" },
+            Solve = i => { long n = i.Long(), k = i.Long(), c = 1; for (long j = 1 ; j <= k ; j++) c = c * (n - k + j) / j; return c.ToString(); },
+            Hint = "C(n, k) = C(n−1, k−1) × n ÷ k 처럼 곱하고 나누기를 번갈아 하면 수가 너무 커지지 않아요.",
+        },
+        new() {
+            Id = 1036, Title = "숫자의 개수", Level = 2, Tags = new[] { "반복문", "수학" },
+            Description = "세 자연수 A, B, C를 곱한 결과에 0부터 9까지 각 숫자가 몇 번씩 쓰였는지 구하세요.",
+            InputSpec = "세 줄에 A, B, C가 하나씩 주어집니다. (100 ≤ A, B, C < 1,000)",
+            OutputSpec = "첫째 줄에 0의 개수, 둘째 줄에 1의 개수, ..., 열째 줄에 9의 개수를 출력합니다.",
+            Samples = new[] { "150\n266\n427" },
+            Tests = r => Many(r , 7 , r => Lines(r.Next(100 , 999) , r.Next(100 , 999) , r.Next(100 , 999))).Append("100\n100\n100"),
+            Solve = i => { string p = (i.Long() * i.Long() * i.Long()).ToString(); return Lines(Enumerable.Range(0 , 10).Select(d => p.Count(c => c - '0' == d))); },
+            Hint = "숫자마다 개수를 세는 함수를 만들어서 0부터 9까지 열 번 부르면 배열 없이도 풀수 있어요.",
+        },
+        new() {
+            Id = 1037, Title = "하노이 탑", Level = 3, Tags = new[] { "재귀" },
+            Description = "세 개의 장대가 있고 첫 번째 장대에 원판 N개가 크기 순서대로 쌓여 있습니다. 한 번에 원판 하나씩, 작은 원판 위에 큰 원판이 올라가지 않도록 옮겨서 모든 원판을 세 번째 장대로 옮기려고 합니다. 이동 횟수가 최소가 되도록 옮기는 순서를 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 10)",
+            OutputSpec = "첫째 줄에 이동 횟수 K를 출력하고, 다음 K개의 줄에 원판을 옮기는 장대 번호 `A B`를 출력합니다. (A번 장대 맨 위 원판을 B번 장대로)",
+            Samples = new[] { "2", "3" },
+            Tests = r => new[] { "1", "4", "7", "10" },
+            Solve = i => {
+                var moves = new List<string>();
+                void Hanoi(int n , int from , int to , int via) { if (n == 0) return; Hanoi(n - 1 , from , via , to); moves.Add($"{from} {to}"); Hanoi(n - 1 , via , to , from); }
+                Hanoi(i.Int() , 1 , 3 , 2);
+                return Lines(moves.Count) + "\n" + Lines(moves);
+            },
+            Hint = "func 안에서 자기 자신을 부를수 있어요. 이동 횟수는 2^N − 1 입니다.",
+        },
+        new() {
+            Id = 1038, Title = "빠른 거듭제곱", Level = 4, Tags = new[] { "재귀", "수학", "분할 정복" },
+            Description = "A를 B번 곱한 수를 C로 나눈 나머지를 구하세요. B가 매우 크기 때문에 B번 곱하면 시간 안에 끝나지 않습니다.",
+            InputSpec = "세 줄에 A, B, C가 하나씩 주어집니다. (1 ≤ A, B, C ≤ 2,147,483,647)",
+            OutputSpec = "A^B mod C를 출력합니다.",
+            Samples = new[] { "10\n11\n12", "2\n10\n1000" },
+            Tests = r => Many(r , 7 , r => Lines(r.Next(1 , int.MaxValue) , r.Next(1 , int.MaxValue) , r.Next(1 , int.MaxValue))).Append("5\n3\n1").Append("2147483646\n2147483647\n2147483647"),
+            Solve = i => { long a = i.Long(), b = i.Long(), c = i.Long(), res = 1 % c; a %= c; while (b > 0) { if ((b & 1) == 1) res = res * a % c; a = a * a % c; b >>= 1; } return res.ToString(); },
+            Hint = "A^B = (A^(B/2))² 를 이용하세요. 곱하기 전에 C로 나눈 나머지만 남기면 long 범위를 넘지 않아요.",
+        },
+        new() {
+            Id = 1039, Title = "회문 판별", Level = 3, Tags = new[] { "문자열", "반복문" },
+            Description = "앞에서 읽어도 뒤에서 읽어도 같은 단어를 회문이라고 합니다. (예: `level`, `noon`) 단어가 회문이면 `YES`, 아니면 `NO`를 출력하세요.",
+            InputSpec = "첫째 줄에 알파벳 소문자로만 이루어진 단어가 주어집니다. (1 ≤ 길이 ≤ 100)",
+            OutputSpec = "`YES` 또는 `NO`를 출력합니다.",
+            Samples = new[] { "level", "jyuno" },
+            Tests = r => new[] { "a", "ab", "aa", "racecar", "abcdcbaa", "abccba", r.Word(100) , "x" + new string('y' , 98) + "x" },
+            Solve = i => { string s = i.Str(); return s.SequenceEqual(s.Reverse()) ? "YES" : "NO"; },
+            Hint = "채점 환경의 `text.length s`로 길이를, `text.at s i`로 i번째(0부터) 글자를 구할수 있어요.",
+        },
+        new() {
+            Id = 1040, Title = "모음의 개수", Level = 2, Tags = new[] { "문자열", "반복문" },
+            Description = "문장에 모음(`a`, `e`, `i`, `o`, `u`)이 몇 개 있는지 세세요.",
+            InputSpec = "첫째 줄에 알파벳 소문자와 공백으로 이루어진 문장이 주어집니다. (1 ≤ 길이 ≤ 200)",
+            OutputSpec = "모음의 개수를 출력합니다.",
+            Samples = new[] { "hello jyuno", "rhythm" },
+            Tests = r => Many(r , 7 , r => r.Word((int)r.Next(1 , 200) , "abcdefghijklmnopqrstuvwxyz    ").Trim() is { Length: > 0 } s ? s : "z").Append("aeiou"),
+            Solve = i => i.Str().Count(c => "aeiou".Contains(c)).ToString(),
+        },
+        new() {
+            Id = 1041, Title = "글자 반복", Level = 2, Tags = new[] { "문자열", "반복문" },
+            Description = "정수 R과 문자열 S가 주어질 때, S의 각 글자를 R번씩 반복한 새 문자열을 출력하세요. (예: R=3, S=`ABC` → `AAABBBCCC`)",
+            InputSpec = "첫째 줄에 R, 둘째 줄에 S가 주어집니다. (1 ≤ R ≤ 8, 1 ≤ S의 길이 ≤ 20, S는 공백이 없는 영문자와 숫자)",
+            OutputSpec = "새 문자열을 출력합니다.",
+            Samples = new[] { "3\nABC", "5\nHTP" },
+            Tests = r => Many(r , 7 , r => Lines(r.Next(1 , 8) , r.Word((int)r.Next(1 , 20) , "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"))),
+            Solve = i => { int k = i.Int(); return string.Concat(i.Str().Select(c => new string(c , k))); },
+        },
+        new() {
+            Id = 1042, Title = "계단 오르기", Level = 3, Tags = new[] { "다이나믹 프로그래밍", "반복문" },
+            Description = "계단을 한 번에 1칸 또는 2칸씩 오를수 있습니다. N칸짜리 계단을 오르는 방법은 모두 몇 가지일까요?",
+            InputSpec = "첫째 줄에 N이 주어집니다. (1 ≤ N ≤ 80)",
+            OutputSpec = "방법의 수를 출력합니다.",
+            Samples = new[] { "3", "5" },
+            Tests = r => new[] { "1", "2", "10", "40", "79", "80" },
+            Solve = i => { long n = i.Long(), a = 1, b = 1; for (long k = 0 ; k < n ; k++) (a, b) = (b, a + b); return a.ToString(); },
+            Hint = "N칸을 오르는 방법 = (N−1칸 방법) + (N−2칸 방법)",
+        },
+        new() {
+            Id = 1043, Title = "완전수", Level = 3, Tags = new[] { "수학", "반복문" },
+            Description = "자기 자신을 뺀 약수를 모두 더하면 자기 자신이 되는 수를 완전수라고 합니다. (예: 6 = 1 + 2 + 3) N이 완전수라면 `N = 1 + 2 + 3` 처럼 약수의 합으로 나타내고, 아니면 `N is NOT perfect.`를 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (2 ≤ N ≤ 10,000)",
+            OutputSpec = "출력 예시와 같은 형식으로 출력합니다.",
+            Samples = new[] { "6", "12", "28" },
+            Tests = r => new[] { "496", "8128", "2", "9999", "10000", "120" },
+            Solve = i => { long n = i.Long(); var d = Enumerable.Range(1 , (int)n - 1).Where(k => n % k == 0).ToList(); return d.Sum() == n ? $"{n} = {string.Join(" + " , d)}" : $"{n} is NOT perfect."; },
+        },
+    };
+}

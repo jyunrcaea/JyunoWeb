@@ -1,0 +1,20 @@
+@inject IJSRuntime JS
+
+<button class="chip-btn" @onclick="Copy">@(copied ? "복사됨 ✓" : "복사")</button>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+    bool copied;
+
+    async Task Copy()
+    {
+        var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+        copied = await module.InvokeAsync<bool>("copyText", Text);
+        if (copied)
+        {
+            StateHasChanged();
+            await Task.Delay(1500);
+            copied = false;
+        }
+    }
+}

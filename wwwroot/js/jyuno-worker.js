@@ -29,6 +29,16 @@ async function boot(dotnetUrl) {
 }
 
 function handle(data) {
+    if (data.type === 'judge') {
+        let result;
+        try {
+            result = JSON.parse(exports.Judge(data.code, data.problemId, data.mode));
+        } catch (err) {
+            result = { verdict: 'RE', total: 0, passed: 0, failedIndex: -1, maxMs: 0, cases: [{ index: 0, verdict: 'RE', message: String(err && err.message || err), line: -1 }] };
+        }
+        self.postMessage({ type: 'done', id: data.id, result });
+        return;
+    }
     if (data.type !== 'run')
         return;
     let result;

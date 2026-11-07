@@ -11,7 +11,7 @@ export const builtins = new Set([
     'file.exist', 'file.read', 'file.write', 'file.remove', 'directory.now', 'directory.exist', 'directory.files', 'directory.list', 'directory.move',
 ]);
 
-export const hostFunctions = new Set(['random', 'time.now', 'text.length', 'text.upper', 'less', 'greater', 'not']);
+export const hostFunctions = new Set(['random', 'time.now', 'text.length', 'text.at', 'text.upper', 'less', 'greater', 'not']);
 
 function escape(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

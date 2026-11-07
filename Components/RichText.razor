@@ -1,0 +1,15 @@
+@* 문제 지문용 아주 작은 서식: 빈 줄은 문단, `코드`는 인라인 코드 *@
+@foreach (var paragraph in Text.Split("\n\n"))
+{
+    <p>@((MarkupString)Render(paragraph))</p>
+}
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+
+    static string Render(string text)
+    {
+        var html = System.Net.WebUtility.HtmlEncode(text);
+        return System.Text.RegularExpressions.Regex.Replace(html, "`([^`]+)`", "<code>$1</code>").Replace("\n", "<br />");
+    }
+}
