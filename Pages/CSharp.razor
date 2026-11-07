@@ -22,6 +22,12 @@
     </aside>
 
     <article class="doc">
+        <nav class="doc-toc-mobile" aria-label="목차">
+            @foreach (var (id, label) in toc)
+            {
+                <a href="@($"csharp#{id}")">@label</a>
+            }
+        </nav>
         <section id="install">
             <h2>설치</h2>
             <p>NuGet에서 설치할수 있습니다. 라이브러리는 .NET 6 이상에서 동작해요.</p>

@@ -25,14 +25,16 @@
                     }
                 </select>
             </label>
-            <span class="pg-desc">@description</span>
+            <span class="pg-desc pg-desc-inline">@description</span>
         </div>
         <div class="pg-toolbar-right">
             <span class="engine engine-@engineState" title="@engineTitle">
                 <span class="engine-dot"></span>
-                @(engineState switch { "ready" => "엔진 준비됨", "error" => "엔진 오류", _ => "엔진 불러오는 중…" })
+                <span class="engine-label">@(engineState switch { "ready" => "엔진 준비됨", "error" => "엔진 오류", _ => "엔진 불러오는 중…" })</span>
             </span>
-            <button class="btn btn-ghost btn-sm" @onclick="Share" disabled="@(playground is null)">@shareLabel</button>
+            <button class="btn btn-ghost btn-sm btn-share" @onclick="Share" disabled="@(playground is null)" title="코드를 담은 링크 복사">
+                <span>@(shareCopied == true ? "✓" : "🔗")</span><span class="share-text">@(shareCopied switch { true => "링크 복사됨", false => "복사 실패", _ => "공유" })</span>
+            </button>
             @if (running)
             {
                 <button class="btn btn-stop" @onclick="Stop">■ 중지</button>
@@ -45,6 +47,8 @@
             }
         </div>
     </div>
+
+    <p class="pg-desc pg-desc-below">@description</p>
 
     <div class="pg-main" @ref="root">
         <section class="pane pg-editor-pane">
@@ -153,7 +157,7 @@
     SandboxResult? result;
     double? stoppedMs;
     string terminalTitle = "";
-    string shareLabel = "🔗 공유";
+    bool? shareCopied;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -243,10 +247,10 @@
             return;
         string url = await playground.InvokeAsync<string>("shareUrl");
         bool copied = await module.InvokeAsync<bool>("copyText", url);
-        shareLabel = copied ? "✓ 링크 복사됨" : "복사 실패";
+        shareCopied = copied;
         StateHasChanged();
         await Task.Delay(1800);
-        shareLabel = "🔗 공유";
+        shareCopied = null;
     }
 
     [JSInvokable]

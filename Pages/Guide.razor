@@ -22,6 +22,12 @@
     </aside>
 
     <article class="doc">
+        <nav class="doc-toc-mobile" aria-label="목차">
+            @foreach (var (id, label) in toc)
+            {
+                <a href="@($"guide#{id}")">@label</a>
+            }
+        </nav>
         <section id="basics">
             <h2>기본 규칙</h2>
             <p>Jyuno는 <b>한 줄에 하나의 명령어</b>만 실행하는 것이 원칙입니다. 모든 줄은 다음 중 하나예요.</p>

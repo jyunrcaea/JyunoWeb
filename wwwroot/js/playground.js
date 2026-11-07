@@ -244,6 +244,13 @@ class Playground {
         this.started = performance.now();
         this.tick();
         this.worker.postMessage({ type: 'run', id: this.runId, code: this.editor.value, stdin, options });
+        // 좁은 화면에서는 편집기 아래에 있는 터미널이 보이도록 스크롤
+        if (window.matchMedia('(max-width: 900px)').matches) {
+            const pane = this.terminal.host.closest('.pane');
+            const rect = pane.getBoundingClientRect();
+            if (rect.top > window.innerHeight * 0.6 || rect.bottom < 0)
+                pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
     tick() {
