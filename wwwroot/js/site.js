@@ -27,6 +27,28 @@ function highlightCSharp(code) {
     return html;
 }
 
+const jsKeywords = new Set(('async await break case catch class const continue default delete do else export extends false finally for function if import in instanceof let new null of return switch this throw true try typeof undefined var void while yield').split(' '));
+
+function highlightJs(code) {
+    const pattern = /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?n?\b)|([A-Za-z_$][A-Za-z0-9_$]*)|([^A-Za-z0-9_$"'`/]+|\/)/g;
+    let html = '';
+    let m;
+    while ((m = pattern.exec(code)) !== null) {
+        const [text, comment, str, num, word] = m;
+        if (comment) html += `<span class="tok-comment">${escape(text)}</span>`;
+        else if (str) html += `<span class="tok-str">${escape(text)}</span>`;
+        else if (num) html += `<span class="tok-num">${escape(text)}</span>`;
+        else if (word) {
+            if (jsKeywords.has(word)) html += `<span class="tok-kw">${text}</span>`;
+            else if (/^[A-Z]/.test(word)) html += `<span class="tok-type">${text}</span>`;
+            else if (code[pattern.lastIndex] === '(') html += `<span class="tok-fn">${text}</span>`;
+            else html += text;
+        }
+        else html += escape(text);
+    }
+    return html;
+}
+
 function highlightShell(code) {
     return code.split('\n').map(line => {
         const m = line.match(/^(\s*)(\S+)(.*)$/);
@@ -39,6 +61,7 @@ export function highlightElement(el, lang) {
     if (lang === 'jyuno') el.innerHTML = code.split('\n').map(highlightLine).join('\n');
     else if (lang === 'csharp') el.innerHTML = highlightCSharp(code);
     else if (lang === 'shell') el.innerHTML = highlightShell(code);
+    else if (lang === 'js') el.innerHTML = highlightJs(code);
 }
 
 export function highlightAll(root) {
