@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using Jyuno;
 using Jyuno.Language;
+using JyunoSdk.NativeJs;
 
 namespace JyunoWeb.Engine;
 
@@ -32,19 +33,7 @@ public static partial class JyunoSandbox
         var input = new StringReader(stdin.Replace("\r\n" , "\n"));
         bool inputExhausted = false;
 
-        var flags = Runtime.AddJyunoCommandType.Essential;
-        if (options.Math)
-            flags |= Runtime.AddJyunoCommandType.Math;
-        if (options.File)
-            flags |= Runtime.AddJyunoCommandType.File;
-        Runtime runtime = new(flags);
-
-        // 콘솔 명령어는 브라우저용으로 직접 구현 (System.Console 대신 화면의 터미널에 출력)
-        if (options.Console)
-            JyunoHost.AddConsole(runtime , output , input , () => inputExhausted = true);
-        // C# 프로그램이 자신만의 함수를 추가하는 예시
-        if (options.Host)
-            JyunoHost.AddHostFunctions(runtime);
+        Runtime runtime = CreateRuntime(options , output , input , () => inputExhausted = true);
 
         string[] lines = code.Replace("\r\n" , "\n").Split('\n');
         using Interpreter interpreter = runtime.Create(lines);
@@ -82,7 +71,67 @@ public static partial class JyunoSandbox
 
         result.ElapsedMs = stopwatch.Elapsed.TotalMilliseconds;
         result.InputExhausted = inputExhausted;
+        result.Engine = "csharp";
         return JsonSerializer.Serialize(result , SandboxJsonContext.Default.SandboxResult);
+    }
+
+    static Runtime CreateRuntime(SandboxOptions options , IConsoleSink output , StringReader input , Action exhausted , bool file = true)
+    {
+        var flags = Runtime.AddJyunoCommandType.Essential;
+        if (options.Math)
+            flags |= Runtime.AddJyunoCommandType.Math;
+        if (options.File && file)
+            flags |= Runtime.AddJyunoCommandType.File;
+        Runtime runtime = new(flags);
+
+        // 콘솔 명령어는 브라우저용으로 직접 구현 (System.Console 대신 화면의 터미널에 출력)
+        if (options.Console)
+            JyunoHost.AddConsole(runtime , output , input , exhausted);
+        // C# 프로그램이 자신만의 함수를 추가하는 예시
+        if (options.Host)
+            JyunoHost.AddHostFunctions(runtime);
+        return runtime;
+    }
+
+    /// <summary>
+    /// Native JS: 스크립트를 JavaScript로 변환합니다. (실행은 워커가 브라우저의 JS 엔진으로 함)
+    /// 전역 이름은 C# 실행과 같은 설정의 런타임에서 가져오므로, 켜지 않은 명령어 묶음은 존재하지 않는 이름이 됩니다.
+    /// File 명령어는 Native JS에서 지원하지 않습니다.
+    /// </summary>
+    [JSExport]
+    public static string CompileNativeJs(string code , string optionsJson)
+    {
+        var options = JsonSerializer.Deserialize(optionsJson , SandboxJsonContext.Default.SandboxOptions) ?? new SandboxOptions();
+        var stopwatch = Stopwatch.StartNew();
+        Runtime runtime = CreateRuntime(options , NullSink.Instance , new StringReader("") , () => { } , file: false);
+        var compiled = NativeJsCompiler.Compile(code.Replace("\r\n" , "\n").Split('\n') , new NativeJsOptions {
+            Globals = runtime.GetGlobals(),
+            BlockSubstitute = options.BlockSubstitute,
+            Name = "script.jyuno",
+        });
+        stopwatch.Stop();
+        var result = new NativeJsCompileResult {
+            Ok = compiled.Success,
+            Code = compiled.Code,
+            CompileMs = stopwatch.Elapsed.TotalMilliseconds,
+        };
+        if (compiled.Errors.Count > 0)
+        {
+            var error = compiled.Errors[0];
+            result.Status = error.Message.StartsWith("Native JS 제약" , StringComparison.Ordinal) ? "restricted" : "grammar";
+            result.Message = error.Message;
+            result.Line = error.Line;
+        }
+        return JsonSerializer.Serialize(result , SandboxJsonContext.Default.NativeJsCompileResult);
+    }
+
+    sealed class NullSink : IConsoleSink
+    {
+        public static readonly NullSink Instance = new();
+        public void Write(string text) { }
+        public void Echo(string text) { }
+        public void Clear() { }
+        public void Title(string title) { }
     }
 
     /// <summary>워커가 준비되었는지 확인하기 위한 함수 (런타임 버전도 함께 알려줌)</summary>
@@ -181,6 +230,8 @@ public sealed class SandboxOptions
     public bool Host { get; set; } = true;
     public bool EnableRemoveVariable { get; set; } = true;
     public bool BlockSubstitute { get; set; }
+    /// <summary>C# 인터프리터 대신 JavaScript로 변환해서 실행 (Native JS)</summary>
+    public bool NativeJs { get; set; }
 }
 
 public sealed class SandboxResult
@@ -193,10 +244,25 @@ public sealed class SandboxResult
     public int Line { get; set; } = -1;
     public double ElapsedMs { get; set; }
     public bool InputExhausted { get; set; }
+    /// <summary>"csharp" 또는 "native-js"</summary>
+    public string? Engine { get; set; }
+    /// <summary>Native JS 변환에 걸린 시간</summary>
+    public double? CompileMs { get; set; }
+}
+
+public sealed class NativeJsCompileResult
+{
+    public bool Ok { get; set; }
+    public string? Code { get; set; }
+    public string? Status { get; set; }
+    public string? Message { get; set; }
+    public int Line { get; set; } = -1;
+    public double CompileMs { get; set; }
 }
 
 [System.Text.Json.Serialization.JsonSourceGenerationOptions(PropertyNamingPolicy = System.Text.Json.Serialization.JsonKnownNamingPolicy.CamelCase)]
 [System.Text.Json.Serialization.JsonSerializable(typeof(SandboxOptions))]
 [System.Text.Json.Serialization.JsonSerializable(typeof(SandboxResult))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(NativeJsCompileResult))]
 [System.Text.Json.Serialization.JsonSerializable(typeof(string))]
 public partial class SandboxJsonContext : System.Text.Json.Serialization.JsonSerializerContext;

@@ -1,8 +1,0 @@
-func fib
-    param n
-    if (less n 2)
-        return n
-    end
-    return (add (fib (sub n 1)) (fib (sub n 2)))
-endfunc
-return (fib 20)

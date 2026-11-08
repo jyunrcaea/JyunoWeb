@@ -1,7 +1,0 @@
-i = 0
-s = 0
-while (less i 200000)
-    s = add s i
-    i = add i 1
-end
-return s

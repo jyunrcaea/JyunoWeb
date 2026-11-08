@@ -10,12 +10,12 @@
     <!-- Jyuno는 문화권과 무관하게 동작하므로 ICU 데이터를 받지 않음 (다운로드 크기 절약) -->
     <InvariantGlobalization>true</InvariantGlobalization>
     <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
-    <!-- native-js/ 는 별도 연구용 프로젝트 (C# 기준 실행기 포함) 이므로 이 앱의 빌드에서 제외 -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);native-js/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jyuno" Version="1.3.2" />
+    <PackageReference Include="Jyuno" Version="1.4.0" />
+    <!-- Native JS: Jyuno 코드를 JavaScript로 변환해서 .NET 인터프리터 대신 브라우저의 JS 엔진으로 실행 -->
+    <PackageReference Include="JyunoSdk.NativeJs" Version="0.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" PrivateAssets="all" />
   </ItemGroup>
