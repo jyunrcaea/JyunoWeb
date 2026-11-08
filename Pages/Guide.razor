@@ -131,6 +131,57 @@
             <h3>문자열 나누기 div</h3>
             <p><code>div (문자열) (구분자)</code>는 문자열을 구분자로 나눈 문자열 배열을 돌려줍니다. (C#의 <code>Split</code>) 한 줄에 여러 값이 들어오는 입력을 읽을 때 편해요.</p>
             <CodeBlock Code="@Split" Runnable="true" Stdin="3 14 15 92" />
+            <h3>컬렉션 함수 array.* / list.* <span class="tag tag-green">1.4.1</span> <span class="tag tag-green">1.4.2</span></h3>
+            <p>배열/리스트를 다루는 함수들입니다. <code>array.sort</code>와 <code>list.sort</code>처럼 이름이 같은 함수는 똑같이 동작하고 배열과 리스트를 모두 받아요. 길이를 바꾸는 함수(<code>list.push</code> 등)는 리스트에만 있습니다.</p>
+            <p><code>sort</code>, <code>reverse</code>, <code>shuffle</code>, <code>fill</code>, <code>push</code>, <code>insert</code>, <code>clear</code>는 <b>원래 배열/리스트를 바꾸고</b> 그대로 돌려줍니다. 원본을 두고 싶다면 <code>array.copy</code>로 복사한 뒤에 쓰세요.</p>
+            <table class="table">
+                <thead><tr><th>함수</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td><code>array.sort (배열)</code> / <code>array.sort (배열) true</code></td><td>오름차순 / 내림차순 정렬 (같은 값의 순서는 유지)</td></tr>
+                    <tr><td><code>array.reverse</code>, <code>array.shuffle</code></td><td>순서 뒤집기, 무작위로 섞기</td></tr>
+                    <tr><td><code>array.contains (배열) (값)</code></td><td>같은 값이 있으면 true</td></tr>
+                    <tr><td><code>array.indexof</code> / <code>array.lastindexof (배열) (값)</code></td><td>처음 / 마지막으로 같은 값의 인덱스 (없으면 -1)</td></tr>
+                    <tr><td><code>array.count (배열) (값)</code></td><td>같은 값의 개수 <span class="tag tag-green">1.4.2</span></td></tr>
+                    <tr><td><code>array.slice (배열) (시작) (끝)</code></td><td>시작부터 끝 바로 앞까지의 새 배열 (끝은 생략 가능)</td></tr>
+                    <tr><td><code>array.join (배열) (구분자)</code></td><td>원소를 구분자로 이어붙인 문자열</td></tr>
+                    <tr><td><code>array.new (길이) (값)</code></td><td>모든 원소가 값인 새 배열 (값을 생략하면 null)</td></tr>
+                    <tr><td><code>array.copy (배열)</code></td><td>같은 타입의 새 배열로 복사 <span class="tag tag-green">1.4.2</span></td></tr>
+                    <tr><td><code>array.distinct (배열)</code></td><td>중복을 제거한 새 배열 <span class="tag tag-green">1.4.2</span></td></tr>
+                    <tr><td><code>array.binary_search (정렬된 배열) (값)</code></td><td>이진 탐색. 찾으면 인덱스, 없으면 들어갈 위치를 <code>not</code>한 음수 <span class="tag tag-green">1.4.2</span></td></tr>
+                    <tr><td><code>array.fill (배열) (값)</code></td><td>모든 원소를 값으로 바꿈 <span class="tag tag-green">1.4.2</span></td></tr>
+                    <tr><td><code>array.min</code>, <code>array.max</code>, <code>array.sum</code></td><td>가장 작은 값, 가장 큰 값, 합계 <span class="tag tag-green">1.4.2</span></td></tr>
+                    <tr><td><code>array.range (끝)</code> / <code>array.range (시작) (끝) (간격)</code></td><td>시작(0)부터 끝 바로 앞까지 간격(1)만큼 바뀌는 정수 배열 <span class="tag tag-green">1.4.2</span></td></tr>
+                    <tr><td><code>list.push (리스트) (값) ...</code>, <code>list.pop (리스트)</code></td><td>끝에 추가, 마지막 원소를 꺼냄</td></tr>
+                    <tr><td><code>list.insert (리스트) (인덱스) (값)</code>, <code>list.removeat (리스트) (인덱스)</code></td><td>끼워넣기, 인덱스 위치의 원소 제거</td></tr>
+                    <tr><td><code>list.remove (리스트) (값)</code>, <code>list.clear (리스트)</code></td><td>같은 값 하나 제거, 모두 제거</td></tr>
+                </tbody>
+            </table>
+            <CodeBlock Code="@CollectionFunctions" Runnable="true" />
+        </section>
+
+        <section id="strings">
+            <h2>문자열 함수 string.* <span class="tag tag-green">1.4.2</span></h2>
+            <p>C#의 <code>System.String</code> 메서드를 옮긴 함수들입니다. 찾기와 비교는 유니코드 값 기준이라 <b>대소문자를 구별</b>하고, 인덱스는 0부터 셉니다. 문자열 자리에 다른 타입을 넣으면 오류가 나요. (<code>concat</code>, <code>join</code>, <code>format</code>은 모든 값을 문자열로 바꿈)</p>
+            <table class="table">
+                <thead><tr><th>함수</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td><code>string.concat (값) ...</code>, <code>string.join (구분자) (값) ...</code></td><td>이어붙이기. join에 배열/리스트 하나를 넣으면 그 원소들을 이어붙임</td></tr>
+                    <tr><td><code>string.format (형식) (값) ...</code></td><td>C#의 <code>string.Format</code>. <code>{0}</code>이 첫 값 (<code>console.write</code>는 <code>{1}</code>부터인 것과 달라요)</td></tr>
+                    <tr><td><code>string.compare (a) (b)</code>, <code>string.equals (a) (b) (대소문자 무시)</code></td><td>-1/0/1 비교, 같은지 비교</td></tr>
+                    <tr><td><code>string.isnullorempty</code>, <code>string.isnullorwhitespace</code></td><td>null이거나 비었는지, 공백뿐인지</td></tr>
+                    <tr><td><code>string.indexof (문자열) (찾을 값) (시작)</code>, <code>string.lastindexof</code></td><td>처음 / 마지막 위치 (없으면 -1)</td></tr>
+                    <tr><td><code>string.contains</code>, <code>string.startswith</code>, <code>string.endswith</code></td><td>포함하는지, 시작하는지, 끝나는지</td></tr>
+                    <tr><td><code>string.replace (문자열) (바꿀 값) (새 값)</code></td><td>모두 바꾸기</td></tr>
+                    <tr><td><code>string.substring (문자열) (시작) (길이)</code></td><td>부분 문자열 (길이는 생략 가능)</td></tr>
+                    <tr><td><code>string.insert (문자열) (인덱스) (값)</code>, <code>string.remove (문자열) (시작) (개수)</code></td><td>끼워넣기, 지우기</td></tr>
+                    <tr><td><code>string.toupper</code>, <code>string.tolower</code></td><td>대문자, 소문자로</td></tr>
+                    <tr><td><code>string.trim</code>, <code>string.trimstart</code>, <code>string.trimend</code></td><td>공백(또는 두번째 인자의 글자들) 제거</td></tr>
+                    <tr><td><code>string.padleft (문자열) (길이) (글자)</code>, <code>string.padright</code></td><td>길이가 될때까지 글자(생략하면 공백) 채우기</td></tr>
+                    <tr><td><code>string.split (문자열) (구분자)</code>, <code>string.tochararray</code></td><td>나누기 (구분자를 생략하면 공백마다), 한 글자씩 나누기</td></tr>
+                    <tr><td><code>string.charcode (문자열) (인덱스)</code>, <code>string.fromcharcode (코드) ...</code></td><td>글자의 UTF-16 코드, 코드로 문자열 만들기</td></tr>
+                </tbody>
+            </table>
+            <CodeBlock Code="@StringFunctions" Runnable="true" />
         </section>
 
         <section id="goto">
@@ -181,6 +232,8 @@
                     <tr><td><code>equal (값) (값) ...</code></td><td>모든 인자가 같으면 true</td></tr>
                     <tr><td><code>less (값) (값) ...</code> / <code>greater (값) (값) ...</code></td><td>앞의 값이 뒤의 값보다 작으면 / 크면 true. 셋 이상이면 오름차순 / 내림차순인지 검사</td></tr>
                     <tr><td><code>and (값) ...</code> / <code>or (값) ...</code> / <code>not (값)</code></td><td>모두 정수면 비트 AND / OR / NOT, 아니면 논리 AND / OR / NOT</td></tr>
+                    <tr><td><code>array.*</code>, <code>list.*</code></td><td><a href="guide#collections">컬렉션 함수</a> (sort, reverse, shuffle, push, binary_search 등)</td></tr>
+                    <tr><td><code>string.*</code></td><td><a href="guide#strings">문자열 함수</a> (concat, join, format, indexof, replace, trim 등)</td></tr>
                     <tr><td><code>null</code>, <code>true</code>, <code>false</code></td><td>상수</td></tr>
                 </tbody>
             </table>
@@ -206,6 +259,8 @@
                     <tr><td><code>math.pow (밑) (지수)</code></td><td>거듭제곱</td></tr>
                     <tr><td><code>math.log (값)</code> / <code>math.log (값) (밑)</code></td><td>상용로그, 또는 밑을 지정한 로그</td></tr>
                     <tr><td><code>math.log2 (값)</code></td><td>이진로그</td></tr>
+                    <tr><td><code>math.random</code> / <code>math.random (max)</code> / <code>math.random (min) (max)</code></td><td>빠른 난수. 인자가 없으면 0 이상 1 미만의 실수, 있으면 [min, max) 범위 (정수끼리면 정수) <span class="tag tag-green">1.4.1</span></td></tr>
+                    <tr><td><code>math.csprng ...</code></td><td>암호학적으로 안전한 난수 (인자 규칙은 math.random과 같음) <span class="tag tag-green">1.4.1</span></td></tr>
                     <tr><td><code>math.pi</code>, <code>math.tau</code>, <code>math.nan</code></td><td>상수</td></tr>
                 </tbody>
             </table>
@@ -242,6 +297,7 @@
         ("compare", "비교와 논리"),
         ("loops", "반복문"),
         ("collections", "배열과 리스트"),
+        ("strings", "문자열 함수"),
         ("goto", "goto와 레이블"),
         ("func", "함수 만들기"),
         ("commands", "명령어 레퍼런스"),
@@ -378,6 +434,27 @@
             sum = add sum (int n)
         end
         console.writeline "{1}개의 합: {2}" (length nums) sum
+        """;
+
+    const string CollectionFunctions = """
+        l = list 5 3 9 1 3
+        list.push l 7
+        list.sort l
+        console.writeline (list.join l ", ")
+        console.writeline "최소 {1}, 최대 {2}, 합 {3}" (list.min l) (list.max l) (list.sum l)
+        console.writeline (list.join (list.distinct l) " ")
+        console.writeline "9의 위치: {1}" (list.binary_search l 9)
+        console.writeline (array.join (array.range 0 10 2) " ")
+        """;
+
+    const string StringFunctions = """
+        s = string.trim "  Jyuno is small  "
+        console.writeline (string.toupper s)
+        console.writeline (string.indexof s "small")
+        console.writeline (string.replace s "small" "fun")
+        console.writeline (string.join "-" (string.split s " "))
+        console.writeline (string.format "{0} has {1} chars" s (length s))
+        console.writeline (string.padleft "7" 3 "0")
         """;
 
     const string Goto = """
