@@ -102,17 +102,23 @@
         </section>
 
         <section id="func">
-            <h2>함수 만들기 func / param / return</h2>
+            <h2>함수 만들기 func / param / return / local</h2>
             <p><code>func 이름</code>과 <code>endfunc</code> 사이가 함수 본문입니다. <code>func</code>를 만나면 함수가 만들어지기만 하고, 본문은 호출할 때 실행돼요. (그래서 호출하기 전에 먼저 만들어야 합니다.)</p>
             <ul>
                 <li><code>param 이름</code>은 쓴 순서대로 첫번째, 두번째... 인자를 받습니다. 인자가 부족하면 <code>null</code>, 남으면 무시돼요.</li>
                 <li><code>return 값</code>으로 반환합니다. <code>return</code> 없이 끝나면 <code>null</code>.</li>
-                <li>함수 안에서 만든 변수는 함수가 끝나면 사라지고, 함수 밖의 변수는 읽고 바꿀수 있습니다.</li>
                 <li>재귀 호출은 최대 200번까지 중첩할수 있어요.</li>
             </ul>
             <CodeBlock Code="@Func" Runnable="true" />
             <p>최상위에서 <code>return</code>을 쓰면 스크립트가 끝나고, 그 값이 C#의 <code>Run()</code> 반환값이 됩니다.</p>
             <CodeBlock Code="@TopReturn" Runnable="true" />
+            <h3>지역 변수와 local</h3>
+            <ul>
+                <li>함수 안에서 처음 만든 변수(파라미터 포함)는 그 호출만의 지역 변수예요. 함수가 끝나면 사라지고, 재귀 호출을 해도 호출마다 따로 있습니다.</li>
+                <li>함수 밖(스크립트 최상위, 또는 함수를 감싸는 함수)에 이미 있는 변수는 읽고 바꿀수 있어요. 함수를 호출한 다른 함수의 지역 변수는 보이지 않습니다.</li>
+                <li>바깥에 같은 이름의 변수가 있어도 함수 안에서만 쓰고 싶다면 <code>local 이름 = 값</code>으로 선언하세요. 값을 생략하면 <code>null</code>이에요.</li>
+            </ul>
+            <CodeBlock Code="@Local" Runnable="true" />
         </section>
 
         <section id="commands">
@@ -295,6 +301,23 @@
         endfunc
         greet "Jyunni"
         greet "Jyuno" "반가워"
+        """;
+
+    const string Local = """
+        total = 0
+        i = "바깥의 i"
+        func add_score
+            param score
+            total = add total score
+            local i = 0
+            repeat 3
+                i = add i 1
+            end
+        endfunc
+        add_score 10
+        add_score 20
+        console.writeline total
+        console.writeline i
         """;
 
     const string TopReturn = """
