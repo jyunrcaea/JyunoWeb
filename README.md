@@ -9,6 +9,7 @@
 - **문법 가이드** (`/guide`) : 모든 문법과 명령어, 예제마다 "실행해보기" 버튼
 - **C#에서 쓰기** (`/csharp`) : Runtime / Interpreter / AddFunction 등 C# 연동 방법
 - **플레이그라운드** (`/playground`) : 브라우저 안에서 진짜 Jyuno 인터프리터를 실행
+- **Native JS** (`/native-js`) : Jyuno를 JavaScript로 변환하는 Native JS 소개와 연구 결과(성능, 호환성 검증, 제약), 브라우저에서 두 엔진을 직접 비교하는 데모
 - **문제 풀기** (`/problems`) : Jyuno로 푸는 온라인 저지. 53문제, 제출하면 브라우저 안에서 채점
 
 ## 문제 추가하기

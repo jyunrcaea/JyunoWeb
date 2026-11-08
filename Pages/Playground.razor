@@ -182,6 +182,11 @@
             stdin = pending.Stdin ?? "";
             if (pending.Title is not null)
                 description = $"“{pending.Title}” 예제를 불러왔어요.";
+            if (pending.NativeJs)
+            {
+                options.NativeJs = true;
+                description += " 샌드박스 설정에서 Native JS를 켰어요.";
+            }
         }
         if (code is null && Examples.Find(QueryExample()) is { } fromQuery)
         {

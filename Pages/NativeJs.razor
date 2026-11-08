@@ -1,0 +1,651 @@
+@page "/native-js"
+@inject IJSRuntime JS
+@inject PlaygroundState Playground
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<PageTitle>Native JS · Jyuno를 JavaScript로</PageTitle>
+
+<section class="hero nj-hero">
+    <div class="hero-glow"></div>
+    <div class="container nj-hero-inner">
+        <a class="pill" href="https://github.com/jyunrcaea/JyunoSdk/wiki/Native-JS" target="_blank" rel="noopener">
+            <span class="pill-tag">연구 → 도입</span> Jyuno 1.4.0 · JyunoSdk 0.2.0 →
+        </a>
+        <h1>Jyuno를 JavaScript로,<br /><span class="grad">약 190배</span> 빠르게</h1>
+        <p class="lead">
+            <b>Native JS</b>는 Jyuno 코드를 한 번 JavaScript로 번역하고, 실행은 브라우저의 JS 엔진에 맡깁니다.
+            인터프리터 위에서 인터프리터를 돌리던 구조가 사라지고, 출력과 오류 메시지, 오류 줄 번호까지 C# 인터프리터와 똑같이 동작해요.
+        </p>
+        <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="native-js#race">▶ 직접 비교해보기</a>
+            <button class="btn btn-ghost btn-lg" @onclick="OpenInPlayground">플레이그라운드에서 켜기</button>
+        </div>
+
+        <div class="nj-stats">
+            <div class="nj-stat">
+                <div class="nj-stat-num">×188</div>
+                <div class="nj-stat-label">웹의 WASM 인터프리터 대비<br /><small>벤치마크 9개 기하평균</small></div>
+            </div>
+            <div class="nj-stat">
+                <div class="nj-stat-num">16<small>KB</small></div>
+                <div class="nj-stat-label">변환기와 런타임, 압축 후<br /><small>.NET WASM 런타임은 2.0 MB</small></div>
+            </div>
+            <div class="nj-stat">
+                <div class="nj-stat-num">20,000</div>
+                <div class="nj-stat-label">무작위 프로그램 차등 테스트<br /><small>인터프리터와 불일치 0개</small></div>
+            </div>
+            <div class="nj-stat">
+                <div class="nj-stat-num">3</div>
+                <div class="nj-stat-label">언어에 생긴 제약의 전부<br /><small>기존 코드 중 걸린 것 0개</small></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">왜 만들었나요?</span>
+            <h2>인터프리터 위의 인터프리터</h2>
+            <p>지금까지 웹에서 Jyuno를 실행하려면 브라우저에 .NET 런타임을 통째로 내려받고, 그 위에서 Jyuno 인터프리터가 한 줄씩 해석해야 했습니다. 두 겹의 해석은 느릴수밖에 없어요.</p>
+        </div>
+        <div class="nj-paths">
+            <div class="nj-path">
+                <div class="nj-path-title">지금까지 <span class="tag">WASM 인터프리터</span></div>
+                <div class="nj-flow">
+                    <span>Jyuno 코드</span><i>→</i><span>Jyuno 인터프리터 <small>(C#)</small></span><i>→</i><span>.NET 런타임 <small>(WASM)</small></span><i>→</i><span>브라우저</span>
+                </div>
+                <p>코드를 실행할 때마다 Jyuno 인터프리터가 해석하고, 그 인터프리터를 또 WebAssembly 위의 .NET이 실행합니다.</p>
+            </div>
+            <div class="nj-path nj-path-new">
+                <div class="nj-path-title">Native JS <span class="tag tag-green">새 방식</span></div>
+                <div class="nj-flow">
+                    <span>Jyuno 코드</span><i>→</i><span>JavaScript <small>(한 번 변환)</small></span><i>→</i><span>V8 등 JS 엔진 <small>(기계어로 컴파일)</small></span>
+                </div>
+                <p>변환은 한 번, 0.05~0.25 ms. 그 다음부터는 JS 엔진이 생성 코드를 기계어로 컴파일해서 바로 실행합니다.</p>
+            </div>
+        </div>
+        <div class="nj-alts">
+            <div class="nj-alt">
+                <b>WASM AOT 컴파일</b>
+                <span>약 3.6배 빨라짐 · 다운로드 +51~138%</span>
+            </div>
+            <div class="nj-alt">
+                <b>인터프리터 정적 특수화</b>
+                <span>브라우저에서 약 1.25배</span>
+            </div>
+            <div class="nj-alt nj-alt-win">
+                <b>Native JS</b>
+                <span>약 190배 · 워커는 +16 KB</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">이렇게 바뀝니다</span>
+            <h2>Jyuno 함수가 평범한 JS 함수로</h2>
+            <p>JyunoSdk 0.2.0의 <code>jyuno fib.jyuno --native-js</code>가 실제로 만드는 코드입니다.</p>
+        </div>
+        <div class="nj-compare">
+            <div class="nj-compare-col">
+                <CodeBlock Code="@FibJyuno" Title="fib.jyuno" Runnable="true" />
+            </div>
+            <div class="nj-compare-arrow" aria-hidden="true">→</div>
+            <div class="nj-compare-col">
+                <CodeBlock Code="@FibJs" Lang="js" Title="fib.js (프로그램 부분)" />
+            </div>
+        </div>
+        <div class="features nj-notes">
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>내장 함수는 빠른 경로로</h3>
+                <p><code>add</code>, <code>sub</code>, <code>less</code>는 재정의될수 없으니, 이름을 찾지 않고 인자 개수에 맞는 <code>add2</code>, <code>less2</code>를 바로 부릅니다.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔍</div>
+                <h3>필요 없는 검사는 지움</h3>
+                <p>확정 분석으로 <code>n</code>이 항상 있다는 것을 알기 때문에, "변수가 있나?" 검사 없이 바로 읽습니다.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🛡️</div>
+                <h3>JS 전역에는 닿지 않음</h3>
+                <p>모든 이름에 <code>$</code> 접두사가 붙어서, Jyuno 코드가 <code>window</code>나 <code>fetch</code> 같은 브라우저 API에 접근할 길이 없어요.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="race">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">직접 비교</span>
+            <h2>지금 이 브라우저에서 경주시키기</h2>
+            <p>같은 코드를 플레이그라운드와 똑같은 웹 워커에서 C# 인터프리터와 Native JS로 실행합니다. 엔진마다 세 번씩 돌려서 가장 빠른 시간을 보여줘요. Native JS 시간에는 워커의 .NET이 코드를 변환하는 시간도 들어 있어서, 연구의 측정값보다는 차이가 작게 나올수 있어요.</p>
+        </div>
+        <div class="nj-race">
+            <div class="nj-race-head">
+                <div class="tabs nj-race-tabs">
+                    @foreach (var program in racePrograms)
+                    {
+                        <button class="tab @(raceProgram == program ? "active" : "")" disabled="@raceRunning" @onclick="() => SelectRace(program)">@program.Label</button>
+                    }
+                </div>
+                <button class="btn btn-primary" disabled="@raceRunning" @onclick="Race">
+                    @if (raceRunning)
+                    {
+                        <span class="spinner"></span> <span>실행 중…</span>
+                    }
+                    else
+                    {
+                        <span>▶ 경주 시작</span>
+                    }
+                </button>
+            </div>
+            <div class="nj-race-body">
+                <div class="nj-race-code">
+                    <CodeBlock Code="@raceProgram.Code" Title="@raceProgram.File" />
+                    <p class="nj-race-desc">@raceProgram.Description</p>
+                </div>
+                <div class="nj-lanes">
+                    @foreach (var lane in new[] { interpLane, nativeLane })
+                    {
+                        <div class="nj-lane @(lane.Native ? "nj-lane-native" : "")">
+                            <div class="nj-lane-head">
+                                <span class="nj-lane-name">@lane.Name</span>
+                                <span class="nj-lane-time">@LaneTime(lane)</span>
+                            </div>
+                            <div class="nj-track">
+                                <div class="nj-bar" style="width: @(LaneWidth(lane).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            </div>
+                            <div class="nj-lane-foot">@lane.Detail</div>
+                        </div>
+                    }
+                    <div class="nj-verdict">
+                        @if (raceError is not null)
+                        {
+                            <span class="result result-error">✕ @raceError</span>
+                        }
+                        else if (raceRatio is { } ratio)
+                        {
+                            <span class="nj-verdict-num">×@(ratio >= 10 ? ratio.ToString("0") : ratio.ToString("0.0"))</span>
+                            <span>Native JS가 이 기기에서 @(ratio >= 10 ? ratio.ToString("0") : ratio.ToString("0.0"))배 빨랐어요. @(raceSameValue ? "두 엔진의 결과도 같아요 ✓" : "")</span>
+                        }
+                        else
+                        {
+                            <span class="nj-verdict-idle">@raceStatus</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">성능 측정</span>
+            <h2>모든 벤치마크에서 가장 빠름</h2>
+            <p>벤치마크 9개를 같은 Chromium의 웹 워커에서 실행했습니다. 매번 새로 컴파일하고 실행한 시간의 중앙값이고, 모든 실행에서 결과값이 서로 같았어요.</p>
+        </div>
+        <div class="nj-bench">
+            <div class="nj-bench-head">
+                <div>
+                    <div class="nj-bench-label">비교 대상</div>
+                    <div class="tabs">
+                        @foreach (var baseline in baselines)
+                        {
+                            <button class="tab @(benchBaseline == baseline.Index ? "active" : "")" @onclick="() => benchBaseline = baseline.Index">@baseline.Label</button>
+                        }
+                    </div>
+                </div>
+                <div class="nj-bench-geo">
+                    <span>기하평균</span>
+                    <b>×@Geomean(benchBaseline).ToString("0")</b>
+                </div>
+            </div>
+            <div class="nj-bench-rows">
+                @{ double max = bench.Max(b => b.Ms[benchBaseline] / b.Ms[3]); }
+                @foreach (var row in bench)
+                {
+                    double ratio = row.Ms[benchBaseline] / row.Ms[3];
+                    <div class="nj-bench-row">
+                        <code class="nj-bench-name">@row.Name</code>
+                        <div class="nj-bench-track">
+                            <div class="nj-bench-bar" style="width: @((ratio / max * 100).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="nj-bench-ratio">×@ratio.ToString("0")</span>
+                        <span class="nj-bench-ms">@Ms(row.Ms[benchBaseline]) → <b>@Ms(row.Ms[3])</b></span>
+                    </div>
+                }
+            </div>
+            <p class="nj-bench-note">@baselines[benchBaseline].Note 가장 큰 차이는 함수 호출과 정수 연산이 많은 <code>fib_20</code>, <code>call_loop</code>이고, 가장 작은 차이는 실수 연산(<code>double_math</code>)과 인자가 셋인 <code>add</code>(<code>repeat_const</code>)예요. 둘 다 아직 최적화할 여지가 남아 있습니다.</p>
+        </div>
+
+        <div class="nj-startup">
+            @foreach (var item in startup)
+            {
+                <div class="nj-startup-card">
+                    <h3>@item.Title</h3>
+                    <div class="nj-startup-row">
+                        <span>WASM 인터프리터</span>
+                        <div class="nj-startup-track"><div class="nj-startup-bar" style="width: 100%"></div></div>
+                        <b>@item.Before</b>
+                    </div>
+                    <div class="nj-startup-row nj-startup-native">
+                        <span>Native JS</span>
+                        <div class="nj-startup-track"><div class="nj-startup-bar" style="width: @item.Width"></div></div>
+                        <b>@item.After</b>
+                    </div>
+                    <p>@item.Note</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">호환성 검증</span>
+            <h2>출력부터 오류 줄 번호까지 똑같이</h2>
+            <p>같은 코드를 C# 인터프리터(기준)와 Native JS로 돌려서 <b>출력, 반환값과 타입, 오류 메시지, 오류 줄 번호, 예외 종류</b>를 모두 비교했습니다.</p>
+        </div>
+        <div class="nj-checks">
+            <div class="nj-check">
+                <div class="nj-check-num">20,000<small>개</small></div>
+                <div class="nj-check-title">무작위 프로그램</div>
+                <div class="nj-check-result">불일치 0개</div>
+                <p>함수, 재귀, 중첩 반복, goto, 리스트, 실수 출력, long 오버플로우, 타입 오류를 섞어 만든 평균 59줄짜리 프로그램. 4분의 3은 일부러 넣은 오류로 멈추므로 오류 메시지도 많이 검증돼요.</p>
+            </div>
+            <div class="nj-check">
+                <div class="nj-check-num">53<small>문제</small></div>
+                <div class="nj-check-title">문제 풀기 채점</div>
+                <div class="nj-check-result">모두 AC</div>
+                <p>숨겨진 테스트를 포함한 510개 케이스. 케이스당 평균 0.22 ms, 가장 오래 걸린 것도 12.9 ms였어요.</p>
+            </div>
+            <div class="nj-check">
+                <div class="nj-check-num">298<small>/299</small></div>
+                <div class="nj-check-title">Jyuno.Tests 스크립트</div>
+                <div class="nj-check-result">일치</div>
+                <p>남은 1개는 짝이 없는 <code>end</code> 같은 블록 구조 오류를 실행 전에 알려주는 차이예요. 메시지와 줄 번호는 같습니다.</p>
+            </div>
+            <div class="nj-check">
+                <div class="nj-check-num">296<small>건</small></div>
+                <div class="nj-check-title">일부러 넣은 버그</div>
+                <div class="nj-check-result">모두 잡아냄</div>
+                <p>실수 출력이 <code>1E+17</code>로 바뀌는 경계를 한 자리 틀리게 바꾸자 무작위 테스트가 296건의 차이를 찾아냈어요. 테스트가 진짜 차이를 잡는다는 증거예요.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">제약</span>
+            <h2>지켜야 할 것은 세 가지뿐</h2>
+            <p>변수와 함수를 미리 정해진 자리에 두고 직접 호출하기 때문에, 이 전제를 깨는 코드는 실행 전에 줄 번호와 함께 알려줍니다.</p>
+        </div>
+        <div class="nj-rules">
+            @foreach (var rule in rules)
+            {
+                <div class="nj-rule">
+                    <h3>@rule.Title</h3>
+                    <CodeBlock Code="@rule.Code" Copyable="false" Class="nj-rule-code" />
+                    <p class="nj-rule-error">@rule.Error</p>
+                    <p>@rule.Why</p>
+                </div>
+            }
+        </div>
+        <div class="callout nj-callout">
+            문제 풀기 풀이 53개, 플레이그라운드 예제 19개, Jyuno.Tests 스크립트 299개 중 goto 제약에 걸린 코드는 <b>0개</b>였어요. 그 밖에 <code>file.*</code> 명령어는 지원하지 않고, <code>math.sin</code> 같은 초월 함수는 엔진의 수학 라이브러리 차이로 마지막 비트가 다를수 있습니다.
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">써보기</span>
+            <h2>세 가지 방법</h2>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h3>플레이그라운드에서</h3>
+                    <p>샌드박스 설정의 <b>Native JS (실험)</b>를 켜면, 같은 코드를 JavaScript로 변환해서 실행합니다. 결과 줄에 변환 시간이 함께 나와요.</p>
+                    <button class="btn btn-ghost" @onclick="OpenInPlayground">Native JS를 켜고 플레이그라운드 열기 →</button>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h3>명령어로 변환하기</h3>
+                    <p><a href="https://github.com/jyunrcaea/JyunoSdk" target="_blank" rel="noopener">JyunoSdk</a>의 <code>jyuno</code> 명령어로 런타임이 포함된 <code>.js</code> 파일 하나를 만듭니다. Node.js나 브라우저에서 .NET 없이 실행돼요.</p>
+                    <CodeBlock Code="@Cli" Lang="shell" />
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h3>JavaScript에서 실행하기</h3>
+                    <p>만들어진 파일은 <code>JyunoProgram</code>(CommonJS라면 <code>module.exports</code>)을 내보냅니다. 입력, 출력, 호스트 함수를 넘겨서 실행하세요.</p>
+                    <CodeBlock Code="@JsApi" Lang="js" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">지금까지와 앞으로</span>
+            <h2>연구에서 도입까지</h2>
+        </div>
+        <ol class="nj-timeline">
+            @foreach (var step in timeline)
+            {
+                <li class="@(step.Done ? "done" : "")">
+                    <span class="nj-timeline-dot">@(step.Done ? "✓" : "")</span>
+                    <div>
+                        <b>@step.Title</b>
+                        <p>@step.Body</p>
+                    </div>
+                </li>
+            }
+        </ol>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container cta-inner">
+        <div>
+            <h2>더 깊이 알고 싶다면</h2>
+            <p>값 표현, 변수 영역 분석, goto를 JS로 옮기는 방법, 측정 조건과 재현 방법은 JyunoSdk 위키에 정리되어 있어요.</p>
+        </div>
+        <div class="cta-actions">
+            <a class="btn btn-light btn-lg" href="https://github.com/jyunrcaea/JyunoSdk/wiki/Native-JS" target="_blank" rel="noopener">위키 읽기 →</a>
+            <a class="btn btn-outline-light btn-lg" href="https://github.com/jyunrcaea/JyunoSdk/wiki/Native-JS-Research" target="_blank" rel="noopener">연구 결과 보기 →</a>
+        </div>
+    </div>
+</section>
+
+@code {
+    //─────────── 연구 결과 (Native JS 연구 보고서, Chromium 153 / Node 22 / .NET 10.0.14) ───────────
+    record BenchRow(string Name, double[] Ms); // [WASM 인터프리터, WASM AOT, .NET 10 JIT, Native JS]
+    static readonly BenchRow[] bench = {
+        new("call_loop_50k", new[] { 240.6, 66.9, 19.1, 0.6 }),
+        new("double_math_100k", new[] { 277.7, 89.8, 25.9, 4.9 }),
+        new("fib_20", new[] { 130.3, 27.1, 10.5, 0.3 }),
+        new("for_string_1000x100", new[] { 331.9, 75.6, 21.7, 1.0 }),
+        new("poly_types_60k", new[] { 448.6, 121.9, 24.5, 2.7 }),
+        new("prime_count_3000", new[] { 121.7, 37.4, 9.4, 0.8 }),
+        new("repeat_const_200k", new[] { 314.9, 86.4, 17.3, 5.1 }),
+        new("sieve_list_20k", new[] { 383.0, 141.5, 20.7, 2.0 }),
+        new("while_sum_200k", new[] { 537.2, 135.4, 33.2, 1.8 }),
+    };
+
+    record Baseline(int Index, string Label, string Note);
+    static readonly Baseline[] baselines = {
+        new(0, "WASM 인터프리터 (지금 웹)", "지금 이 사이트가 기본으로 쓰는 방식과 비교했어요."),
+        new(1, "WASM AOT", "이전 연구에서 제안했던 AOT 빌드보다도 빠릅니다."),
+        new(2, ".NET 10 JIT (네이티브)", ".NET 10 JIT는 브라우저가 아닌 같은 서버에서 네이티브로 실행한 참고값이에요. 네이티브 C#보다도 빠릅니다."),
+    };
+    int benchBaseline;
+
+    static double Geomean(int baseline) => Math.Exp(bench.Average(b => Math.Log(b.Ms[baseline] / b.Ms[3])));
+
+    static string Ms(double ms) => ms < 10 ? $"{ms:0.0} ms" : $"{ms:0} ms";
+
+    record Startup(string Title, string Before, string After, string Width, string Note);
+    static readonly Startup[] startup = {
+        new("워커 준비 시간", "337 ms", "46 ms", "13.6%", "캐시된 상태에서 실행 준비까지. 두 번째 .NET 런타임을 띄울 필요가 없어요."),
+        new("첫 실행 (컴파일 포함)", "124~765 ms", "1.4~33 ms", "4.3%", "실행 버튼을 처음 눌렀을 때의 지연이 눈에 띄게 줄어요."),
+        new("다운로드 (압축 후)", "2.0 MB", "16 KB", "0.8%", "변환기와 런타임을 합친 크기. 화면까지 JS로 옮기면 .NET 다운로드 자체가 없어져요."),
+    };
+
+    //─────────── 제약 ───────────
+    record Rule(string Title, string Code, string Error, string Why);
+    static readonly Rule[] rules = {
+        new("변수/함수 삭제 금지", "x = 1\nx =", "Native JS 제약: 변수/함수 삭제('x =')를 쓸수 없습니다.",
+            "삭제가 있으면 \"이 변수는 여기서 반드시 있다\"는 분석이 깨지고, 모든 변수 읽기에 검사가 필요해집니다."),
+        new("내장 함수/상수 재정의 금지", "add = 1\nfunc mul\nreturn 1\nendfunc", "Native JS 제약: 내장 함수/상수 'add'을/를 대입할수 없습니다.",
+            "add가 언제든 바뀔수 있다면 add2(a, b)처럼 바로 부를수 없어요. 막아 두면 모든 내장 함수 호출이 빠른 경로를 탑니다."),
+        new("블록 안으로 들어가는 goto 금지", "if (less x 0)\n    inner:\n    x = 0\nend\ngoto inner", "Native JS 제약: goto로 블록(if, while, repeat, for) 안쪽으로 들어갈수 없습니다.",
+            "JS에는 블록 안쪽으로 뛰어드는 점프가 없어요. 같은 블록이나 바깥 블록으로 가는 goto(반복문 탈출, 뒤로 가는 루프)는 모두 됩니다."),
+    };
+
+    //─────────── 연혁 ───────────
+    record TimelineStep(bool Done, string Title, string Body);
+    static readonly TimelineStep[] timeline = {
+        new(true, "연구 프로토타입", "Jyuno 1.3.2를 JS로 컴파일하는 순수 JS 모듈 5개(약 1,900줄). 성능과 호환성을 측정하고 필요한 제약을 찾았어요."),
+        new(true, "Jyuno 1.4.0", "인터프리터와 같은 규칙으로 코드를 분석하는 Jyuno.Analysis와 Native JS 제약 검사(CheckNativeJs)를 언어 라이브러리에 넣었어요."),
+        new(true, "JyunoSdk 0.2.0", "jyuno <파일> --native-js 명령어와 JyunoSdk.NativeJs 라이브러리. 인터프리터와의 차등 테스트를 테스트에 포함했어요."),
+        new(true, "플레이그라운드 실험 옵션", "샌드박스 설정에서 Native JS를 켜고 끌수 있어요. 기본값은 아직 C# 인터프리터입니다."),
+        new(false, "채점을 Native JS로", "지금의 시간 제한은 WASM 인터프리터 속도에 맞춰져 있어서, 바꾸려면 시간 제한을 다시 정해야 해요."),
+        new(false, "화면까지 JavaScript로 (선택)", "화면도 JS로 옮기면 .NET 다운로드(약 2 MB)가 사라집니다. 화면을 다시 만들어야 해서 선택 사항이에요."),
+    };
+
+    //─────────── 코드 ───────────
+    const string FibJyuno = """
+        func fib
+            param n
+            if (less n 2)
+                return n
+            end
+            return (add (fib (sub n 1)) (fib (sub n 2)))
+        endfunc
+
+        console.writeline "fib 25 = {1}" (fib 25)
+        """;
+
+    const string FibJs = """
+        let $0_fib = U;
+        $0_fib = function $f_fib($a0) {
+          if ($depth >= 200) $tooDeep(); $depth++; try {
+            let $1_n = U;
+            $1_n = ($a0 === undefined ? null : $a0);
+            if (less2($1_n, 2)) {
+              return $1_n;
+            }
+            return add2($0_fib(sub2($1_n, 1)), $0_fib(sub2($1_n, 2)));
+            return null;
+          } finally { $depth--; }
+        };
+        $h0(["fib 25 = {1}", $0_fib(25)]);
+        """;
+
+    const string Cli = """
+        dotnet tool install -g JyunoSdk
+        jyuno fib.jyuno --native-js
+        node fib.js
+        """;
+
+    const string JsApi = """
+        const program = require('./hello.js');   // 브라우저: <script src="hello.js">
+        const result = program.run({
+          input: 'Jyunni\n',                       // console.readline이 읽을 문자열
+          write: (text) => process.stdout.write(text),
+        });
+        // { status: 'ok' | 'error' | 'grammar', value, text, type, message, line }
+        """;
+
+    //─────────── 직접 비교 ───────────
+    record RaceProgram(string Label, string File, string Description, string Code);
+    static readonly RaceProgram[] racePrograms = {
+        new("재귀 피보나치", "fib.jyuno", "함수 호출이 많은 코드. Native JS에서는 평범한 JS 함수 호출이 됩니다.", """
+            func fib
+                param n
+                if (less n 2)
+                    return n
+                end
+                return (add (fib (sub n 1)) (fib (sub n 2)))
+            endfunc
+
+            return (fib 22)
+            """),
+        new("반복문 합계", "loop.jyuno", "30만 번 도는 while 반복문과 정수 연산.", """
+            total = 0
+            i = 0
+            while (less i 300000)
+                total = add total (mod i 7)
+                i = add i 1
+            end
+            return total
+            """),
+        new("소수 세기", "primes.jyuno", "5,000보다 작은 소수를 나눗셈으로 셉니다. 중첩 반복문과 조건문.", """
+            count = 0
+            n = 2
+            while (less n 5000)
+                d = 2
+                prime = true
+                while (and prime (not (greater (mul d d) n)))
+                    if (equal (mod n d) 0)
+                        prime = false
+                    end
+                    d = add d 1
+                end
+                if prime
+                    count = add count 1
+                end
+                n = add n 1
+            end
+            return count
+            """),
+    };
+    RaceProgram raceProgram = racePrograms[0];
+
+    sealed class Lane
+    {
+        public required string Name { get; init; }
+        public bool Native { get; init; }
+        public double? Ms { get; set; }
+        public bool Running { get; set; }
+        public string Detail { get; set; } = "";
+        public string? Value { get; set; }
+    }
+    readonly Lane interpLane = new() { Name = "C# 인터프리터 (WASM)", Detail = "Jyuno 1.4.0 인터프리터를 워커의 .NET 런타임에서 실행" };
+    readonly Lane nativeLane = new() { Name = "Native JS", Native = true, Detail = "JyunoSdk.NativeJs로 변환해서 워커의 JS 엔진으로 실행" };
+    bool raceRunning;
+    string raceStatus = "‘경주 시작’을 누르면 실행용 워커를 준비하고 두 엔진을 차례로 실행해요.";
+    string? raceError;
+    double? raceRatio;
+    bool raceSameValue;
+    IJSObjectReference? raceModule;
+
+    record RunResult(string Status, string? Value, string? Message, double ElapsedMs, double CompileMs);
+
+    void SelectRace(RaceProgram program)
+    {
+        raceProgram = program;
+        ResetLanes();
+    }
+
+    void ResetLanes()
+    {
+        foreach (var lane in new[] { interpLane, nativeLane })
+        {
+            lane.Ms = null;
+            lane.Value = null;
+            lane.Running = false;
+        }
+        interpLane.Detail = "Jyuno 1.4.0 인터프리터를 워커의 .NET 런타임에서 실행";
+        nativeLane.Detail = "JyunoSdk.NativeJs로 변환해서 워커의 JS 엔진으로 실행";
+        raceRatio = null;
+        raceError = null;
+    }
+
+    async Task Race()
+    {
+        if (raceRunning)
+            return;
+        ResetLanes();
+        raceRunning = true;
+        try
+        {
+            raceModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/native-race.js");
+            raceStatus = "실행용 워커의 .NET 런타임을 준비하는 중…";
+            StateHasChanged();
+            int bootMs = await raceModule.InvokeAsync<int>("prepare");
+            raceStatus = bootMs > 0 ? $"워커 준비 완료 ({bootMs} ms). 실행하는 중…" : "실행하는 중…";
+
+            foreach (var lane in new[] { interpLane, nativeLane })
+            {
+                lane.Running = true;
+                StateHasChanged();
+                RunResult? measured = null;
+                for (int i = 0; i < 3; i++)
+                {
+                    string json = await raceModule.InvokeAsync<string>("runOnce", TimeSpan.FromMinutes(2), raceProgram.Code, lane.Native);
+                    var run = System.Text.Json.JsonSerializer.Deserialize<RunResult>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+                    if (run is null || run.Status != "ok")
+                    {
+                        measured = run;
+                        break;
+                    }
+                    if (measured is null || run.ElapsedMs + run.CompileMs < measured.ElapsedMs + measured.CompileMs)
+                        measured = run;
+                }
+                lane.Running = false;
+                if (measured is null || measured.Status != "ok")
+                {
+                    raceError = $"{lane.Name} 실행 실패: {measured?.Message ?? "알수 없는 오류"}";
+                    return;
+                }
+                lane.Ms = measured.ElapsedMs + measured.CompileMs;
+                lane.Value = measured.Value;
+                lane.Detail = lane.Native
+                    ? $"변환 {Ms(measured.CompileMs)} + 실행 {Ms(measured.ElapsedMs)} · 결과 {measured.Value}"
+                    : $"실행 {Ms(measured.ElapsedMs)} · 결과 {measured.Value}";
+                StateHasChanged();
+            }
+            raceSameValue = interpLane.Value == nativeLane.Value;
+            raceRatio = interpLane.Ms / Math.Max(nativeLane.Ms ?? 0, 0.05);
+        }
+        catch (Exception e)
+        {
+            raceError = $"실행하지 못했어요: {e.Message}";
+        }
+        finally
+        {
+            raceRunning = false;
+            interpLane.Running = nativeLane.Running = false;
+            StateHasChanged();
+        }
+    }
+
+    double LaneWidth(Lane lane)
+    {
+        double slowest = Math.Max(interpLane.Ms ?? 0, nativeLane.Ms ?? 0);
+        if (lane.Ms is not { } ms || slowest <= 0)
+            return 0;
+        return Math.Max(ms / slowest * 100, 0.8);
+    }
+
+    static string LaneTime(Lane lane) => lane.Running ? "실행 중…" : lane.Ms is { } ms ? Ms(ms) : "—";
+
+    void OpenInPlayground()
+    {
+        Playground.Open(FibJyuno, title: "Native JS 피보나치", nativeJs: true);
+        Navigation.NavigateTo("playground");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (raceModule is null)
+            return;
+        try
+        {
+            await raceModule.InvokeVoidAsync("dispose");
+            await raceModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+    }
+}
