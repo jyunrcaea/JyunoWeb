@@ -81,7 +81,7 @@
                     }
                     else if (result.Status == "ok")
                     {
-                        <span class="result result-ok">✓ 완료 · @FormatMs(result.ElapsedMs)</span>
+                        <span class="result result-ok">✓ 완료 · @FormatMs(result.ElapsedMs)@EngineText(result)</span>
                         @if (result.Value is not null && result.Value != "null")
                         {
                             <span class="result-value">반환값 <code>@result.Value</code> <small>@result.ValueType</small></span>
@@ -90,9 +90,13 @@
                     else
                     {
                         <span class="result result-error">
-                            ✕ @(result.Status == "grammar" ? "문법 오류" : "실행 오류")@(result.Line >= 0 ? $" · {result.Line}번 줄" : "")
+                            ✕ @(result.Status switch { "grammar" => "문법 오류", "restricted" => "Native JS로 변환할수 없음", _ => "실행 오류" })@(result.Line >= 0 ? $" · {result.Line}번 줄" : "")@EngineText(result)
                         </span>
                         <span class="result-message">@result.Message@(result.ExceptionType is null ? "" : $" ({result.ExceptionType})")</span>
+                        @if (result.Status == "restricted")
+                        {
+                            <span class="result-hint">Native JS는 삭제(<code>x =</code>), 내장 함수 재정의, 블록 안으로 들어가는 goto를 쓸수 없어요. 샌드박스 설정에서 Native JS를 끄면 C# 인터프리터로 실행해요.</span>
+                        }
                     }
                     @if (result?.InputExhausted == true && !running)
                     {
@@ -116,6 +120,10 @@
                 @if (optionsOpen)
                 {
                     <div class="options">
+                        <div class="options-group">
+                            <div class="options-label">실행 엔진</div>
+                            <Toggle @bind-Value="options.NativeJs" Label="Native JS (실험)" Note="C# 인터프리터 대신 JavaScript로 변환해서 실행" />
+                        </div>
                         <div class="options-group">
                             <div class="options-label">명령어 묶음 <code>AddJyunoCommandType</code></div>
                             <Toggle @bind-Value="options.Console" Label="Console" Note="console.write, readline …" />
@@ -296,6 +304,9 @@
 
     [JSInvokable]
     public Task RunShortcut() => InvokeAsync(Run);
+
+    static string EngineText(SandboxResult result)
+        => result.Engine != "native-js" ? "" : result.CompileMs is { } compile ? $" · Native JS (변환 {FormatMs(compile)})" : " · Native JS";
 
     static string FormatMs(double ms) => ms < 1000 ? $"{ms:0.#}ms" : $"{ms / 1000:0.00}s";
 

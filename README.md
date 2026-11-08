@@ -19,7 +19,7 @@ C#으로 작성한 풀이(`Solve`)를 적으면 예제 출력과 테스트 정�
 줄 끝 공백과 마지막 빈 줄은 무시하고 비교합니다.
 
 ## 플레이그라운드는 어떻게 동작하나요?
-Blazor WebAssembly 앱이 NuGet의 `Jyuno` 패키지를 그대로 참조합니다.
+Blazor WebAssembly 앱이 NuGet의 `Jyuno`, `JyunoSdk.NativeJs` 패키지를 그대로 참조합니다.
 스크립트는 **웹 워커** 안에 따로 띄운 .NET 런타임에서 실행되므로 ([`wwwroot/js/jyuno-worker.js`](wwwroot/js/jyuno-worker.js), [`Engine/JyunoSandbox.cs`](Engine/JyunoSandbox.cs)),
 
 - 무한 반복문이 있어도 화면이 멈추지 않고, 중지 버튼으로 워커를 종료할수 있습니다.
@@ -27,6 +27,9 @@ Blazor WebAssembly 앱이 NuGet의 `Jyuno` 패키지를 그대로 참조합니�
 - 샌드박스 설정에서 명령어 묶음(Console, Math, File)과 `EnableRemoveVariable`, `BlockSubstitute`를 켜고 끌수 있습니다. File 명령어는 브라우저 안의 가상 디스크에서만 동작합니다.
 - 호스트 함수(`random`, `time.now`, `text.at`, `text.upper`)는 C# 프로그램이 `runtime.AddFunction`으로 함수를 추가하는 예시입니다. ([`Engine/JyunoHost.cs`](Engine/JyunoHost.cs))
   `less`, `greater`, `and`, `or`, `not`, `length`는 Jyuno 1.3.2부터 기본 명령어입니다. 기본 명령어와 같은 이름은 `AddFunction`이 `false`를 반환하고 무시되니 추가하지 마세요.
+- 샌드박스 설정의 **Native JS**를 켜면 C# 인터프리터 대신, [JyunoSdk](https://github.com/jyunrcaea/JyunoSdk)의 `JyunoSdk.NativeJs` 패키지로 코드를 JavaScript로 변환해서 워커의 JS 엔진으로 실행합니다. (기본값은 C#)
+  변환은 워커의 .NET이(`JyunoSandbox.CompileNativeJs`), 실행과 호스트 함수는 [`jyuno-worker.js`](wwwroot/js/jyuno-worker.js)가 맡습니다.
+  반복문과 함수 호출이 많은 코드에서 훨씬 빠르지만, 삭제(`x =`), 내장 함수 재정의, 블록 안으로 들어가는 goto는 쓸수 없고 File 명령어는 지원하지 않습니다.
 - 공유 버튼은 코드를 압축해서 주소(`#code=...`)에 담습니다. 작성 중인 코드는 브라우저에 자동 저장됩니다.
 
 ## 로컬에서 실행
