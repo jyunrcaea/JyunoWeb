@@ -1,0 +1,301 @@
+{"lines":["out 1","out \u0027unterminated","out 2"],"status":"grammar","message":"\uBB38\uC790\uC5F4\uC740 \uD56D\uC0C1 \uB530\uC634\uD45C\uB85C \uB05D\uB098\uC57C \uD569\uB2C8\uB2E4.","line":1,"outValues":[{"t":"int","v":"1"}]}
+{"lines":["func fact","  param n","  if (equal n 0)","    return 1","  end","  return (mul n (fact (sub n 1)))","endfunc","return (fact 10)"],"status":"ok","value":{"t":"int","v":"3628800"},"outValues":[]}
+{"lines":["for x (array 1 2)","out (seen =)","seen = true","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"bool","v":false},{"t":"bool","v":false}]}
+{"lines":["x = 5","func f","  local x","  out x","endfunc","f","return x"],"status":"ok","value":{"t":"int","v":"5"},"outValues":[{"t":"null"}]}
+{"mode":"eval","lines":["length \u0027hello\u0027"],"status":"ok","value":{"t":"int","v":"5"}}
+{"mode":"eval","lines":["length (div \u0027a,b,c\u0027 \u0027,\u0027)"],"status":"ok","value":{"t":"int","v":"3"}}
+{"mode":"eval","lines":["length (list)"],"status":"ok","value":{"t":"int","v":"0"}}
+{"mode":"eval","lines":["length \u0027\u0027"],"status":"ok","value":{"t":"int","v":"0"}}
+{"mode":"eval","lines":["length (array 1 2 3)"],"status":"ok","value":{"t":"int","v":"3"}}
+{"lines":["if 0","  out \u0027a\u0027","else","  out \u0027b\u0027","end","if 1","  out \u0027c\u0027","else","  out \u0027d\u0027","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"b"},{"t":"string","v":"c"}]}
+{"lines":["a = list 1 2","b = add a (list 3)","out a","out b"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"list","v":[{"t":"int","v":"1"},{"t":"int","v":"2"}]},{"t":"list","v":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"}]}]}
+{"lines":["base = 10","func f","  param a","  return (add base a)","endfunc","return (f 5)"],"status":"ok","value":{"t":"int","v":"15"},"outValues":[]}
+{"lines":["if 0","else","else","end"],"status":"grammar","message":"else\uB294 if\uC640 end \uC0AC\uC774\uC5D0 \uD55C\uBC88\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","line":2,"outValues":[]}
+{"lines":["l = array 1 2 3","l 0 \u0027text\u0027"],"status":"error","message":"\u0027text\u0027\uC740/\uB294 \uC774 \uCEEC\uB809\uC158\uC758 \uC6D0\uC18C \uD0C0\uC785(Int64)\uC5D0 \uB123\uC744\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["for 1 (array 1)","end"],"status":"error","message":"for\uB294 \u0027for (\uC774\uB984) (\uBC30\uC5F4/\uB9AC\uC2A4\uD2B8/\uBB38\uC790\uC5F4)\u0027 \uD615\uC2DD\uC73C\uB85C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["l = array 1 2 3","l 1.0"],"status":"error","message":"\uC778\uB371\uC2A4\uB294 \uC815\uC218\uC5EC\uC57C \uD569\uB2C8\uB2E4. (\u00271\u0027)","exceptionType":null,"outValues":[]}
+{"lines":["for x","end"],"status":"error","message":"for\uB294 \u0027for (\uC774\uB984) (\uBC30\uC5F4/\uB9AC\uC2A4\uD2B8/\uBB38\uC790\uC5F4)\u0027 \uD615\uC2DD\uC73C\uB85C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["func","endfunc"],"status":"error","message":"func \uB2E4\uC74C\uC5D0\uB294 \uD568\uC218 \uC774\uB984 \uD558\uB098\uB9CC \uC640\uC57C \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["repeat 2","out 1"],"status":"grammar","message":"\uBAA8\uB4E0 \uC870\uAC74\uBB38(if, while \uB4F1) \uD0A4\uC6CC\uB4DC\uB294 end \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["for x 3","end"],"status":"error","message":"\u00273\u0027\uC740/\uB294 \uC21C\uD68C\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4. (\uBC30\uC5F4/\uB9AC\uC2A4\uD2B8/\uBB38\uC790\uC5F4\uB9CC \uAC00\uB2A5)","exceptionType":null,"outValues":[]}
+{"lines":["func f g","endfunc"],"status":"error","message":"func \uB2E4\uC74C\uC5D0\uB294 \uD568\uC218 \uC774\uB984 \uD558\uB098\uB9CC \uC640\uC57C \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["l = array 1 2 3","l \u0027a\u0027"],"status":"error","message":"\uC778\uB371\uC2A4\uB294 \uC815\uC218\uC5EC\uC57C \uD569\uB2C8\uB2E4. (\u0027a\u0027)","exceptionType":null,"outValues":[]}
+{"lines":["out 1","end"],"status":"grammar","message":"end\uC640 \uC9DD\uC774 \uB418\uB294 if, while, repeat, for \uD0A4\uC6CC\uB4DC\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.","line":1,"outValues":[{"t":"int","v":"1"}]}
+{"lines":["func 1","endfunc"],"status":"error","message":"func \uB2E4\uC74C\uC5D0\uB294 \uD568\uC218 \uC774\uB984 \uD558\uB098\uB9CC \uC640\uC57C \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["if 0","out 1"],"status":"grammar","message":"\uBAA8\uB4E0 \uC870\uAC74\uBB38(if, while \uB4F1) \uD0A4\uC6CC\uB4DC\uB294 end \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["l = array 1 2 3","l 0 1 2"],"status":"error","message":"\uBC30\uC5F4/\uB9AC\uC2A4\uD2B8\uB294 \u0027(\uC774\uB984) (\uC778\uB371\uC2A4)\u0027 \uB610\uB294 \u0027(\uC774\uB984) (\uC778\uB371\uC2A4) (\uAC12)\u0027 \uD615\uC2DD\uC73C\uB85C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["for x null","end"],"status":"error","message":"\u0027null\u0027\uC740/\uB294 \uC21C\uD68C\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4. (\uBC30\uC5F4/\uB9AC\uC2A4\uD2B8/\uBB38\uC790\uC5F4\uB9CC \uAC00\uB2A5)","exceptionType":null,"outValues":[]}
+{"lines":["break"],"status":"grammar","message":"break\uB294 \uBC18\uBCF5\uBB38(while, repeat, for) \uC548\uC5D0\uC11C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["func inner","  secret = 2","endfunc","func outer","  secret = 1","  inner","  return secret","endfunc","return (outer)"],"status":"ok","value":{"t":"int","v":"1"},"outValues":[]}
+{"lines":["if 0","else","break","end"],"status":"grammar","message":"break\uB294 \uBC18\uBCF5\uBB38(while, repeat, for) \uC548\uC5D0\uC11C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","line":2,"outValues":[]}
+{"lines":["for x (array)","out x","end","out \u0027after\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"after"}]}
+{"lines":["for x (array 1)","out x"],"status":"grammar","message":"\uBAA8\uB4E0 \uC870\uAC74\uBB38(if, while \uB4F1) \uD0A4\uC6CC\uB4DC\uB294 end \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["l = array 1 2 3","l 3"],"status":"error","message":"\uC778\uB371\uC2A4 3\uC740/\uB294 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC2B5\uB2C8\uB2E4. (\uAE38\uC774: 3)","exceptionType":null,"outValues":[]}
+{"lines":["words = div \u0027a b c\u0027 \u0027 \u0027","for w words","out w","end","for n (list 4 5)","out n","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"a"},{"t":"string","v":"b"},{"t":"string","v":"c"},{"t":"int","v":"4"},{"t":"int","v":"5"}]}
+{"mode":"eval","lines":["length null"],"status":"error","message":"null\uC744 \uCC98\uB9AC\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["length 12"],"status":"error","message":"\u002712\u0027\uC740/\uB294 \uBB38\uC790\uC5F4 \uB610\uB294 \uBC30\uC5F4/\uB9AC\uC2A4\uD2B8\uAC00 \uC544\uB2C8\uBBC0\uB85C \uAE38\uC774\uB97C \uAD6C\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["length"],"status":"error","message":"\uAE38\uC774\uB97C \uAD6C\uD560 \uAC12\uC774 \uD544\uC694\uD569\uB2C8\uB2E4.","exceptionType":null}
+{"lines":["while 1","out 1"],"status":"grammar","message":"\uBAA8\uB4E0 \uC870\uAC74\uBB38(if, while \uB4F1) \uD0A4\uC6CC\uB4DC\uB294 end \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["func inner","  i = 100","endfunc","func outer","  i = 0","  repeat 3","    i = add i 1","    inner","    out i","  end","endfunc","outer"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"}]}
+{"lines":["l = array 1 2 3","l -1"],"status":"error","message":"\uC778\uB371\uC2A4 -1\uC740/\uB294 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC2B5\uB2C8\uB2E4. (\uAE38\uC774: 3)","exceptionType":null,"outValues":[]}
+{"lines":["goto 2","while 1","break"],"status":"grammar","message":"\uBAA8\uB4E0 \uC870\uAC74\uBB38(if, while \uB4F1) \uD0A4\uC6CC\uB4DC\uB294 end \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":2,"outValues":[]}
+{"lines":["x = 5","func f","  x = 1","  out x","endfunc","f","return x"],"status":"ok","value":{"t":"int","v":"1"},"outValues":[{"t":"int","v":"1"}]}
+{"lines":["else"],"status":"grammar","message":"else\uB294 if\uC640 end \uC0AC\uC774\uC5D0 \uD55C\uBC88\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["for a (array 1 2)","for b (array 10 20)","break","end","out a","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"}]}
+{"lines":["func f","  out \u0027body\u0027","endfunc","out \u0027after\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"after"}]}
+{"lines":["l = array 1 2 3","i = 0","for x l","l i (mul x x)","i = add i 1","end","return l"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"4"},{"t":"int","v":"9"}]},"outValues":[]}
+{"lines":["goto 2","if 1","else","out 1"],"status":"grammar","message":"\uBAA8\uB4E0 \uC870\uAC74\uBB38(if, while \uB4F1) \uD0A4\uC6CC\uB4DC\uB294 end \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":2,"outValues":[]}
+{"lines":["func r","  param d","  x = d","  if d","    r (sub d 1)","  end","  out x","endfunc","r 2"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"0"},{"t":"int","v":"1"},{"t":"int","v":"2"}]}
+{"lines":["x = \u0027outside\u0027","for x (array 1 2)","y = mul x 10","out y","end","out x","out (y =)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"10"},{"t":"int","v":"20"},{"t":"string","v":"outside"},{"t":"bool","v":false}]}
+{"lines":["repeat -1","  out \u0027x\u0027","end","out \u0027done\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"done"}]}
+{"lines":["func f","  local x = add 1 2 (mul 3 4)","  return x","endfunc","return (f)"],"status":"ok","value":{"t":"int","v":"15"},"outValues":[]}
+{"lines":["func find","param items","param target","for x items","if (equal x target)","return true","end","end","return false","endfunc","out (find (array 1 2 3) 2)","out (find (array 1 2 3) 5)","out (x =)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"bool","v":true},{"t":"bool","v":false},{"t":"bool","v":false}]}
+{"lines":["repeat 0","  out \u0027x\u0027","end","out \u0027done\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"done"}]}
+{"lines":["func outer","  param a","  func inner","    param b","    return (add a b)","  endfunc","  return (inner 2)","endfunc","return (outer 40)"],"status":"ok","value":{"t":"int","v":"42"},"outValues":[]}
+{"lines":["for x (array 1 2 3)","\tout x","end","out \u0027done\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"},{"t":"string","v":"done"}]}
+{"lines":["l = array 1 \u0027a\u0027","l 0 (array 2)","return (l 0)"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"2"}]},"outValues":[]}
+{"lines":["repeat \u00273\u0027","  out \u0027x\u0027","end","out \u0027done\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"done"}]}
+{"lines":["goto 2","func f","  out 1","endfunc","f"],"status":"error","message":"goto\uB85C \uD568\uC218 \uC548\uD30E\uC744 \uB118\uB098\uB4E4\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["for c \u0027ab\u0027","out c","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"a"},{"t":"string","v":"b"}]}
+{"lines":["repeat 2","  repeat 3","    out \u0027x\u0027","  end","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"x"},{"t":"string","v":"x"},{"t":"string","v":"x"},{"t":"string","v":"x"},{"t":"string","v":"x"},{"t":"string","v":"x"}]}
+{"lines":["l = list 1 2 3","return (add (l 0) (l 1) (l 2))"],"status":"ok","value":{"t":"int","v":"6"},"outValues":[]}
+{"lines":["func f","  goto 3","endfunc","out 1","f"],"status":"error","message":"goto\uB85C \uD568\uC218 \uC548\uD30E\uC744 \uB118\uB098\uB4E4\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[{"t":"int","v":"1"}]}
+{"lines":["for x (array 1 2 3)","if (equal x 2)","break","end","out x","end","out (x =)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"bool","v":false}]}
+{"lines":["repeat 2","  n = 0","  repeat 3","    n = add n 1","    if (equal n 2)","      break","    end","  end","  out n","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"2"},{"t":"int","v":"2"}]}
+{"lines":["endfunc"],"status":"grammar","message":"endfunc\uC640 \uC9DD\uC774 \uB418\uB294 func \uD0A4\uC6CC\uB4DC\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["for x (array 1 2)","func twice","return (mul x 2)","endfunc","out (twice)","end","out (twice =)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"2"},{"t":"int","v":"4"},{"t":"bool","v":false}]}
+{"lines":["while 1","  goto 3","end","if 1","  out \u0027after\u0027","end","out \u0027done\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"after"},{"t":"string","v":"done"}]}
+{"mode":"eval","lines":["div \u0027a,b,,c\u0027 \u0027,\u0027"],"status":"ok","value":{"t":"array","v":[{"t":"string","v":"a"},{"t":"string","v":"b"},{"t":"string","v":""},{"t":"string","v":"c"}]}}
+{"lines":["k = 1","pass = 0","top:","if k","  if 0","    out \u0027inner-if\u0027","  else","    out \u0027inner-else\u0027","  end","  out \u0027outer-body\u0027","end","out \u0027after\u0027","k = 0","pass = add pass 1","if (equal pass 1)","  goto top","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"inner-else"},{"t":"string","v":"outer-body"},{"t":"string","v":"after"},{"t":"string","v":"after"}]}
+{"mode":"eval","lines":["div \u00271\u003C\u003E2\u003C\u003E3\u0027 \u0027\u003C\u003E\u0027"],"status":"ok","value":{"t":"array","v":[{"t":"string","v":"1"},{"t":"string","v":"2"},{"t":"string","v":"3"}]}}
+{"mode":"eval","lines":["div \u0027abc\u0027 \u0027,\u0027"],"status":"ok","value":{"t":"array","v":[{"t":"string","v":"abc"}]}}
+{"lines":["func f","  out 1"],"status":"grammar","message":"func \uD0A4\uC6CC\uB4DC\uB294 endfunc \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["for a (array 1 2)","for b (array 3 4)","goto 5","end","end","out (a =)","out (b =)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"bool","v":false},{"t":"bool","v":false}]}
+{"lines":["repeat 3","  out \u0027x\u0027","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"x"},{"t":"string","v":"x"},{"t":"string","v":"x"}]}
+{"lines":["func f","  end","endfunc","f"],"status":"grammar","message":"end\uC640 \uC9DD\uC774 \uB418\uB294 if, while, repeat, for \uD0A4\uC6CC\uB4DC\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.","line":1,"outValues":[]}
+{"lines":["for a (array 1 2)","for b (array 10 20)","out (add a b)","end","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"11"},{"t":"int","v":"21"},{"t":"int","v":"12"},{"t":"int","v":"22"}]}
+{"lines":["n = 3","while n","  if 1","    out \u0027if\u0027","  end","  out n","  n = sub n 1","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"if"},{"t":"int","v":"3"},{"t":"string","v":"if"},{"t":"int","v":"2"},{"t":"string","v":"if"},{"t":"int","v":"1"}]}
+{"lines":["while 1","  func f","    break","  endfunc","  f","end"],"status":"grammar","message":"break\uB294 \uBC18\uBCF5\uBB38(while, repeat, for) \uC548\uC5D0\uC11C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","line":2,"outValues":[]}
+{"lines":["l = array 1 2 3","for x l","l 2 99","out x","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"}]}
+{"mode":"eval","lines":["div \u0027a\u0027 null"],"status":"error","message":"null\uC744 \uCC98\uB9AC\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"lines":["repeat 2","  while 1","    out \u0027inner\u0027","    break","  end","  out \u0027outer\u0027","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"inner"},{"t":"string","v":"outer"},{"t":"string","v":"inner"},{"t":"string","v":"outer"}]}
+{"lines":["param a"],"status":"grammar","message":"param\uC740 func\uC640 endfunc \uC0AC\uC774\uC5D0\uC11C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","line":0,"outValues":[]}
+{"lines":["sum = 0","for x (array 1 2 3 4)","sum = add sum x","end","return sum"],"status":"ok","value":{"t":"int","v":"10"},"outValues":[]}
+{"lines":["x = 1","if (x)","  out (x)","end","out (add (5) 1)","out ((add 1 2))","out (add ((add 1 2)) 4)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"6"},{"t":"int","v":"3"},{"t":"int","v":"7"}]}
+{"lines":["func f","  if 1","endfunc","f"],"status":"grammar","message":"\uBAA8\uB4E0 \uC870\uAC74\uBB38(if, while \uB4F1) \uD0A4\uC6CC\uB4DC\uB294 end \uD0A4\uC6CC\uB4DC\uB85C \uC885\uB8CC \uD45C\uC2DC\uAC00 \uC788\uC5B4\uC57C \uD569\uB2C8\uB2E4.","line":1,"outValues":[]}
+{"lines":["goto"],"status":"error","message":"\uC774\uB3D9\uD560 \uAC12\uC744 \uB123\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["out (5"],"status":"error","message":"\uAD04\uD638 \u0027(\u0027 \uB2E4\uC74C\uC5D0\uB294 \u0027)\u0027\uB85C \uB05D\uB098\uC57C\uB9CC \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["func inner","  out (x =)","endfunc","func outer","  x = 5","  inner","  return x","endfunc","return (outer)"],"status":"ok","value":{"t":"int","v":"5"},"outValues":[{"t":"bool","v":false}]}
+{"lines":["goto 100"],"status":"error","message":"\uC2E4\uD589 \uC704\uCE58\uAC00 \uC2A4\uD06C\uB9BD\uD2B8\uC758 \uBC94\uC704\uB97C \uBC97\uC5B4\uB0AC\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["out (add 1 2"],"status":"error","message":"\uAD04\uD638 \u0027(\u0027 \uB2E4\uC74C\uC5D0\uB294 \u0027)\u0027\uB85C \uB05D\uB098\uC57C\uB9CC \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["count = 100","func outer","  local count = 0","  func bump","    count = add count 1","  endfunc","  bump","  return count","endfunc","return (add (outer) count)"],"status":"ok","value":{"t":"int","v":"101"},"outValues":[]}
+{"lines":["goto -1"],"status":"error","message":"\uC2E4\uD589 \uC704\uCE58\uB97C \uC74C\uC218\uB85C \uC774\uB3D9\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["out (5 6)"],"status":"error","message":"\uAD04\uD638 \u0027(\u0027 \uB2E4\uC74C\uC5D0\uB294 \u0027)\u0027\uB85C \uB05D\uB098\uC57C\uB9CC \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["func add2","  param a","  param b","  return (add a b)","endfunc","return (add2 1 2)"],"status":"ok","value":{"t":"int","v":"3"},"outValues":[]}
+{"lines":["goto \u0027a\u0027"],"status":"error","message":"\uC2E4\uD589 \uC704\uCE58\uB294 \uC74C\uC774 \uC544\uB2CC \uC815\uC218\uC5EC\uC57C \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["n = 0","while 1","  n = add n 1","  if (equal n 3)","    break","  end","  out n","end","out \u0027done\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"string","v":"done"}]}
+{"lines":["goto 2","out \u0027skipped\u0027"],"status":"ok","value":{"t":"null"},"outValues":[]}
+{"mode":"eval","lines":["add (array 1 2) (array 3 4) (array 5 6)"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"},{"t":"int","v":"4"},{"t":"int","v":"5"},{"t":"int","v":"6"}]}}
+{"lines":["local x 1"],"status":"error","message":"local\uC740 \u0027local (\uC774\uB984)\u0027 \uB610\uB294 \u0027local (\uC774\uB984) = (\uAC12)\u0027 \uD615\uC2DD\uC73C\uB85C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"mode":"eval","lines":["add (list 1) 2 (array 3 4)"],"status":"ok","value":{"t":"list","v":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"},{"t":"int","v":"4"}]}}
+{"mode":"eval","lines":["add (array 1 2)"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"2"}]}}
+{"lines":["local 1"],"status":"error","message":"local \uB2E4\uC74C\uC5D0\uB294 \uBCC0\uC218 \uC774\uB984\uC774 \uC640\uC57C \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["l = array 1.5 2.5","l 0 3","return l"],"status":"ok","value":{"t":"array","v":[{"t":"double","v":"3"},{"t":"double","v":"2.5"}]},"outValues":[]}
+{"lines":["local"],"status":"error","message":"local \uB2E4\uC74C\uC5D0\uB294 \uBCC0\uC218 \uC774\uB984\uC774 \uC640\uC57C \uD569\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["n = 0","top:","n = add n 1","out n","if (sub 3 n)","  goto top","end","out \u0027done\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"},{"t":"string","v":"done"}]}
+{"lines":["goto 2","out \u0027skipped\u0027","out \u0027reached\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"reached"}]}
+{"lines":["local x ="],"status":"error","message":"local\uC740 \u0027local (\uC774\uB984)\u0027 \uB610\uB294 \u0027local (\uC774\uB984) = (\uAC12)\u0027 \uD615\uC2DD\uC73C\uB85C\uB9CC \uC4F8\uC218 \uC788\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["words = div \u0027hello jyuno world\u0027 \u0027 \u0027","return (words 1)"],"status":"ok","value":{"t":"string","v":"jyuno"},"outValues":[]}
+{"mode":"eval","lines":["list 1 2 3"],"status":"ok","value":{"t":"list","v":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"}]}}
+{"mode":"eval","lines":["list \u0027a\u0027"],"status":"ok","value":{"t":"list","v":[{"t":"string","v":"a"}]}}
+{"mode":"eval","lines":["list 1 2.5"],"status":"ok","value":{"t":"list","v":[{"t":"int","v":"1"},{"t":"double","v":"2.5"}]}}
+{"mode":"eval","lines":["list"],"status":"ok","value":{"t":"list","v":[]}}
+{"lines":["l = array 10 20 30","out (l 0)","l 0 (l 2)","out (l 0)","out l","out (l)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"10"},{"t":"int","v":"30"},{"t":"array","v":[{"t":"int","v":"30"},{"t":"int","v":"20"},{"t":"int","v":"30"}]},{"t":"array","v":[{"t":"int","v":"30"},{"t":"int","v":"20"},{"t":"int","v":"30"}]}]}
+{"mode":"eval","lines":["add (array 1 2) \u0027a\u0027"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"string","v":"a"}]}}
+{"mode":"eval","lines":["add (list 1) 2.5"],"status":"ok","value":{"t":"list","v":[{"t":"int","v":"1"},{"t":"double","v":"2.5"}]}}
+{"mode":"eval","lines":["add (array 1.5) 2"],"status":"ok","value":{"t":"array","v":[{"t":"double","v":"1.5"},{"t":"double","v":"2"}]}}
+{"mode":"eval","lines":["sub (array 1 \u0027a\u0027 2.0) (array 1.0 2)"],"status":"ok","value":{"t":"array","v":[{"t":"string","v":"a"}]}}
+{"lines":["local x = 3","return x"],"status":"ok","value":{"t":"int","v":"3"},"outValues":[]}
+{"lines":["return 5"],"status":"ok","value":{"t":"int","v":"5"},"outValues":[]}
+{"lines":["return \u0027a\u0027 \u0027b\u0027"],"status":"ok","value":{"t":"string","v":"a"},"outValues":[]}
+{"lines":["func f","  param a","  param b","  param c","  out a","  out b","  out c","endfunc","f 1","f"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"null"},{"t":"null"},{"t":"null"},{"t":"null"},{"t":"null"}]}
+{"lines":["l = list \u0027a\u0027 \u0027b\u0027","l 1 \u0027c\u0027","return l"],"status":"ok","value":{"t":"list","v":[{"t":"string","v":"a"},{"t":"string","v":"c"}]},"outValues":[]}
+{"mode":"eval","lines":["sub (array 1 2 3 2 4 5) (array 2 4)"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"3"},{"t":"int","v":"5"}]}}
+{"mode":"eval","lines":["sub (list \u0027a\u0027 \u0027b\u0027 \u0027c\u0027) (array \u0027b\u0027 \u0027x\u0027)"],"status":"ok","value":{"t":"list","v":[{"t":"string","v":"a"},{"t":"string","v":"c"}]}}
+{"mode":"eval","lines":["sub (list 1 2 3) 2"],"status":"ok","value":{"t":"list","v":[{"t":"int","v":"1"},{"t":"int","v":"3"}]}}
+{"mode":"eval","lines":["sub (array 1 2) (array)"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"2"}]}}
+{"mode":"eval","lines":["sub (array 1 2) (array 2 1)"],"status":"ok","value":{"t":"array","v":[]}}
+{"mode":"eval","lines":["array 1 2 3"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"}]}}
+{"mode":"eval","lines":["array \u0027a\u0027 \u0027b\u0027"],"status":"ok","value":{"t":"array","v":[{"t":"string","v":"a"},{"t":"string","v":"b"}]}}
+{"mode":"eval","lines":["array 1.5"],"status":"ok","value":{"t":"array","v":[{"t":"double","v":"1.5"}]}}
+{"mode":"eval","lines":["array 1 \u0027a\u0027 null"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"string","v":"a"},{"t":"null"}]}}
+{"mode":"eval","lines":["array"],"status":"ok","value":{"t":"array","v":[]}}
+{"mode":"eval","lines":["add (array 1) (array 2 (array 3 4))"],"status":"ok","value":{"t":"array","v":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"array","v":[{"t":"int","v":"3"},{"t":"int","v":"4"}]}]}}
+{"lines":["func r","  param d","  repeat 2","    out d","    if d","      r (sub d 1)","    end","  end","endfunc","r 1"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"0"},{"t":"int","v":"0"},{"t":"int","v":"1"},{"t":"int","v":"0"},{"t":"int","v":"0"}]}
+{"lines":["return"],"status":"ok","value":{"t":"null"},"outValues":[]}
+{"mode":"eval","lines":["math.pow 2"],"status":"error","message":"\uAC70\uB4ED\uC81C\uACF1\uC5D0 \uD544\uC694\uD55C \uBC11\uACFC \uC9C0\uC218\uAC00 \uB204\uB77D\uB418\uC5C8\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["math.log"],"status":"error","message":"\uB85C\uADF8\uC5D0 \uD544\uC694\uD55C \uC9C4\uC218\uAC00 \uB204\uB77D\uB418\uC5C8\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["mod 7 null"],"status":"error","message":"null\uC744 \uCC98\uB9AC\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["mod 7 0"],"status":"error","message":"0\uC73C\uB85C \uB098\uB20C\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["div 1 0"],"status":"error","message":"0\uC73C\uB85C \uB098\uB20C\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["div 1 null"],"status":"error","message":"null\uC744 \uCC98\uB9AC\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["int null"],"status":"error","message":"null\uC744 \uCC98\uB9AC\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"lines":["func f","  f","endfunc","f"],"status":"error","message":"\uD568\uC218 \uD638\uCD9C\uC774 \uB108\uBB34 \uAE4A\uC2B5\uB2C8\uB2E4. (\uCD5C\uB300 200\uBC88)","exceptionType":null,"outValues":[]}
+{"mode":"eval","lines":["mul \u0027ab\u0027 \u0027c\u0027"],"status":"error","message":"\uBB38\uC790\uC5F4\uC744 \uBC18\uBCF5\uD560 \uD69F\uC218\uB294 \uC815\uC218\uC5EC\uC57C \uD569\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["math.sin \u0027a\u0027"],"status":"error","message":"\u0027a\u0027\uC740/\uB294 \uC22B\uC790\uAC00 \uC544\uB2D9\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["int -3.7"],"status":"ok","value":{"t":"int","v":"-3"}}
+{"mode":"eval","lines":["int 3.7"],"status":"ok","value":{"t":"int","v":"3"}}
+{"mode":"eval","lines":["sub 5.5 1"],"status":"ok","value":{"t":"double","v":"4.5"}}
+{"mode":"eval","lines":["math.log2 8"],"status":"ok","value":{"t":"double","v":"3"}}
+{"mode":"eval","lines":["bool \u0027\u0027"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["sub 5 1.5"],"status":"ok","value":{"t":"double","v":"3.5"}}
+{"mode":"eval","lines":["double \u00272.5\u0027"],"status":"ok","value":{"t":"double","v":"2.5"}}
+{"mode":"eval","lines":["div 7.0 2"],"status":"ok","value":{"t":"double","v":"3.5"}}
+{"lines":["repeat 2","\ta = div \u0027a,b\u0027 \u0027,\u0027","\tout (a 0)","\ta 0 \u0027z\u0027","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"a"},{"t":"string","v":"a"}]}
+{"mode":"eval","lines":["int \u002712\u0027"],"status":"ok","value":{"t":"int","v":"12"}}
+{"lines":["func f","  x = 1","endfunc","f","return x"],"status":"error","message":"\u0027x\u0027\uC740/\uB294 \uC54C\uC218\uC5C6\uB294 \uBCC0\uC218/\uD568\uC218 \uC785\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"mode":"eval","lines":["add (mul 2 3) (sub 10 4)"],"status":"ok","value":{"t":"int","v":"12"}}
+{"mode":"eval","lines":["mul \u0027ab\u0027 3"],"status":"ok","value":{"t":"string","v":"ababab"}}
+{"mode":"eval","lines":["string 1.5"],"status":"ok","value":{"t":"string","v":"1.5"}}
+{"mode":"eval","lines":["math.log 100"],"status":"ok","value":{"t":"double","v":"2"}}
+{"mode":"eval","lines":["bool"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["mul \u0027ab\u0027 3"],"status":"ok","value":{"t":"string","v":"ababab"}}
+{"mode":"eval","lines":["add 9223372036854775807 1"],"status":"ok","value":{"t":"int","v":"-9223372036854775808"}}
+{"mode":"eval","lines":["int \u002742\u0027"],"status":"ok","value":{"t":"int","v":"42"}}
+{"mode":"eval","lines":["equal (add 1 1) 2"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["add 3 -5"],"status":"ok","value":{"t":"int","v":"-2"}}
+{"mode":"eval","lines":["add 1 2"],"status":"ok","value":{"t":"int","v":"3"}}
+{"mode":"eval","lines":["mul 2 3"],"status":"ok","value":{"t":"int","v":"6"}}
+{"mode":"eval","lines":["add \u0027a\u0027 1"],"status":"ok","value":{"t":"string","v":"a1"}}
+{"lines":["func f","  x = 1","  out x","endfunc","f","f","return (x =)"],"status":"ok","value":{"t":"bool","v":false},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"1"}]}
+{"mode":"eval","lines":["math.sin 0"],"status":"ok","value":{"t":"double","v":"0"}}
+{"mode":"eval","lines":["add 1 2.5"],"status":"ok","value":{"t":"double","v":"3.5"}}
+{"mode":"eval","lines":["bool 1"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["equal 1 1.0"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["math.log 100 10"],"status":"ok","value":{"t":"double","v":"2"}}
+{"mode":"eval","lines":["bool 0"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["equal \u0027a\u0027 \u0027a\u0027 \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["div 7 2"],"status":"ok","value":{"t":"int","v":"3"}}
+{"mode":"eval","lines":["mul \u0027ab\u0027 -1"],"status":"ok","value":{"t":"string","v":""}}
+{"mode":"eval","lines":["double 3"],"status":"ok","value":{"t":"double","v":"3"}}
+{"mode":"eval","lines":["mod 7 3"],"status":"ok","value":{"t":"int","v":"1"}}
+{"mode":"eval","lines":["sub 5 2"],"status":"ok","value":{"t":"int","v":"3"}}
+{"mode":"eval","lines":["int"],"status":"ok","value":{"t":"int","v":"0"}}
+{"mode":"eval","lines":["math.pow 2 10"],"status":"ok","value":{"t":"double","v":"1024"}}
+{"mode":"eval","lines":["equal \u00271\u0027 1"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["string 2.5"],"status":"ok","value":{"t":"string","v":"2.5"}}
+{"mode":"eval","lines":["mod 1 0"],"status":"error","message":"0\uC73C\uB85C \uB098\uB20C\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["div 1 0"],"status":"error","message":"0\uC73C\uB85C \uB098\uB20C\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["sub 1"],"status":"error","message":"\uBE84\uC148 \uD560 \uAC12 2\uAC1C\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["(add 1 2"],"status":"error","message":"\uAD04\uD638 \u0027(\u0027 \uB2E4\uC74C\uC5D0\uB294 \u0027)\u0027\uB85C \uB05D\uB098\uC57C\uB9CC \uD569\uB2C8\uB2E4.","exceptionType":null}
+{"lines":["y = 1","func f","\tout y","endfunc","f","5 = y","f","y =","y = 7","f"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"5"},{"t":"int","v":"7"}]}
+{"lines":["func f","\tparam a","\treturn (string a)","endfunc","repeat 2","\tout (f 1)","\tfunc string","\t\treturn \u0027mine\u0027","\tendfunc","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"1"},{"t":"string","v":"mine"}]}
+{"mode":"eval","lines":["int math.nan"],"status":"ok","value":{"t":"null"}}
+{"mode":"eval","lines":["int \u0027abc\u0027"],"status":"ok","value":{"t":"null"}}
+{"mode":"eval","lines":["int (math.pow 10 30)"],"status":"ok","value":{"t":"null"}}
+{"lines":["func f","\tparam v","\tout v","\treturn v","endfunc","out (add (f 1) (f 2) (f 3))"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"3"},{"t":"int","v":"6"}]}
+{"lines":["n = 1","func f","  n = add n 1","  out n","endfunc","f","f","return n"],"status":"ok","value":{"t":"int","v":"3"},"outValues":[{"t":"int","v":"2"},{"t":"int","v":"3"}]}
+{"lines":["func f","  out \u0027abc","endfunc","f"],"status":"grammar","message":"\uBB38\uC790\uC5F4\uC740 \uD56D\uC0C1 \uB530\uC634\uD45C\uB85C \uB05D\uB098\uC57C \uD569\uB2C8\uB2E4.","line":1,"outValues":[]}
+{"lines":["i = 0","while (less i 3)","\tout i","\ti = add i 1","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"0"},{"t":"int","v":"1"},{"t":"int","v":"2"}]}
+{"lines":["repeat 2","\tout (add 1 (mul 2 3))","\tfunc mul","\t\treturn 10","\tendfunc","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"7"},{"t":"int","v":"11"}]}
+{"mode":"eval","lines":["less 1 2"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater \u0027b\u0027 \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater 1 1"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less \u0027a\u0027 \u0027b\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["less 2 1"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less 1 1.5"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["less 9223372036854775806 9223372036854775807"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["less -3 -2"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater 2.5 2"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["less \u0027\u0027 \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater 1 2"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less 5"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["less 1 1"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less \u0027B\u0027 \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"lines":["func f","  param a","  out a","  param b","  out b","endfunc","f 1 2"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"}]}
+{"mode":"eval","lines":["greater \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater 2 1"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["not true"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["not \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["not 0.0"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["not 1.5"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["not (less 1 2)"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["not false"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["not null"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["not \u0027\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["not (bool 5)"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["not -1"],"status":"ok","value":{"t":"int","v":"0"}}
+{"mode":"eval","lines":["not 0"],"status":"ok","value":{"t":"int","v":"-1"}}
+{"mode":"eval","lines":["not 5"],"status":"ok","value":{"t":"int","v":"-6"}}
+{"lines":["n = 0","repeat 3","\tout (add 1 2)","\tn = sub n -1","\tif (equal n 2)","\t\tfunc add","\t\t\treturn 100","\t\tendfunc","\tend","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"3"},{"t":"int","v":"3"},{"t":"int","v":"100"}]}
+{"lines":["func outer","  count = 0","  func bump","    count = add count 1","  endfunc","  bump","  bump","  return count","endfunc","return (outer)"],"status":"ok","value":{"t":"int","v":"2"},"outValues":[]}
+{"mode":"eval","lines":["or null"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["or false false false"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["and 1 0 true"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["or false false true"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["and true true"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["and 1.5 0"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["or 0 null \u0027\u0027"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["and true true true"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["and 1 2 true"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["and 1.5 \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["and true true false"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["or false true"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["or false false"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["and true false"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["or 0 0 \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["and \u0027a\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["or"],"status":"error","message":"or \uC5F0\uC0B0\uC744 \uD560 \uAC12\uC774 \uD544\uC694\uD569\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["not"],"status":"error","message":"not \uC5F0\uC0B0\uC744 \uD560 \uAC12\uC774 \uD544\uC694\uD569\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["and"],"status":"error","message":"and \uC5F0\uC0B0\uC744 \uD560 \uAC12\uC774 \uD544\uC694\uD569\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["less 2 1 \u0027a\u0027"],"status":"error","message":"\u00271\u0027\uC640/\uACFC \u0027a\u0027\uC740/\uB294 \uD06C\uAE30\uB97C \uBE44\uAD50\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["greater \u0027a\u0027 1"],"status":"error","message":"\u0027a\u0027\uC640/\uACFC \u00271\u0027\uC740/\uB294 \uD06C\uAE30\uB97C \uBE44\uAD50\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"lines":["a = 5","func f","  param a","endfunc","f 1","return a"],"status":"ok","value":{"t":"int","v":"5"},"outValues":[]}
+{"mode":"eval","lines":["less null 1"],"status":"error","message":"\u0027null\u0027\uC640/\uACFC \u00271\u0027\uC740/\uB294 \uD06C\uAE30\uB97C \uBE44\uAD50\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["less"],"status":"error","message":"less \uBE44\uAD50\uB97C \uD560 \uAC12\uC774 \uD544\uC694\uD569\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["greater"],"status":"error","message":"greater \uBE44\uAD50\uB97C \uD560 \uAC12\uC774 \uD544\uC694\uD569\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["less 1 \u0027a\u0027"],"status":"error","message":"\u00271\u0027\uC640/\uACFC \u0027a\u0027\uC740/\uB294 \uD06C\uAE30\uB97C \uBE44\uAD50\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["less (array 1) (array 2)"],"status":"error","message":"\u0027System.Int64[]\u0027\uC640/\uACFC \u0027System.Int64[]\u0027\uC740/\uB294 \uD06C\uAE30\uB97C \uBE44\uAD50\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null}
+{"mode":"eval","lines":["or 1 2 4"],"status":"ok","value":{"t":"int","v":"7"}}
+{"mode":"eval","lines":["and 6"],"status":"ok","value":{"t":"int","v":"6"}}
+{"mode":"eval","lines":["and 12 10"],"status":"ok","value":{"t":"int","v":"8"}}
+{"mode":"eval","lines":["or 6"],"status":"ok","value":{"t":"int","v":"6"}}
+{"mode":"eval","lines":["and 10 20 30"],"status":"ok","value":{"t":"int","v":"0"}}
+{"mode":"eval","lines":["or 12 10"],"status":"ok","value":{"t":"int","v":"14"}}
+{"mode":"eval","lines":["and -1 255"],"status":"ok","value":{"t":"int","v":"255"}}
+{"mode":"eval","lines":["or 0 0"],"status":"ok","value":{"t":"int","v":"0"}}
+{"mode":"eval","lines":["and 15 7 3"],"status":"ok","value":{"t":"int","v":"3"}}
+{"mode":"eval","lines":["less 1 1.5 2"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater 3 2 1"],"status":"ok","value":{"t":"bool","v":true}}
+{"lines":["func inner","  return secret","endfunc","func outer","  secret = 1","  return (inner)","endfunc","outer"],"status":"error","message":"\u0027secret\u0027\uC740/\uB294 \uC54C\uC218\uC5C6\uB294 \uBCC0\uC218/\uD568\uC218 \uC785\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["func f","  out \u0027called\u0027","endfunc","return (f)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"called"}]}
+{"mode":"eval","lines":["less \u0027\uAC00\u0027 \u0027\uB098\u0027 \u0027\uB2E4\u0027 \u0027\uB77C\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater \u0027\uB77C\u0027 \u0027\uB2E4\u0027 \u0027\uB098\u0027 \u0027\uAC00\u0027"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["less 1 3 2"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["greater \u0027\uAC00\u0027 \u0027\uB098\u0027 \u0027\uB2E4\u0027 \u0027\uB77C\u0027"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less 3 2 1"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less 1 2 3 10 100"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater 3 1 2"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less 1 2 2"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less 1 2 3"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["greater 3 3 1"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less math.nan math.nan"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["greater math.nan math.nan"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["less math.nan 1"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["greater 1 math.nan"],"status":"ok","value":{"t":"bool","v":false}}
+{"mode":"eval","lines":["not false \u0027x\u0027 1"],"status":"ok","value":{"t":"bool","v":true}}
+{"mode":"eval","lines":["not 5 \u0027x\u0027"],"status":"ok","value":{"t":"int","v":"-6"}}
+{"mode":"eval","lines":["not true false"],"status":"ok","value":{"t":"bool","v":false}}
+{"lines":["func f","  1 = c","  local c = 2","endfunc","f"],"status":"error","message":"\uC0C1\uC218\uB97C \uBCC0\uACBD\uD560\uC218 \uC5C6\uC2B5\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["func fib","\tparam n","\tif (equal (bool (sub n 1)) false)","\t\treturn 1","\tend","\tif (equal n 2)","\t\treturn 1","\tend","\treturn (add (fib (sub n 1)) (fib (sub n 2)))","endfunc","return (fib 15)"],"status":"ok","value":{"t":"int","v":"610"},"outValues":[]}
+{"lines":["func f","  param a","  return a","endfunc","return (f 1 2 3)"],"status":"ok","value":{"t":"int","v":"1"},"outValues":[]}
+{"lines":["x = 1","i = 0","while (equal (bool (sub i 3)) true)","\tout (bool x)","\tx =","\tx = 2","\ti = add i 1","end","out x"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"bool","v":true},{"t":"bool","v":true},{"t":"bool","v":true},{"t":"int","v":"2"}]}
+{"lines":["func f","  local y = 1","endfunc","f","return y"],"status":"error","message":"\u0027y\u0027\uC740/\uB294 \uC54C\uC218\uC5C6\uB294 \uBCC0\uC218/\uD568\uC218 \uC785\uB2C8\uB2E4.","exceptionType":null,"outValues":[]}
+{"lines":["x = 5","func f","  local x = 1","  x = add x 1","  out x","endfunc","f","return x"],"status":"ok","value":{"t":"int","v":"5"},"outValues":[{"t":"int","v":"2"}]}
+{"lines":["repeat 2","\tout (less 1 2 3)","\tout (and 12 10)","\tout (not false)","\tfunc less","\t\treturn \u0027mine\u0027","\tendfunc","\tfunc and","\t\treturn \u0027mine too\u0027","\tendfunc","end"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"bool","v":true},{"t":"int","v":"8"},{"t":"bool","v":true},{"t":"string","v":"mine"},{"t":"string","v":"mine too"},{"t":"bool","v":true}]}
+{"lines":["func count","  param limit","  n = 0","  while 1","    n = add n 1","    if (equal n limit)","      break","    end","  end","  return n","endfunc","return (count 4)"],"status":"ok","value":{"t":"int","v":"4"},"outValues":[]}
+{"lines":["func f","  n = 0","  top:","  n = add n 1","  out n","  if (sub 2 n)","    goto top","  end","endfunc","f","f"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"1"},{"t":"int","v":"2"}]}
+{"lines":["s = 0","for x (list 1 2 3)","\tif (equal x 2)","\t\tlocal s = 100","\tend","\tout s","end","out s"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"0"},{"t":"int","v":"100"},{"t":"int","v":"0"},{"t":"int","v":"0"}]}
+{"lines":["x = 1","func f","\tout x","\tlocal x = 2","\tout x","endfunc","f","f","out x"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"1"},{"t":"int","v":"2"},{"t":"int","v":"1"}]}
+{"lines":["if 0","\tout (div 1 0)","end","out \u0027ok\u0027"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"string","v":"ok"}]}
+{"lines":["func f","\tout (mul 2 3)","\tlocal mul = 7","\tout mul","endfunc","f","f","out (mul 2 3)"],"status":"ok","value":{"t":"null"},"outValues":[{"t":"int","v":"6"},{"t":"int","v":"7"},{"t":"int","v":"6"},{"t":"int","v":"7"},{"t":"int","v":"6"}]}

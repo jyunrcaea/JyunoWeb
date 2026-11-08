@@ -1,0 +1,17 @@
+i = 0
+r = 0
+repeat 60000
+    k = mod i 3
+    if (equal k 0)
+        x = i
+    end
+    if (equal k 1)
+        x = 0.5
+    end
+    if (equal k 2)
+        x = 'a'
+    end
+    r = add x 1
+    i = add i 1
+end
+return r

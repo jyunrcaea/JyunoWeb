@@ -10,6 +10,8 @@
     <!-- Jyuno는 문화권과 무관하게 동작하므로 ICU 데이터를 받지 않음 (다운로드 크기 절약) -->
     <InvariantGlobalization>true</InvariantGlobalization>
     <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
+    <!-- native-js/ 는 별도 연구용 프로젝트 (C# 기준 실행기 포함) 이므로 이 앱의 빌드에서 제외 -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);native-js/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

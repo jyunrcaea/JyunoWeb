@@ -1,0 +1,26 @@
+<!DOCTYPE html><meta charset="utf-8"><title>bench</title>
+<script type="module">
+// JyunoWeb 워커(.NET)를 띄우는 함수
+window.bootDotnet = (kind, file) => new Promise((resolve, reject) => {
+  const w = new Worker(`/${kind}/js/jyuno-worker.js`);
+  const t0 = performance.now();
+  let id = 0; const waits = new Map();
+  w.onmessage = (e) => {
+    const d = e.data;
+    if (d.type === 'ready') resolve({ bootMs: performance.now() - t0, version: d.version, run: (code) => new Promise((r) => { const k = ++id; waits.set(k, r); w.postMessage({ type: 'run', id: k, code, stdin: '', options: JSON.stringify({ console: true, math: true, host: true, enableRemoveVariable: true }) }); }) });
+    else if (d.type === 'boot-error') reject(new Error(d.message));
+    else if (d.type === 'done') { waits.get(d.id)(d.result); waits.delete(d.id); }
+  };
+  w.postMessage({ type: 'boot', dotnetUrl: new URL(`/${kind}/_framework/${file}`, location.href).href });
+});
+window.bootNjs = () => new Promise((resolve) => {
+  const t0 = performance.now();
+  const w = new Worker('/njs/bench/browser/njs-worker.mjs', { type: 'module' });
+  // 첫 메시지로 모듈 로드까지의 시간을 잼
+  w.onmessage = () => {
+    const bootMs = performance.now() - t0;
+    resolve({ bootMs, run: (code, iterations) => new Promise((r) => { w.onmessage = (e) => r(e.data); w.postMessage({ code, iterations }); }) });
+  };
+  w.postMessage({ code: '0', iterations: 1 });
+});
+</script>

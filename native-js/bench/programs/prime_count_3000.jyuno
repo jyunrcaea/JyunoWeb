@@ -1,0 +1,25 @@
+func prime
+    param n
+    if (less n 2)
+        return false
+    end
+    param i
+    i = 2
+    while (not (greater (mul i i) n))
+        if (equal (mod n i) 0)
+            return false
+        end
+        i = add i 1
+    end
+    return true
+endfunc
+m = 3000
+c = 0
+k = 1
+repeat m
+    if (prime k)
+        c = add c 1
+    end
+    k = add k 1
+end
+return c

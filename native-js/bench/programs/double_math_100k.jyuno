@@ -1,0 +1,7 @@
+x = 0.0
+i = 0
+repeat 100000
+    x = add (mul x 0.5) (div i 3.0)
+    i = add i 1
+end
+return x

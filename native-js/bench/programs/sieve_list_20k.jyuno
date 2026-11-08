@@ -1,0 +1,25 @@
+n = 20000
+flags = list true
+repeat 15
+    flags = add flags flags
+end
+i = 2
+while (not (greater (mul i i) n))
+    if (flags i)
+        j = mul i i
+        while (not (greater j n))
+            flags j false
+            j = add j i
+        end
+    end
+    i = add i 1
+end
+c = 0
+i = 2
+while (not (greater i n))
+    if (flags i)
+        c = add c 1
+    end
+    i = add i 1
+end
+return c

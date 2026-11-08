@@ -1,0 +1,6 @@
+node_modules/
+ref/RefRunner/bin/
+ref/RefRunner/obj/
+# RefRunner로 만드는 파일 (dotnet ref/RefRunner/bin/Release/net10.0/RefRunner.dll problems|examples)
+test/data/problems.json
+test/data/examples.json
