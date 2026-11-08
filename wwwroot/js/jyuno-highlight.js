@@ -8,7 +8,13 @@ export const builtins = new Set([
     'int', 'double', 'string', 'bool', 'add', 'sub', 'mul', 'div', 'mod', 'equal',
     'less', 'greater', 'and', 'or', 'not', 'array', 'list', 'length',
     'console.write', 'console.writeline', 'console.readline', 'console.read', 'console.clear', 'console.title',
-    'math.abs', 'math.sin', 'math.cos', 'math.tan', 'math.pow', 'math.log', 'math.log2',
+    'math.abs', 'math.sin', 'math.cos', 'math.tan', 'math.pow', 'math.log', 'math.log2', 'math.random', 'math.csprng',
+    ...['array', 'list'].flatMap((kind) => ['sort', 'reverse', 'shuffle', 'contains', 'indexof', 'slice', 'join', 'new',
+        'copy', 'lastindexof', 'count', 'distinct', 'binary_search', 'fill', 'min', 'max', 'sum', 'range'].map((name) => `${kind}.${name}`)),
+    'list.push', 'list.pop', 'list.insert', 'list.removeat', 'list.remove', 'list.clear',
+    ...['concat', 'join', 'format', 'compare', 'equals', 'isnullorempty', 'isnullorwhitespace', 'indexof', 'lastindexof', 'contains',
+        'startswith', 'endswith', 'replace', 'substring', 'insert', 'remove', 'toupper', 'tolower', 'trim', 'trimstart', 'trimend',
+        'padleft', 'padright', 'split', 'tochararray', 'charcode', 'fromcharcode'].map((name) => `string.${name}`),
     'file.exist', 'file.read', 'file.write', 'file.remove', 'directory.now', 'directory.exist', 'directory.files', 'directory.list', 'directory.move',
 ]);
 

@@ -416,12 +416,55 @@ public static class Examples
         console.writeline
         """);
 
+    public static readonly Example CollectionFunctions = new(
+        "collection-functions" ,
+        "정렬과 컬렉션 함수" ,
+        "array.sort, array.distinct, array.sum 같은 컬렉션 함수로 배열/리스트를 다룹니다. sort/shuffle/push는 원래 배열/리스트를 바꿔요. (1.4.1~1.4.2)" ,
+        """
+        scores = list 70 95 80 95 60
+        list.push scores 88
+        console.writeline "점수: {1}" (list.join scores ", ")
+        list.sort scores true
+        console.writeline "내림차순: {1}" (list.join scores ", ")
+        console.writeline "최고 {1}, 최저 {2}, 합계 {3}" (list.max scores) (list.min scores) (list.sum scores)
+        console.writeline "중복 제거: {1}" (list.join (list.distinct scores) ", ")
+        console.writeline "95점은 {1}명" (list.count scores 95)
+        sorted = array.sort (array.range 10 0 -1)
+        console.writeline "7의 위치: {1}" (array.binary_search sorted 7)
+        dice = array.range 1 7
+        array.shuffle dice
+        console.writeline "섞은 주사위 눈: {1}" (array.join dice " ")
+        console.writeline "주사위 한번: {1}" (math.random 1 7)
+        """);
+
+    public static readonly Example StringFunctions = new(
+        "string-functions" ,
+        "문자열 함수" ,
+        "C#의 System.String 메서드를 옮긴 string.* 함수들입니다. 찾기와 비교는 대소문자를 구별해요. (1.4.2)" ,
+        """
+        line = "  Hello, Jyuno World!  "
+        text = string.trim line
+        console.writeline "[{1}]" text
+        console.writeline (string.toupper text)
+        console.writeline (string.replace text "World" "Playground")
+        console.writeline "Jyuno 위치: {1}" (string.indexof text "Jyuno")
+        console.writeline "Hello로 시작? {1}" (string.startswith text "Hello")
+        console.writeline (string.substring text 7 5)
+        words = string.split "banana apple cherry"
+        array.sort words
+        console.writeline (string.join " < " words)
+        console.writeline (string.format "{0,-8}|{1,6:F2}|" "가격" 3.14159)
+        console.writeline (string.padleft (string 42) 6 "0")
+        console.writeline "A의 코드: {1}, 다음 글자: {2}" (string.charcode "A") (string.fromcharcode (add (string.charcode "A") 1))
+        """);
+
     public static readonly IReadOnlyList<(string Group, Example[] Items)> Groups = new[] {
         ("기초", new[] { Hello, Arithmetic, Constants, Input }),
         ("흐름 제어", new[] { Gugudan, FizzBuzz, Goto, Stars }),
         ("함수", new[] { Functions, Math }),
-        ("배열과 문자열 (NEW)", new[] { Arrays, Split, BubbleSort, Sieve }),
-        ("비교와 논리 (NEW)", new[] { Compare, Bits }),
+        ("배열과 문자열", new[] { Arrays, Split, BubbleSort, Sieve }),
+        ("컬렉션과 문자열 함수 (NEW)", new[] { CollectionFunctions, StringFunctions }),
+        ("비교와 논리", new[] { Compare, Bits }),
         ("호스트와 보안", new[] { Host, Sandbox, Infinite }),
     };
 
