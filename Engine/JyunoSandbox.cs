@@ -41,10 +41,10 @@ public static partial class JyunoSandbox
 
         // 콘솔 명령어는 브라우저용으로 직접 구현 (System.Console 대신 화면의 터미널에 출력)
         if (options.Console)
-            AddConsole(runtime , output , input , () => inputExhausted = true);
+            JyunoHost.AddConsole(runtime , output , input , () => inputExhausted = true);
         // C# 프로그램이 자신만의 함수를 추가하는 예시
         if (options.Host)
-            AddHostFunctions(runtime);
+            JyunoHost.AddHostFunctions(runtime);
 
         string[] lines = code.Replace("\r\n" , "\n").Split('\n');
         using Interpreter interpreter = runtime.Create(lines);
@@ -70,12 +70,11 @@ public static partial class JyunoSandbox
                 result.ValueType = TypeName(value);
             }
         }
-        // 예외 필터는 finally보다 먼저 실행되므로, Run()이 줄 번호를 지우기 전에 오류가 난 줄을 알수 있음
-        catch (Exception e) when (Capture(interpreter.CurrentExecuteLine , out failedLine))
+        catch (Exception e) when (JyunoHost.Capture(interpreter.CurrentExecuteLine , out failedLine))
         {
             result.Status = "error";
             result.Line = failedLine;
-            result.Message = Unwrap(e);
+            result.Message = JyunoHost.Unwrap(e);
             result.ExceptionType = e is JyunoException ? null : e.GetType().Name;
         }
         stopwatch.Stop();
@@ -90,159 +89,6 @@ public static partial class JyunoSandbox
     [JSExport]
     public static string Ping()
         => $"{typeof(Runtime).Assembly.GetName().Version?.ToString(3)} on .NET {Environment.Version}";
-
-    static bool Capture(int line , out int captured)
-    {
-        captured = line;
-        return true;
-    }
-
-    static string Unwrap(Exception e)
-    {
-        while (e is System.Reflection.TargetInvocationException && e.InnerException is not null)
-            e = e.InnerException;
-        return e.Message;
-    }
-
-    internal static void AddConsole(Runtime runtime , IConsoleSink output , StringReader input , Action exhausted)
-    {
-        runtime.AddFunction("console.write" , args => {
-            if (args.Length is 0)
-                return null;
-            output.Write(args.Length is 1 ? Text(args[0]) ?? "null" : Format(args));
-            return null;
-        });
-        runtime.AddFunction("console.writeline" , args => {
-            if (args.Length is 0)
-                output.Write("\n");
-            else if (args.Length is 1)
-                output.Write((Text(args[0]) ?? string.Empty) + "\n");
-            else
-                output.Write(Format(args) + "\n");
-            return null;
-        });
-        runtime.AddFunction("console.readline" , args => {
-            string? line = input.ReadLine();
-            if (line is null)
-                exhausted();
-            else
-                output.Echo(line + "\n");
-            return line;
-        });
-        runtime.AddFunction("console.read" , args => {
-            int c = input.Read();
-            if (c < 0)
-                exhausted();
-            else
-                output.Echo(((char)c).ToString());
-            return (char)c;
-        });
-        runtime.AddFunction("console.clear" , args => {
-            output.Clear();
-            return null;
-        });
-        string title = "Jyuno";
-        runtime.AddVariable("console.title" , () => title , v => {
-            title = Text(v) ?? throw JyunoCommands.null_exception;
-            output.Title(title);
-        });
-    }
-
-    internal static void AddHostFunctions(Runtime runtime)
-    {
-        runtime.AddFunction("random" , args => {
-            // random → 0 이상 1 미만의 실수, random (최대) → 0 이상 최대 미만의 정수, random (최소) (최대) → 최소 이상 최대 미만의 정수
-            if (args.Length is 0)
-                return Random.Shared.NextDouble();
-            long min = 0, max;
-            if (args.Length is 1)
-                max = ToLong(args[0]);
-            else
-            {
-                min = ToLong(args[0]);
-                max = ToLong(args[1]);
-            }
-            if (max <= min)
-                throw new JyunoException("random의 최댓값은 최솟값보다 커야 합니다.");
-            return Random.Shared.NextInt64(min , max);
-        });
-        runtime.AddFunction("time.now" , args => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-        runtime.AddFunction("text.length" , args => {
-            if (args.Length is 0 || args[0] is not string s)
-                throw new JyunoException("길이를 구할 문자열이 필요합니다.");
-            return (long)s.Length;
-        });
-        runtime.AddFunction("text.at" , args => {
-            // text.at (문자열) (위치) → 위치(0부터)에 있는 글자 하나
-            if (args.Length < 2 || args[0] is not string s)
-                throw new JyunoException("text.at 에는 문자열과 위치가 필요합니다.");
-            long index = ToLong(args[1]);
-            if (index < 0 || index >= s.Length)
-                throw new JyunoException($"위치 {index}은/는 문자열의 범위(0 ~ {s.Length - 1})를 벗어났습니다.");
-            return s[(int)index].ToString();
-        });
-        runtime.AddFunction("text.upper" , args => {
-            if (args.Length is 0 || args[0] is not string s)
-                throw new JyunoException("대문자로 바꿀 문자열이 필요합니다.");
-            return s.ToUpperInvariant();
-        });
-        runtime.AddFunction("less" , args => {
-            if (args.Length < 2)
-                throw new JyunoException("비교할 값 2개가 필요합니다.");
-            return ToDouble(args[0]) < ToDouble(args[1]);
-        });
-        runtime.AddFunction("greater" , args => {
-            if (args.Length < 2)
-                throw new JyunoException("비교할 값 2개가 필요합니다.");
-            return ToDouble(args[0]) > ToDouble(args[1]);
-        });
-        runtime.AddFunction("not" , args => {
-            if (args.Length is 0)
-                throw new JyunoException("부정할 값이 필요합니다.");
-            return args[0] switch {
-                null => true,
-                bool b => !b,
-                long l => l == 0,
-                double d => d == 0,
-                _ => false
-            };
-        });
-    }
-
-    static long ToLong(object? value) => value switch {
-        long l => l,
-        int i => i,
-        double d => (long)d,
-        _ => throw new JyunoException($"'{value ?? "null"}'은/는 정수가 아닙니다.")
-    };
-
-    static double ToDouble(object? value) => value switch {
-        long l => l,
-        int i => i,
-        double d => d,
-        _ => throw new JyunoException($"'{value ?? "null"}'은/는 숫자가 아닙니다.")
-    };
-
-    // Console.Write(object)와 같은 방식으로 문자열로 바꿈
-    static string? Text(object? value) => value switch {
-        null => null,
-        string s => s,
-        _ => Convert.ToString(value , CultureInfo.InvariantCulture)
-    };
-
-    // Console.Write(format, args)와 동일하게, 첫번째 인자(형식 문자열)도 {0}으로 포함
-    static string Format(object?[] args)
-    {
-        string format = args[0] as string ?? throw new JyunoException("형식 문자열은 문자열이어야 합니다.");
-        try
-        {
-            return string.Format(CultureInfo.InvariantCulture , format , args);
-        }
-        catch (FormatException)
-        {
-            throw new JyunoException($"형식 문자열이 올바르지 않습니다: \"{format}\"");
-        }
-    }
 
     static string Describe(object? value) => value switch {
         null => "null",
@@ -325,16 +171,6 @@ public static partial class JyunoSandbox
             clock.Restart();
         }
     }
-}
-
-/// <summary>console.* 명령어의 출력 대상</summary>
-internal interface IConsoleSink
-{
-    void Write(string text);
-    /// <summary>console.readline으로 읽은 입력 (화면에는 보여주지만 채점 출력에는 포함하지 않음)</summary>
-    void Echo(string text);
-    void Clear();
-    void Title(string title);
 }
 
 public sealed class SandboxOptions

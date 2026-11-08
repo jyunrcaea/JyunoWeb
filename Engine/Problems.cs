@@ -4,7 +4,8 @@ using static JyunoWeb.Engine.Text;
 namespace JyunoWeb.Engine;
 
 /// <summary>
-/// 문제 목록. 입력은 Jyuno로 읽기 쉽도록 "한 줄에 값 하나"로 통일했습니다.
+/// 문제 목록. 1001~1043번은 입력이 "한 줄에 값 하나"이고,
+/// 1044번부터는 Jyuno 1.2.0의 문자열 나누기(div)를 쓰도록 한 줄에 여러 값을 공백으로 구분해서 주기도 합니다.
 /// </summary>
 public static class Problems
 {
@@ -79,7 +80,7 @@ public static class Problems
             Samples = new[] { "1\n2", "10\n2", "5\n5" },
             Tests = r => Many(r , 6 , r => Lines(r.Next(-10000 , 10000) , r.Next(-10000 , 10000))).Append("-7\n-7").Append("0\n-1"),
             Solve = i => { long a = i.Long(), b = i.Long(); return a > b ? ">" : a < b ? "<" : "=="; },
-            Hint = "Jyuno에는 크기 비교 연산자가 없어서, 채점 환경이 제공하는 `less a b`(a<b), `greater a b`(a>b) 함수를 쓰면 됩니다.",
+            Hint = "`greater a b`는 a>b일 때, `less a b`는 a<b일 때 `true`를 돌려줘요.",
         },
         new() {
             Id = 1006, Title = "짝수와 홀수", Level = 1, Tags = new[] { "조건문", "사칙연산" },
@@ -378,7 +379,7 @@ public static class Problems
             Samples = new[] { "150\n266\n427" },
             Tests = r => Many(r , 7 , r => Lines(r.Next(100 , 999) , r.Next(100 , 999) , r.Next(100 , 999))).Append("100\n100\n100"),
             Solve = i => { string p = (i.Long() * i.Long() * i.Long()).ToString(); return Lines(Enumerable.Range(0 , 10).Select(d => p.Count(c => c - '0' == d))); },
-            Hint = "숫자마다 개수를 세는 함수를 만들어서 0부터 9까지 열 번 부르면 배열 없이도 풀수 있어요.",
+            Hint = "`cnt = array 0 0 0 0 0 0 0 0 0 0`으로 칸이 10개인 배열을 만들고, `cnt d (add (cnt d) 1)`로 숫자 d의 개수를 하나 늘려 보세요.",
         },
         new() {
             Id = 1037, Title = "하노이 탑", Level = 3, Tags = new[] { "재귀" },
@@ -413,7 +414,7 @@ public static class Problems
             Samples = new[] { "level", "jyuno" },
             Tests = r => new[] { "a", "ab", "aa", "racecar", "abcdcbaa", "abccba", r.Word(100) , "x" + new string('y' , 98) + "x" },
             Solve = i => { string s = i.Str(); return s.SequenceEqual(s.Reverse()) ? "YES" : "NO"; },
-            Hint = "채점 환경의 `text.length s`로 길이를, `text.at s i`로 i번째(0부터) 글자를 구할수 있어요.",
+            Hint = "`length s`로 길이를, 채점 환경이 제공하는 `text.at s i`로 i번째(0부터) 글자를 구할수 있어요.",
         },
         new() {
             Id = 1040, Title = "모음의 개수", Level = 2, Tags = new[] { "문자열", "반복문" },
@@ -423,6 +424,7 @@ public static class Problems
             Samples = new[] { "hello jyuno", "rhythm" },
             Tests = r => Many(r , 7 , r => r.Word((int)r.Next(1 , 200) , "abcdefghijklmnopqrstuvwxyz    ").Trim() is { Length: > 0 } s ? s : "z").Append("aeiou"),
             Solve = i => i.Str().Count(c => "aeiou".Contains(c)).ToString(),
+            Hint = "`for ch s`는 문자열을 한 글자씩 순회해요. `or (equal ch \"a\") (equal ch \"e\") ...`처럼 여러 조건을 한 번에 검사할수 있어요.",
         },
         new() {
             Id = 1041, Title = "글자 반복", Level = 2, Tags = new[] { "문자열", "반복문" },
@@ -451,6 +453,119 @@ public static class Problems
             Samples = new[] { "6", "12", "28" },
             Tests = r => new[] { "496", "8128", "2", "9999", "10000", "120" },
             Solve = i => { long n = i.Long(); var d = Enumerable.Range(1 , (int)n - 1).Where(k => n % k == 0).ToList(); return d.Sum() == n ? $"{n} = {string.Join(" + " , d)}" : $"{n} is NOT perfect."; },
+        },
+
+        // ── 1044번부터: Jyuno 1.2.0 ~ 1.3.2의 새 기능(문자열 나누기, 배열/리스트, length, for, less/greater, and/or/not)을 쓰는 문제 ──
+        new() {
+            Id = 1044, Title = "한 줄에 A+B", Level = 1, Tags = new[] { "문자열 나누기", "입출력" },
+            Description = "두 정수 A와 B가 **한 줄에** 공백으로 구분되어 주어집니다. A+B를 출력하세요.",
+            InputSpec = "첫째 줄에 A와 B가 공백 하나로 구분되어 주어집니다. (-1,000,000,000 ≤ A, B ≤ 1,000,000,000)",
+            OutputSpec = "A+B를 출력합니다.",
+            Samples = new[] { "1 2", "-5 12" },
+            Tests = r => Many(r , 8 , r => $"{r.Next(-1_000_000_000 , 1_000_000_000)} {r.Next(-1_000_000_000 , 1_000_000_000)}"),
+            Solve = i => i.Str().Split(' ').Select(long.Parse).Sum().ToString(),
+            Hint = "`div (문자열) \" \"`는 문자열을 공백으로 나눈 배열을 돌려줘요. `p = div (console.readline) \" \"` 다음 `p 0`이 첫번째, `p 1`이 두번째 값이에요. (아직 문자열이니 `int`로 바꾸세요)",
+        },
+        new() {
+            Id = 1045, Title = "거꾸로 출력하기", Level = 1, Tags = new[] { "배열", "문자열 나누기" },
+            Description = "N개의 정수가 한 줄에 주어질 때, 주어진 순서의 반대로 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어지고, 둘째 줄에 N개의 정수가 공백으로 구분되어 주어집니다. (1 ≤ N ≤ 100, 각 정수는 -1,000 이상 1,000 이하)",
+            OutputSpec = "N개의 정수를 거꾸로 공백으로 구분해 한 줄에 출력합니다.",
+            Samples = new[] { "5\n1 2 3 4 5", "3\n-7 0 7" },
+            Tests = r => Many(r , 8 , r => { var v = Numbers(r , (int)r.Next(1 , 100) , -1000 , 1000); return Lines(v.Count , Words(v)); }).Append("1\n42"),
+            Solve = i => { i.Str(); return Words(i.Str().Split(' ').Reverse()); },
+            Hint = "배열 `a`의 i번째(0부터) 원소는 `a i`로 읽어요. 마지막 원소의 위치는 `sub (length a) 1`이에요.",
+        },
+        new() {
+            Id = 1046, Title = "범위 안의 수", Level = 1, Tags = new[] { "비교", "for" },
+            Description = "두 정수 L, R과 N개의 정수가 주어질 때, L보다 크고 R보다 작은 수가 몇 개인지 세세요.",
+            InputSpec = "첫째 줄에 L과 R이 공백으로 구분되어 주어지고, 둘째 줄에 N, 셋째 줄에 N개의 정수가 공백으로 구분되어 주어집니다. (-1,000 ≤ L < R ≤ 1,000, 1 ≤ N ≤ 100, 각 정수는 -1,000 이상 1,000 이하)",
+            OutputSpec = "L < x < R 인 x의 개수를 출력합니다.",
+            Samples = new[] { "3 7\n6\n1 3 4 5 7 9", "-10 10\n3\n-10 0 10" },
+            Tests = r => Many(r , 8 , r => { long a = r.Next(-1000 , 999), b = r.Next(a + 1 , 1000); var v = Numbers(r , (int)r.Next(1 , 100) , -1000 , 1000); return Lines($"{a} {b}" , v.Count , Words(v)); }).Append("0 1\n2\n0 1"),
+            Solve = i => { var lr = i.Str().Split(' ').Select(long.Parse).ToArray(); i.Str(); return i.Str().Split(' ').Select(long.Parse).Count(x => lr[0] < x && x < lr[1]).ToString(); },
+            Hint = "`less a b c`는 `a < b`이고 `b < c`일 때 `true`예요. 그러니 `less l x r` 하나로 범위를 검사할수 있어요. `for x 배열`로 원소를 차례대로 꺼내 보세요.",
+        },
+        new() {
+            Id = 1047, Title = "비트 연산", Level = 2, Tags = new[] { "비트 연산", "수학" },
+            Description = "두 정수 A와 B가 주어질 때, A AND B, A OR B, A XOR B, NOT A를 차례로 출력하세요. (C 계열 언어의 `a & b`, `a | b`, `a ^ b`, `~a`)",
+            InputSpec = "첫째 줄에 A와 B가 공백으로 구분되어 주어집니다. (0 ≤ A, B < 2^31)",
+            OutputSpec = "네 줄에 걸쳐 A AND B, A OR B, A XOR B, NOT A를 출력합니다. (NOT A는 64비트 정수 기준이라 음수가 됩니다)",
+            Samples = new[] { "12 10", "0 7" },
+            Tests = r => Many(r , 8 , r => $"{r.Next(0 , int.MaxValue)} {r.Next(0 , int.MaxValue)}").Append("2147483647 2147483647"),
+            Solve = i => { var v = i.Str().Split(' ').Select(long.Parse).ToArray(); long a = v[0], b = v[1]; return Lines(a & b , a | b , a ^ b , ~a); },
+            Hint = "`and`, `or`, `not`은 인자가 모두 정수면 비트 연산을 해요. XOR 함수는 없지만, `(A OR B) AND NOT (A AND B)`로 만들수 있어요.",
+        },
+        new() {
+            Id = 1048, Title = "가장 긴 단어", Level = 2, Tags = new[] { "문자열", "문자열 나누기", "for" },
+            Description = "공백으로 구분된 단어들로 이루어진 문장이 주어질 때, 단어의 개수와 가장 긴 단어를 구하세요. 가장 긴 단어가 여러 개라면 가장 앞에 나온 단어를 출력합니다.",
+            InputSpec = "첫째 줄에 알파벳 소문자로 이루어진 단어들이 공백 하나로 구분되어 주어집니다. (단어는 1개 이상 100개 이하, 각 단어의 길이는 1 이상 20 이하)",
+            OutputSpec = "첫째 줄에 단어의 개수를, 둘째 줄에 가장 긴 단어를 출력합니다.",
+            Samples = new[] { "hello jyuno world", "a bb cc d" },
+            Tests = r => Many(r , 8 , r => Words(Enumerable.Range(0 , (int)r.Next(1 , 100)).Select(_ => r.Word((int)r.Next(1 , 20))))).Append("jyuno"),
+            Solve = i => { var w = i.Str().Split(' '); string best = w[0]; foreach (var x in w) if (x.Length > best.Length) best = x; return Lines(w.Length , best); },
+            Hint = "`length`는 배열의 원소 개수도, 문자열의 글자 수도 알려줘요.",
+        },
+        new() {
+            Id = 1049, Title = "사전순 처음과 끝", Level = 2, Tags = new[] { "문자열", "비교", "for" },
+            Description = "단어들이 주어질 때, 사전순으로 가장 앞에 오는 단어와 가장 뒤에 오는 단어를 출력하세요.",
+            InputSpec = "첫째 줄에 알파벳 소문자로 이루어진 단어들이 공백 하나로 구분되어 주어집니다. (단어는 1개 이상 100개 이하, 각 단어의 길이는 1 이상 10 이하)",
+            OutputSpec = "첫째 줄에 사전순으로 가장 앞의 단어를, 둘째 줄에 가장 뒤의 단어를 출력합니다.",
+            Samples = new[] { "banana apple cherry", "jyuno" },
+            Tests = r => Many(r , 8 , r => Words(Enumerable.Range(0 , (int)r.Next(1 , 100)).Select(_ => r.Word((int)r.Next(1 , 10) , "abcde")))).Append("ab a abc").Append("b b b"),
+            Solve = i => { var w = i.Str().Split(' ').ToList(); w.Sort(string.CompareOrdinal); return Lines(w[0] , w[^1]); },
+            Hint = "`less`와 `greater`는 문자열끼리도 비교할수 있어요. `less \"apple\" \"banana\"`는 `true`예요.",
+        },
+        new() {
+            Id = 1050, Title = "결석한 학생", Level = 2, Tags = new[] { "배열", "리스트", "집합" },
+            Description = "학생들에게 1번부터 N번까지 번호가 있습니다. 출석한 학생의 번호가 주어질 때, 결석한 학생의 번호를 모두 작은 것부터 출력하세요.",
+            InputSpec = "첫째 줄에 N, 둘째 줄에 출석한 학생들의 번호가 공백으로 구분되어 주어집니다. 번호는 순서 없이 주어지며 중복되지 않습니다. (1 ≤ N ≤ 100, 출석한 학생은 1명 이상)",
+            OutputSpec = "결석한 학생의 번호를 오름차순으로 공백으로 구분해 한 줄에 출력합니다. 모두 출석했다면 `PERFECT`를 출력합니다.",
+            Samples = new[] { "5\n4 1 2", "3\n3 1 2" },
+            Tests = r => Many(r , 8 , r => { int n = (int)r.Next(1 , 100); var all = Enumerable.Range(1 , n).OrderBy(_ => r.Next()).ToList(); return Lines(n , Words(all.Take((int)r.Next(1 , n)))); }).Append("1\n1").Append("100\n" + Words(Enumerable.Range(1 , 100).Reverse())),
+            Solve = i => { int n = i.Int(); var here = i.Str().Split(' ').Select(int.Parse).ToHashSet(); var absent = Enumerable.Range(1 , n).Where(k => !here.Contains(k)).ToList(); return absent.Count == 0 ? "PERFECT" : Words(absent); },
+            Hint = "`sub (배열 A) (배열 B)`는 A에서 B에 있는 원소를 모두 뺀 새 배열이에요. (차집합) 1부터 N까지 담은 리스트는 `l = add l i`로 하나씩 이어붙여 만들수 있어요.",
+        },
+        new() {
+            Id = 1051, Title = "버블 정렬", Level = 3, Tags = new[] { "정렬", "배열" },
+            Description = "N개의 정수를 오름차순으로 정렬해서 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어지고, 둘째 줄에 N개의 정수가 공백으로 구분되어 주어집니다. (1 ≤ N ≤ 100, 각 정수는 -1,000,000 이상 1,000,000 이하)",
+            OutputSpec = "정렬한 결과를 공백으로 구분해 한 줄에 출력합니다.",
+            Samples = new[] { "5\n5 2 3 4 1", "3\n-1 -1 -2" },
+            Tests = r => Many(r , 8 , r => { var v = Numbers(r , (int)r.Next(1 , 100) , -1_000_000 , 1_000_000); return Lines(v.Count , Words(v)); }).Append("100\n" + Words(Enumerable.Range(1 , 100).Reverse())).Append("1\n0"),
+            Solve = i => { i.Str(); return Words(i.Str().Split(' ').Select(long.Parse).Order()); },
+            Hint = "`a i v`는 배열 `a`의 i번째 원소를 v로 바꿔요. (C 계열 언어의 `a[i] = v`) 나눈 결과는 문자열이니, 정수로 바꾼 값을 리스트에 이어붙여서 정렬할 배열을 먼저 만드세요.",
+        },
+        new() {
+            Id = 1052, Title = "에라토스테네스의 체", Level = 3, Tags = new[] { "수학", "배열" },
+            Description = "N 이하의 소수를 모두 작은 것부터 출력하세요.",
+            InputSpec = "첫째 줄에 N이 주어집니다. (2 ≤ N ≤ 5,000)",
+            OutputSpec = "N 이하의 소수를 오름차순으로 공백으로 구분해 한 줄에 출력합니다.",
+            Samples = new[] { "10", "2" },
+            Tests = r => new[] { "3", "100", "1000", "4999", "5000" },
+            Solve = i => { long n = i.Long(); return Words(Enumerable.Range(2 , (int)n - 1).Where(k => IsPrime(k))); },
+            Hint = "`add`에 배열을 넣으면 원소를 이어붙여요. `a = array true` 다음 `a = add a a`를 반복하면 길이가 1, 2, 4, 8...로 빠르게 늘어나요. 2부터 시작해서 소수의 배수를 모두 `false`로 지우세요.",
+        },
+        new() {
+            Id = 1053, Title = "구간 합 구하기", Level = 3, Tags = new[] { "누적 합", "배열" },
+            Description = "N개의 정수가 주어지고, 구간 [i, j]가 Q번 주어집니다. 각 구간마다 i번째 수부터 j번째 수까지의 합을 구하세요. (수의 번호는 1부터 셉니다)",
+            InputSpec = "첫째 줄에 N과 Q가 공백으로 구분되어 주어지고, 둘째 줄에 N개의 정수가 공백으로 구분되어 주어집니다. 다음 Q개의 줄에는 i와 j가 공백으로 구분되어 주어집니다. (1 ≤ N, Q ≤ 1,000, 1 ≤ i ≤ j ≤ N, 각 정수는 -1,000 이상 1,000 이하)",
+            OutputSpec = "Q개의 줄에 걸쳐 각 구간의 합을 출력합니다.",
+            Samples = new[] { "5 3\n5 4 3 2 1\n1 3\n2 4\n5 5" },
+            Tests = r => Many(r , 6 , r => {
+                int n = (int)r.Next(1 , 1000), q = (int)r.Next(1 , 1000);
+                var qs = Enumerable.Range(0 , q).Select(_ => { long a = r.Next(1L , n), b = r.Next(1L , n); return $"{Math.Min(a , b)} {Math.Max(a , b)}"; });
+                return Lines($"{n} {q}" , Words(Numbers(r , n , -1000 , 1000)) , Lines(qs));
+            }),
+            Solve = i => {
+                int q = int.Parse(i.Str().Split(' ')[1]);
+                var v = i.Str().Split(' ').Select(long.Parse).ToArray();
+                var sum = new long[v.Length + 1];
+                for (int k = 0 ; k < v.Length ; k++) sum[k + 1] = sum[k] + v[k];
+                return Lines(Enumerable.Range(0 , q).Select(_ => { var ab = i.Str().Split(' ').Select(int.Parse).ToArray(); return sum[ab[1]] - sum[ab[0] - 1]; }));
+            },
+            Hint = "구간마다 하나씩 더하면 최대 1,000 × 1,000번을 더해야 해서 느려요. `s k`에 1번째부터 k번째까지의 합을 미리 저장해 두면, 답은 `sub (s j) (s (sub i 1))` 이에요.",
+            TimeLimitMs = 3000,
         },
     };
 }

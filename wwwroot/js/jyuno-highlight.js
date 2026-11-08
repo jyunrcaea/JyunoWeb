@@ -1,17 +1,18 @@
 // Jyuno 문법 강조 (Jyuno의 토크나이저와 같은 규칙으로 한 줄씩 나눔)
 
-export const keywords = new Set(['if', 'else', 'end', 'while', 'repeat', 'break', 'goto', 'func', 'param', 'endfunc', 'return', 'local']);
+export const keywords = new Set(['if', 'else', 'end', 'while', 'repeat', 'for', 'break', 'goto', 'func', 'param', 'endfunc', 'return', 'local']);
 const constants = new Set(['null', 'true', 'false', 'math.pi', 'math.tau', 'math.nan']);
 const prefixes = new Set([':', '[', ']', '+', '-', '*', '/', '~', '@', '=', '<', '>', '(', ')']);
 
 export const builtins = new Set([
     'int', 'double', 'string', 'bool', 'add', 'sub', 'mul', 'div', 'mod', 'equal',
+    'less', 'greater', 'and', 'or', 'not', 'array', 'list', 'length',
     'console.write', 'console.writeline', 'console.readline', 'console.read', 'console.clear', 'console.title',
     'math.abs', 'math.sin', 'math.cos', 'math.tan', 'math.pow', 'math.log', 'math.log2',
     'file.exist', 'file.read', 'file.write', 'file.remove', 'directory.now', 'directory.exist', 'directory.files', 'directory.list', 'directory.move',
 ]);
 
-export const hostFunctions = new Set(['random', 'time.now', 'text.length', 'text.at', 'text.upper', 'less', 'greater', 'not']);
+export const hostFunctions = new Set(['random', 'time.now', 'text.at', 'text.upper']);
 
 function escape(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

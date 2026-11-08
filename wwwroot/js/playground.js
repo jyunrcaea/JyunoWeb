@@ -2,7 +2,7 @@
 import { highlightLine } from './jyuno-highlight.js';
 
 const STORAGE_KEY = 'jyuno.playground.code';
-const BLOCK_OPENERS = /^\s*(if|else|while|repeat|func)\b/;
+const BLOCK_OPENERS = /^\s*(if|else|while|repeat|for|func)\b/;
 
 export function resolveDotnetUrl() {
     // index.html의 importmap에 지문(fingerprint)이 붙은 dotnet.js 경로가 있음
