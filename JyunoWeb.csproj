@@ -13,9 +13,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jyuno" Version="1.4.2" />
+    <PackageReference Include="Jyuno" Version="1.5.1" />
     <!-- Native JS: Jyuno 코드를 JavaScript로 변환해서 .NET 인터프리터 대신 브라우저의 JS 엔진으로 실행 -->
-    <PackageReference Include="JyunoSdk.NativeJs" Version="0.3.0" />
+    <PackageReference Include="JyunoSdk.NativeJs" Version="0.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" PrivateAssets="all" />
   </ItemGroup>

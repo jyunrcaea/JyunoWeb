@@ -458,12 +458,48 @@ public static class Examples
         console.writeline "A의 코드: {1}, 다음 글자: {2}" (string.charcode "A") (string.fromcharcode (add (string.charcode "A") 1))
         """);
 
+    public static readonly Example Structs = new(
+        "structs" ,
+        "구조체" ,
+        "struct ~ endstruct로 필드와 구조체 함수를 묶습니다. 구조체 값은 대입하거나 리스트에 넣을 때 깊은 복사돼요. (1.5.0)" ,
+        """
+        struct point
+            param x
+            param y
+        endstruct
+        struct player
+            param name
+            pos = point 0 0
+            func move
+                param dx
+                param dy
+                pos.x = add pos.x dx
+                pos.y = add pos.y dy
+            endfunc
+            func show
+                console.writeline "{1} @ ({2}, {3})" name pos.x pos.y
+            endfunc
+        endstruct
+        a = player "Jyunni"
+        a.move 3 4
+        b = a
+        b.name = "복사본"
+        b.move 10 0
+        a.show
+        b.show
+        console.writeline (string a)
+        team = list a b
+        console.writeline "같은 값? {1}" (equal a (list.pop team))
+        console.writeline "같은 값? {1}" (equal a (list.pop team))
+        """);
+
     public static readonly IReadOnlyList<(string Group, Example[] Items)> Groups = new[] {
         ("기초", new[] { Hello, Arithmetic, Constants, Input }),
         ("흐름 제어", new[] { Gugudan, FizzBuzz, Goto, Stars }),
         ("함수", new[] { Functions, Math }),
         ("배열과 문자열", new[] { Arrays, Split, BubbleSort, Sieve }),
-        ("컬렉션과 문자열 함수 (NEW)", new[] { CollectionFunctions, StringFunctions }),
+        ("구조체 (NEW)", new[] { Structs }),
+        ("컬렉션과 문자열 함수", new[] { CollectionFunctions, StringFunctions }),
         ("비교와 논리", new[] { Compare, Bits }),
         ("호스트와 보안", new[] { Host, Sandbox, Infinite }),
     };

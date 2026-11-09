@@ -210,6 +210,24 @@
             <CodeBlock Code="@Local" Runnable="true" />
         </section>
 
+        <section id="struct">
+            <h2>구조체 struct / endstruct <span class="tag tag-green">1.5.0</span></h2>
+            <p><code>struct 이름</code>과 <code>endstruct</code> 사이는 사실상 생성자입니다. <code>struct</code>를 만나면 구조체가 만들어지기만 하고, 본문은 구조체를 함수처럼 호출해서 구조체 값을 만들 때 실행돼요.</p>
+            <ul>
+                <li>본문에서 만든 변수(<code>param</code> 포함)는 <b>필드</b>, 본문에서 만든 함수는 <b>구조체 함수</b>가 됩니다.</li>
+                <li>구조체 값을 변수(<code>me</code>)에 넣으면 <code>me.name</code>, <code>me.show</code>처럼 <code>(변수).(필드)</code>, <code>(변수).(구조체 함수)</code> 이름이 함께 생겨요. 필드를 읽고 바꾸거나 구조체 함수를 부를수 있습니다.</li>
+                <li>구조체 함수 안에서는 필드를 이름 그대로(<code>name</code>, <code>rating</code>) 읽고 바꿀수 있어요.</li>
+            </ul>
+            <CodeBlock Code="@Struct" Runnable="true" />
+            <h3>복사와 비교</h3>
+            <ul>
+                <li>구조체 값은 다른 변수에 대입하거나, 인자로 넘기거나, 반환하거나, 배열/리스트에 넣을 때 모두 <b>깊은 복사</b>됩니다. 복사본을 바꿔도 원래 값은 그대로예요.</li>
+                <li>필드에 구조체 값이 있다면 <code>l.from.x</code>처럼 이어서 쓸수 있어요.</li>
+                <li><code>equal</code>은 같은 구조체이고 모든 필드가 같으면 <code>true</code>, <code>string</code>은 <code>point { x = 1, y = 2 }</code> 형식의 문자열을 만듭니다.</li>
+            </ul>
+            <CodeBlock Code="@StructCopy" Runnable="true" />
+        </section>
+
         <section id="commands">
             <h2>명령어 레퍼런스</h2>
             <p>명령어는 묶음 단위로 호스트 프로그램이 켜고 끕니다. 프로그램마다 지원하는 명령어가 다를수 있으니, 어떤 묶음을 켰는지 확인하세요.</p>
@@ -300,6 +318,7 @@
         ("strings", "문자열 함수"),
         ("goto", "goto와 레이블"),
         ("func", "함수 만들기"),
+        ("struct", "구조체"),
         ("commands", "명령어 레퍼런스"),
         ("tips", "팁"),
     };
@@ -504,6 +523,47 @@
         add_score 20
         console.writeline total
         console.writeline i
+        """;
+
+    const string Struct = """
+        struct person
+            param name
+            param rating
+            func show
+                console.writeline '{1}의 rating은 {2}' name rating
+            endfunc
+            func grow
+                param amount
+                rating = add rating amount
+            endfunc
+        endstruct
+        me = person "Jyunni" 2424
+        me.show
+        me.grow 100
+        console.writeline me.rating
+        me.rating = 0
+        me.show
+        """;
+
+    const string StructCopy = """
+        struct point
+            param x
+            param y
+        endstruct
+        struct line
+            param from
+            param to
+        endstruct
+        a = point 1 2
+        b = a
+        b.x = 100
+        console.writeline (string a)
+        console.writeline (string b)
+        console.writeline (equal a (point 1 2))
+        l = line a b
+        l.to.y = -1
+        console.writeline '{1} → {2}' (string l.from) (string l.to)
+        console.writeline (string b)
         """;
 
     const string TopReturn = """
