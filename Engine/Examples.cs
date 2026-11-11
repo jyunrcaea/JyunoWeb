@@ -458,12 +458,70 @@ public static class Examples
         console.writeline "A의 코드: {1}, 다음 글자: {2}" (string.charcode "A") (string.fromcharcode (add (string.charcode "A") 1))
         """);
 
+    public static readonly Example Structs = new(
+        "structs" ,
+        "구조체 만들기" ,
+        "struct ~ endstruct 사이의 param은 필드, func은 구조체 함수가 됩니다. 구조체 값은 대입할 때 복사되어 원래 값은 바뀌지 않아요. (1.5.0)" ,
+        """
+        struct person
+            param name
+            param rating
+            func show
+                console.writeline "{1} rating is {2}" name rating
+            endfunc
+            func promote
+                param amount
+                rating = add rating amount
+            endfunc
+        endstruct
+        me = person "Jyunni" 2424
+        me.show
+        me.promote 76
+        me.show
+        copy = me
+        copy.rating = 0
+        me.show
+        copy.show
+        console.writeline (string copy)
+        console.writeline "같은 값? {1}" (equal me copy)
+        """);
+
+    public static readonly Example Geometry = new(
+        "struct-geometry" ,
+        "구조체 안의 구조체" ,
+        "필드에 구조체 값이 있으면 l.to.x처럼 이어서 읽고 쓸수 있어요. equal과 list.count는 필드끼리 비교합니다. (1.5.0)" ,
+        """
+        struct point
+            param x
+            param y
+        endstruct
+        struct line
+            param from
+            param to
+            func size
+                dx = sub to.x from.x
+                dy = sub to.y from.y
+                return (math.pow (add (mul dx dx) (mul dy dy)) 0.5)
+            endfunc
+        endstruct
+        l = line (point 0 0) (point 3 4)
+        console.writeline "시작점 x: {1}" l.from.x
+        console.writeline "길이: {1}" (l.size)
+        l.to.x = 6
+        l.to.y = 8
+        console.writeline "길이: {1}" (l.size)
+        console.writeline (string l)
+        points = list (point 1 2) (point 3 4) (point 1 2)
+        console.writeline "(1, 2)는 {1}개" (list.count points (point 1 2))
+        """);
+
     public static readonly IReadOnlyList<(string Group, Example[] Items)> Groups = new[] {
         ("기초", new[] { Hello, Arithmetic, Constants, Input }),
         ("흐름 제어", new[] { Gugudan, FizzBuzz, Goto, Stars }),
         ("함수", new[] { Functions, Math }),
         ("배열과 문자열", new[] { Arrays, Split, BubbleSort, Sieve }),
-        ("컬렉션과 문자열 함수 (NEW)", new[] { CollectionFunctions, StringFunctions }),
+        ("구조체 (NEW)", new[] { Structs, Geometry }),
+        ("컬렉션과 문자열 함수", new[] { CollectionFunctions, StringFunctions }),
         ("비교와 논리", new[] { Compare, Bits }),
         ("호스트와 보안", new[] { Host, Sandbox, Infinite }),
     };

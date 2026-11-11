@@ -1,6 +1,6 @@
 // Jyuno 문법 강조 (Jyuno의 토크나이저와 같은 규칙으로 한 줄씩 나눔)
 
-export const keywords = new Set(['if', 'else', 'end', 'while', 'repeat', 'for', 'break', 'goto', 'func', 'param', 'endfunc', 'return', 'local']);
+export const keywords = new Set(['if', 'else', 'end', 'while', 'repeat', 'for', 'break', 'goto', 'func', 'param', 'endfunc', 'return', 'local', 'struct', 'endstruct']);
 const constants = new Set(['null', 'true', 'false', 'math.pi', 'math.tau', 'math.nan']);
 const prefixes = new Set([':', '[', ']', '+', '-', '*', '/', '~', '@', '=', '<', '>', '(', ')']);
 
