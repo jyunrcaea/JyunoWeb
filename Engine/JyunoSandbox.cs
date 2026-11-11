@@ -39,6 +39,8 @@ public static partial class JyunoSandbox
         using Interpreter interpreter = runtime.Create(lines);
         interpreter.EnableRemoveVariable = options.EnableRemoveVariable;
         interpreter.BlockSubstitute = options.BlockSubstitute;
+        interpreter.EscapeAnalysis = options.EscapeAnalysis;
+        interpreter.Inlining = options.Inlining;
 
         var result = new SandboxResult();
         int failedLine = -1;
@@ -230,6 +232,10 @@ public sealed class SandboxOptions
     public bool Host { get; set; } = true;
     public bool EnableRemoveVariable { get; set; } = true;
     public bool BlockSubstitute { get; set; }
+    /// <summary>실험적 최적화 (Jyuno 1.5.2부터): 구조체 값의 복사를 줄임</summary>
+    public bool EscapeAnalysis { get; set; }
+    /// <summary>실험적 최적화 (Jyuno 1.5.2부터): param과 return 한 줄로만 된 함수를 호출 없이 계산</summary>
+    public bool Inlining { get; set; }
     /// <summary>C# 인터프리터 대신 JavaScript로 변환해서 실행 (Native JS)</summary>
     public bool NativeJs { get; set; }
 }

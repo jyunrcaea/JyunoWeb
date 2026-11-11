@@ -89,6 +89,8 @@
                 <tbody>
                     <tr><td><code>EnableRemoveVariable</code></td><td><code>true</code></td><td><code>false</code>면 <code>이름 =</code> 삭제 연산을 하면 예외가 납니다.</td></tr>
                     <tr><td><code>BlockSubstitute</code></td><td><code>false</code></td><td><code>true</code>면 변수 대입을 막습니다. 정해진 함수만 호출하는 스크립트에 적합해요.</td></tr>
+                    <tr><td><code>EscapeAnalysis</code> <span class="tag tag-green">1.5.2</span></td><td><code>false</code></td><td>실험적 최적화(탈출 분석). 방금 만들어져 아무 곳에도 담기지 않은 구조체 값은 다시 복사하지 않아요. 결과는 끈 것과 같습니다.</td></tr>
+                    <tr><td><code>Inlining</code> <span class="tag tag-green">1.5.2</span></td><td><code>false</code></td><td>실험적 최적화(인라이닝). <code>param</code> 줄들과 <code>return</code> 한 줄로만 된 함수는 함수 영역을 만들지 않고 바로 계산해요. 결과는 끈 것과 같습니다.</td></tr>
                 </tbody>
             </table>
             <CodeBlock Code="@Safety" Lang="csharp" />
