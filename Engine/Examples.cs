@@ -18,19 +18,20 @@ public static class Examples
     public static readonly Example Arithmetic = new(
         "arithmetic" ,
         "변수와 계산" ,
-        "연산자 대신 add, sub, mul, div, mod 함수를 씁니다. 문자열이 섞이면 문자열로 이어 붙여요." ,
+        "+, -, *, /, % 연산자로 계산합니다. (1.6.0) 같은 계산을 하는 add, sub, mul, div, mod 함수도 그대로 쓸수 있고, 문자열이 섞이면 문자열로 이어 붙여요." ,
         """
         a = 17
         b = 5
-        console.writeline "a + b = {1}" (add a b)
-        console.writeline "a - b = {1}" (sub a b)
-        console.writeline "a * b = {1}" (mul a b)
-        console.writeline "a / b = {1}" (div a b)
-        console.writeline "a % b = {1}" (mod a b)
-        console.writeline "실수 나눗셈: {1}" (div (double a) b)
-        console.writeline "숫자 + 문자열: {1}" (add 1 "2")
-        console.writeline "문자열 빼기: {1}" (sub "Jyunni" "n")
-        console.writeline (mul "=-" 15)
+        console.writeline "a + b = {1}" (a + b)
+        console.writeline "a - b = {1}" (a - b)
+        console.writeline "a * b = {1}" (a * b)
+        console.writeline "a / b = {1}" (a / b)
+        console.writeline "a % b = {1}" (a % b)
+        console.writeline "실수 나눗셈: {1}" ((double a) / b)
+        console.writeline "add 함수로도: {1}" (add a b)
+        console.writeline "숫자 + 문자열: {1}" (1 + "2")
+        console.writeline "문자열 빼기: {1}" ("Jyunni" - "n")
+        console.writeline ("=-" * 15)
         """);
 
     public static readonly Example Gugudan = new(
@@ -515,12 +516,92 @@ public static class Examples
         console.writeline "(1, 2)는 {1}개" (list.count points (point 1 2))
         """);
 
+    public static readonly Example Operators = new(
+        "operators" ,
+        "연산자" ,
+        "C#과 같은 우선순위의 연산자를 쓸수 있어요. &&, ||, ??, ?:는 필요한 쪽만 계산하고, x += 1 같은 복합 대입도 됩니다. 함수 호출이 연산자보다 먼저 묶이므로, 함수의 인자로 넘길 식은 괄호로 감싸세요. (1.6.0)" ,
+        """
+        // 1.6.0부터 C 계열 연산자를 쓸수 있어요 (// 뒤는 주석)
+        a = 17
+        b = 5
+        console.writeline "a + b * 2 = {1}" (a + b * 2)
+        console.writeline "(a + b) * 2 = {1}" ((a + b) * 2)
+        console.writeline "a % b == 2 → {1}" (a % b == 2)
+        console.writeline "a >= 10 && b < 3 → {1}" (a >= 10 && b < 3)
+        console.writeline "1 << 10 = {1}, 6 ^ 3 = {2}" (1 << 10) (6 ^ 3)
+
+        score = 72
+        console.writeline (score >= 60 ? "합격" : "불합격")
+        nickname = null
+        console.writeline "이름: {1}" (nickname ?? "이름 없음")
+
+        // 함수 호출이 연산자보다 먼저 묶여요: length l은 (length l)
+        l = list 3 1 -4 1
+        i = 0
+        while i < length l && (l i) > 0
+            i += 1
+        end
+        console.writeline "처음 나온 음수의 위치(0부터): {1}" i
+
+        total = 0
+        for x array.range 5
+            total += x * x
+        end
+        console.writeline "0~4의 제곱의 합: {1}" total
+        """);
+
+    public static readonly Example StructOperators = new(
+        "struct-operators" ,
+        "구조체의 연산자 다시 정의" ,
+        "구조체 안에서 func +처럼 연산자 함수를 만들면 그 구조체 값끼리 연산자를 쓸수 있어요. ==와 <만 정의해도 !=, >, <=, >=와 array.sort, array.contains가 따라와요. (1.6.0)" ,
+        """
+        struct vec
+            param x
+            param y
+            func +
+                param other
+                return vec (x + other.x) (y + other.y)
+            endfunc
+            func *
+                param k
+                return vec (x * k) (y * k)
+            endfunc
+            func ==
+                param other
+                if null == other
+                    return false
+                end
+                return x == other.x && y == other.y
+            endfunc
+            // 길이(의 제곱)로 비교: <만 정의해도 >, <=, >=를 쓸수 있어요
+            func <
+                param other
+                return x * x + y * y < other.x * other.x + other.y * other.y
+            endfunc
+        endstruct
+
+        a = vec 1 2
+        b = vec 3 -1
+        console.writeline (string (a + b))
+        console.writeline (string (a * 3))
+        console.writeline "a == vec 1 2 → {1}" (a == vec 1 2)
+        console.writeline "a != b → {1}" (a != b)
+        console.writeline "a < b → {1}, a >= b → {2}" (a < b) (a >= b)
+        vs = array (vec 5 5) a b
+        array.sort vs
+        for v vs
+            console.writeline (string v)
+        end
+        console.writeline "a가 있나요? {1}" (array.contains vs (vec 1 2))
+        """);
+
     public static readonly IReadOnlyList<(string Group, Example[] Items)> Groups = new[] {
         ("기초", new[] { Hello, Arithmetic, Constants, Input }),
         ("흐름 제어", new[] { Gugudan, FizzBuzz, Goto, Stars }),
         ("함수", new[] { Functions, Math }),
         ("배열과 문자열", new[] { Arrays, Split, BubbleSort, Sieve }),
-        ("구조체 (NEW)", new[] { Structs, Geometry }),
+        ("연산자 (NEW)", new[] { Operators, StructOperators }),
+        ("구조체", new[] { Structs, Geometry }),
         ("컬렉션과 문자열 함수", new[] { CollectionFunctions, StringFunctions }),
         ("비교와 논리", new[] { Compare, Bits }),
         ("호스트와 보안", new[] { Host, Sandbox, Infinite }),

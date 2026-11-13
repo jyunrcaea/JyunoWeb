@@ -10,7 +10,7 @@
     <div class="hero-glow"></div>
     <div class="container nj-hero-inner">
         <a class="pill" href="https://github.com/jyunrcaea/JyunoSdk/wiki/Native-JS" target="_blank" rel="noopener">
-            <span class="pill-tag">연구 → 도입</span> Jyuno 1.5.3 · JyunoSdk 0.4.1 →
+            <span class="pill-tag">연구 → 도입</span> Jyuno 1.6.1 · JyunoSdk 0.5.0 →
         </a>
         <h1>Jyuno를 JavaScript로,<br /><span class="grad">약 190배</span> 빠르게</h1>
         <p class="lead">
@@ -303,7 +303,7 @@
             }
         </div>
         <div class="callout nj-callout">
-            문제 풀기 풀이 53개, 플레이그라운드 예제 19개, Jyuno.Tests 스크립트 299개 중 goto 제약에 걸린 코드는 <b>0개</b>였어요. 그 밖에 <code>file.*</code> 명령어는 지원하지 않고, <code>math.sin</code> 같은 초월 함수는 엔진의 수학 라이브러리 차이로 마지막 비트가 다를수 있습니다. 구조체(1.5.0)는 JyunoSdk 0.4.0부터 지원하며, 구조체 안에서 다른 구조체를 정의하는 경우만 쓸수 없어요.
+            문제 풀기 풀이 53개, 플레이그라운드 예제 19개, Jyuno.Tests 스크립트 299개 중 goto 제약에 걸린 코드는 <b>0개</b>였어요. 그 밖에 <code>file.*</code> 명령어는 지원하지 않고, <code>math.sin</code> 같은 초월 함수는 엔진의 수학 라이브러리 차이로 마지막 비트가 다를수 있습니다. 구조체(1.5.0)는 JyunoSdk 0.4.0부터 지원하며, 구조체 안에서 다른 구조체를 정의하는 경우만 쓸수 없어요. 연산자와 구조체의 연산자 함수(1.6.0)는 JyunoSdk 0.5.0부터 지원해요.
         </div>
     </div>
 </section>
@@ -431,6 +431,7 @@
         new(true, "JyunoSdk 0.3.0", "Jyuno 1.4.1~1.4.2의 난수(math.random, math.csprng), 컬렉션(array.*, list.*), 문자열(string.*) 함수를 Native JS에서도 같은 결과와 오류 메시지로 지원해요."),
         new(true, "JyunoSdk 0.4.0", "Jyuno 1.5.0의 구조체(struct)를 Native JS에서도 지원해요. 구조체마다 고정 모양 JS 클래스를 만들고, 넣을 때만 깊은 복사를 해요. (구조체 안에서 다른 구조체를 정의하는 경우만 제약)"),
         new(true, "JyunoSdk 0.4.1", "인터프리터와 결과가 다르던 구조체 경우 3가지를 고쳤어요. (반복문 안에서 다시 실행되는 param, add로 리스트에 넣은 구조체 값, 구조체 필드의 필드에 대입)"),
+        new(true, "JyunoSdk 0.5.0", "Jyuno 1.6.0의 연산자(+, ==, &&, ?:, x += 1 등)와 구조체의 연산자 함수(func +)를 Native JS에서도 지원해요. &&, ||, ??, ?:는 필요한 쪽만 계산하고, 연산자를 섞은 무작위 스크립트 4,000개에서 인터프리터와 결과가 모두 같았어요."),
         new(true, "플레이그라운드 실험 옵션", "샌드박스 설정에서 Native JS를 켜고 끌수 있어요. 기본값은 아직 C# 인터프리터입니다."),
         new(false, "채점을 Native JS로", "지금의 시간 제한은 WASM 인터프리터 속도에 맞춰져 있어서, 바꾸려면 시간 제한을 다시 정해야 해요."),
         new(false, "화면까지 JavaScript로 (선택)", "화면도 JS로 옮기면 .NET 다운로드(약 2 MB)가 사라집니다. 화면을 다시 만들어야 해서 선택 사항이에요."),
@@ -534,7 +535,7 @@
         public string Detail { get; set; } = "";
         public string? Value { get; set; }
     }
-    readonly Lane interpLane = new() { Name = "C# 인터프리터 (WASM)", Detail = "Jyuno 1.5.3 인터프리터를 워커의 .NET 런타임에서 실행" };
+    readonly Lane interpLane = new() { Name = "C# 인터프리터 (WASM)", Detail = "Jyuno 1.6.1 인터프리터를 워커의 .NET 런타임에서 실행" };
     readonly Lane nativeLane = new() { Name = "Native JS", Native = true, Detail = "JyunoSdk.NativeJs로 변환해서 워커의 JS 엔진으로 실행" };
     bool raceRunning;
     string raceStatus = "‘경주 시작’을 누르면 실행용 워커를 준비하고 두 엔진을 차례로 실행해요.";
@@ -559,7 +560,7 @@
             lane.Value = null;
             lane.Running = false;
         }
-        interpLane.Detail = "Jyuno 1.5.3 인터프리터를 워커의 .NET 런타임에서 실행";
+        interpLane.Detail = "Jyuno 1.6.1 인터프리터를 워커의 .NET 런타임에서 실행";
         nativeLane.Detail = "JyunoSdk.NativeJs로 변환해서 워커의 JS 엔진으로 실행";
         raceRatio = null;
         raceError = null;
