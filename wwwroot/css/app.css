@@ -163,7 +163,9 @@ a:hover { color: var(--link-hover); }
 h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 0.6em; }
 p { margin: 0 0 1em; }
 
-code, kbd, pre { font-family: var(--mono); }
+/* 연산자(>=, !=, &&)가 합자(≥, ≠)로 바뀌지 않고 입력하는 그대로 보이도록 */
+code, kbd, pre { font-family: var(--mono); font-variant-ligatures: none; }
+textarea { font-variant-ligatures: none; }
 :not(pre) > code {
     font-size: 0.88em;
     padding: 0.12em 0.4em;
@@ -669,7 +671,7 @@ code, kbd, pre { font-family: var(--mono); }
 .pg-editor { flex: 1; min-height: 0; }
 
 /* 편집기 */
-.editor { display: flex; position: relative; overflow: hidden; font-family: var(--mono); font-size: 14px; line-height: 22px; }
+.editor { display: flex; position: relative; overflow: hidden; font-family: var(--mono); font-variant-ligatures: none; font-size: 14px; line-height: 22px; }
 .editor-gutter { flex: none; width: 48px; overflow: hidden; background: var(--gutter-bg); border-right: 1px solid var(--border); padding: 14px 0; user-select: none; }
 .editor-gutter-inner { will-change: transform; }
 .editor-gutter-inner div { height: 22px; text-align: right; padding-right: 12px; color: var(--gutter-text); font-size: 12.5px; }

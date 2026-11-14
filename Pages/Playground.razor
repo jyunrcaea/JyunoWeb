@@ -139,6 +139,11 @@
                             <Toggle @bind-Value="options.EnableRemoveVariable" Label="EnableRemoveVariable" Note="끄면 '이름 =' 삭제 연산 금지" />
                             <Toggle @bind-Value="options.BlockSubstitute" Label="BlockSubstitute" Note="켜면 변수 대입 금지" />
                         </div>
+                        <div class="options-group">
+                            <div class="options-label">실험적 최적화 <code>1.5.2</code> (C# 인터프리터)</div>
+                            <Toggle @bind-Value="options.EscapeAnalysis" Label="EscapeAnalysis" Note="탈출 분석: 구조체 값의 복사를 줄임" />
+                            <Toggle @bind-Value="options.Inlining" Label="Inlining" Note="param과 return 한 줄로만 된 함수를 호출 없이 계산" />
+                        </div>
                     </div>
                 }
             </section>

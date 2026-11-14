@@ -8,7 +8,7 @@
     <div class="container hero-inner">
         <div class="hero-copy">
             <a class="pill" href="https://www.nuget.org/packages/Jyuno" target="_blank" rel="noopener">
-                <span class="pill-tag">NuGet</span> Jyuno 1.5.1 배포 중 →
+                <span class="pill-tag">NuGet</span> Jyuno 1.6.1 배포 중 →
             </a>
             <h1>
                 C# 앱에 <span class="grad">안전한 플러그인</span>을<br />
@@ -89,7 +89,7 @@
             <div class="feature">
                 <div class="feature-icon">📏</div>
                 <h3>한 줄에 명령어 하나</h3>
-                <p>연산자 우선순위도, 세미콜론도 없습니다. <code>함수 인자1 인자2</code> 처럼 이름 뒤에 값을 나열하면 끝. 누구나 금방 읽고 씁니다.</p>
+                <p>세미콜론도, 중괄호도 없습니다. <code>함수 인자1 인자2</code> 처럼 이름 뒤에 값을 나열하면 끝. 1.6.0부터는 <code>x += 1</code>, <code>a &lt; b &amp;&amp; b &lt; c</code> 같은 익숙한 연산자도 쓸수 있어요.</p>
             </div>
             <div class="feature">
                 <div class="feature-icon">🧩</div>
@@ -104,7 +104,7 @@
             <div class="feature">
                 <div class="feature-icon">🔁</div>
                 <h3>필요한 건 다 있음</h3>
-                <p><code>if</code>/<code>else</code>, <code>while</code>, <code>repeat</code>, <code>for</code>, <code>func</code>로 만드는 재귀 함수, 배열과 리스트, <code>less</code>/<code>greater</code>와 <code>and</code>/<code>or</code>/<code>not</code>까지.</p>
+                <p><code>if</code>/<code>else</code>, <code>while</code>, <code>repeat</code>, <code>for</code>, <code>func</code>로 만드는 재귀 함수, 구조체, 배열과 리스트, C#과 같은 우선순위의 연산자와 구조체의 연산자 다시 정의까지.</p>
             </div>
         </div>
     </div>
@@ -221,8 +221,7 @@
                 <h3>✕ 이럴 땐 다른 걸 쓰세요</h3>
                 <ul>
                     <li><b>느린 편입니다.</b> 1.3.1부터 크게 빨라졌지만, 단순 반복문은 아직 파이썬보다 몇 배 느려요. (웹에서는 JavaScript로 변환하는 Native JS를 쓰면 훨씬 빨라요)</li>
-                    <li>클래스와 구조체가 없습니다. (배열과 리스트는 있어요)</li>
-                    <li>연산자 대신 함수를 쓰므로 수식이 길어지기 쉬워요.</li>
+                    <li>클래스가 없습니다. (구조체와 배열, 리스트는 있어요)</li>
                     <li>무거운 계산이나 큰 프로그램</li>
                 </ul>
             </div>
@@ -298,12 +297,12 @@
         name = "Jyuno"
         year = 2024
         console.writeline (add "Hello, " name "!")
-        console.writeline "{1} + 1 = {2}" year (add year 1)
+        console.writeline "{1} + 1 = {2}" year (year + 1)
         """;
 
     const string SyntaxFlow = """
         for n (array 3 8 15 42)
-            if (less n 10)
+            if n < 10
                 console.writeline "{1}: 한 자리" n
             else
                 console.writeline "{1}: 두 자리" n
@@ -314,7 +313,7 @@
     const string SyntaxFunc = """
         func square
             param n
-            return (mul n n)
+            return n * n
         endfunc
 
         console.writeline (square 12)
