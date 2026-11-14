@@ -95,7 +95,7 @@
                         <span class="result-message">@result.Message@(result.ExceptionType is null ? "" : $" ({result.ExceptionType})")</span>
                         @if (result.Status == "restricted")
                         {
-                            <span class="result-hint">Native JS는 삭제(<code>x =</code>), 내장 함수 재정의, 블록 안으로 들어가는 goto를 쓸수 없어요. 샌드박스 설정에서 Native JS를 끄면 C# 인터프리터로 실행해요.</span>
+                            <span class="result-hint">Native JS는 삭제(<code>x =</code>), 내장 함수 재정의, 블록 안으로 들어가는 goto, 구조체 안의 구조체를 쓸수 없어요. 샌드박스 설정에서 Native JS를 끄면 C# 인터프리터로 실행해요.</span>
                         }
                     }
                     @if (result?.InputExhausted == true && !running)
