@@ -38,6 +38,7 @@ else
                     <div class="problem-meta">
                         <LevelBadge Level="problem.Level" />
                         <span class="meta-item">⏱ 테스트당 @(problem.TimeLimitMs / 1000.0)초</span>
+                        <span class="meta-item">💾 메모리 @(JyunoHost.MemoryLimit / 1024 / 1024)MB</span>
                         <span class="meta-item">🧪 테스트 @(problem.AllCases.Count)개</span>
                         @foreach (var tag in problem.Tags)
                         {

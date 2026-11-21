@@ -174,6 +174,8 @@ function runNative(code, stdin, optionsJson, options) {
         clear: () => output.clear(),
         title: (text) => output.title(text),
         host: options.host ? hostFunctions(program.runtime) : {},
+        // C# 인터프리터(JyunoHost.MemoryLimit)와 같은 메모리 한도 (JyunoSdk 0.6.0부터, 넘으면 탭이 죽기 전에 Jyuno 오류로 멈춤)
+        memoryLimit: 256 * 1024 * 1024,
     });
     const elapsedMs = performance.now() - started;
     output.flush();

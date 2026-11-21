@@ -269,6 +269,40 @@
             <div class="callout">Native JS는 JyunoSdk 0.4.0(Jyuno 1.5.1)부터 구조체를, 0.5.0(Jyuno 1.6.1)부터 연산자와 구조체의 연산자 함수를 지원해요. 단, 구조체 안에서 다른 구조체를 정의할수는 없습니다. 플레이그라운드의 샌드박스 설정에서 Jyuno 1.5.2의 실험적 최적화(<code>EscapeAnalysis</code>, <code>Inlining</code>)를 켜면 구조체 복사와 한 줄짜리 함수 호출이 빨라져요. 결과는 같습니다.</div>
         </section>
 
+        <section id="ttl">
+            <h2>시간 제한 ttl / endttl <span class="tag tag-green">1.7.0</span></h2>
+            <p><code>ttl (초)</code>와 <code>endttl</code> 사이는 정한 시간 동안만 실행돼요. 시간이 지나면 실행중이던 줄이 끝난 뒤 블록을 빠져나와서 <code>endttl</code> 다음 줄부터 이어서 실행하고, 시간 안에 끝나면 기다리지 않고 바로 넘어갑니다.</p>
+            <CodeBlock Code="@Ttl" Runnable="true" />
+            <ul>
+                <li>시간이 지난 것은 오류가 아니에요. 시간 안에 끝났는지 알고 싶다면 블록의 마지막 줄에서 변수에 표시해 두세요.</li>
+                <li>블록 안에서 부른 함수도 시간 제한을 받아요. 시간이 지나면 진행중이던 함수 호출과 <code>for</code>/<code>while</code>/<code>repeat</code>가 모두 끝나고, 그 전에 한 대입은 그대로 남습니다.</li>
+                <li>ttl은 새 영역을 만들지 않아서, 블록 안에서 만든 변수를 블록이 끝난 뒤에도 쓸수 있어요. 시간은 정수나 실수(초)이고, <code>0</code>이나 음수면 블록을 건너뜁니다.</li>
+                <li>ttl 안에 ttl을 쓸수 있고, <code>break</code>, <code>goto</code>, <code>return</code>으로 빠져나갈수도 있어요.</li>
+                <li>시간은 줄이 끝날 때마다 확인하므로, 한 줄에서 오래 걸리는 내장 함수(큰 배열 정렬 등)는 중간에 멈추지 않아요.</li>
+            </ul>
+            <CodeBlock Code="@TtlDone" Runnable="true" />
+            <div class="callout">ttl은 스크립트가 스스로 정하는 제한이에요. 프로그램(C#)이 정한 메모리 한도와 실행 취소(<code>CancellationToken</code>)는 ttl 안에서도 그대로 실행을 멈춥니다.</div>
+        </section>
+
+        <section id="try">
+            <h2>예외 처리 try / catch / tried / throw <span class="tag tag-green">1.7.0</span></h2>
+            <p><code>try</code>와 <code>catch</code> 사이를 실행하다가 오류가 나면, 그 줄의 나머지는 실행하지 않고 <code>catch</code>와 <code>tried</code> 사이를 실행해요. 오류가 나지 않았다면 <code>catch</code> 부분은 건너뜁니다. <code>catch 이름</code>의 변수에는 오류 메시지(문자열)가 들어가요.</p>
+            <CodeBlock Code="@Try" Runnable="true" />
+            <h3>throw로 값 던지기</h3>
+            <p><code>throw (값)</code>으로 직접 오류를 낼수 있어요. 문자열뿐 아니라 정수, 배열/리스트, 구조체 값, <code>null</code> 등 아무 값이나 던질수 있고, <code>catch</code>의 변수에 그 값이 그대로 들어갑니다. 함수 안에서 던진 값도 바깥의 <code>try</code>가 받아요.</p>
+            <CodeBlock Code="@Throw" Runnable="true" />
+            <ul>
+                <li><code>catch</code> 안에서 값 없이 <code>throw</code>만 쓰면 처리중인 오류를 그대로 다시 던져요. 오류가 난 줄도 원래대로입니다.</li>
+                <li>try 안에 try를 쓸수 있고, <code>catch</code> 안에서 난 오류는 바깥의 try가 받아요.</li>
+                <li><code>catch</code>의 변수는 <code>local</code>처럼 지금 영역(함수 안이라면 그 호출)의 변수예요. 값이 필요없다면 <code>catch</code>만 써도 됩니다.</li>
+                <li>try와 catch는 새 영역을 만들지 않아요. 오류가 나면 그 사이의 함수 호출과 반복문은 모두 끝나고, 그 전에 한 대입은 남습니다.</li>
+                <li>바깥에서 <code>goto</code>로 try나 catch의 안쪽으로 들어갈수는 없어요. (빠져나가는 것은 됩니다.)</li>
+            </ul>
+            <CodeBlock Code="@Rethrow" Runnable="true" />
+            <div class="callout">잡을수 없는 오류도 있어요. 프로그램(C#)이 정한 한도(메모리 한도, 함수 호출 깊이 200번), 실행 취소, ttl의 시간 초과, <code>end</code>가 빠진 것 같은 블록 구조의 문법 오류는 <code>catch</code>를 지나쳐서 스크립트를 끝냅니다. 잡지 않은 <code>throw</code>도 스크립트를 끝내요.</div>
+            <div class="callout">Native JS는 아직 ttl과 try/catch/throw를 지원하지 않아요. 플레이그라운드에서 Native JS를 켰다면 샌드박스 설정에서 끄고 실행하세요.</div>
+        </section>
+
         <section id="commands">
             <h2>명령어 레퍼런스</h2>
             <p>명령어는 묶음 단위로 호스트 프로그램이 켜고 끕니다. 프로그램마다 지원하는 명령어가 다를수 있으니, 어떤 묶음을 켰는지 확인하세요.</p>
@@ -361,6 +395,8 @@
         ("goto", "goto와 레이블"),
         ("func", "함수 만들기"),
         ("struct", "구조체"),
+        ("ttl", "시간 제한 ttl"),
+        ("try", "예외 처리 try"),
         ("commands", "명령어 레퍼런스"),
         ("tips", "팁"),
     };
@@ -601,6 +637,100 @@
         console.writeline name
         score = 72
         console.writeline (score >= 60 ? "합격" : "불합격")
+        """;
+
+    const string Ttl = """
+        count = 0
+        ttl 0.5
+            while true
+                count += 1
+            end
+        endttl
+        console.writeline "0.5초 동안 {1}번 반복했어요." count
+        """;
+
+    const string TtlDone = """
+        func sum_to
+            param n
+            total = 0
+            i = 1
+            while i <= n
+                total += i
+                i += 1
+            end
+            return total
+        endfunc
+
+        for n (list 1000 1000000000)
+            done = false
+            ttl 0.3
+                result = sum_to n
+                done = true
+            endttl
+            if done
+                console.writeline "1부터 {1}까지의 합은 {2}" n result
+            else
+                console.writeline "1부터 {1}까지는 0.3초 안에 다 더하지 못했어요." n
+            end
+        end
+        """;
+
+    const string Try = """
+        try
+            zero = 0
+            x = 1 / zero
+            console.writeline "이 줄은 실행되지 않아요."
+        catch e
+            console.writeline "오류: {1}" e
+        tried
+        console.writeline "그 다음 줄부터 계속 실행해요."
+        """;
+
+    const string Throw = """
+        balance = 100
+        func withdraw
+            param amount
+            if amount > balance
+                throw "잔액이 부족합니다."
+            end
+            balance -= amount
+        endfunc
+
+        for amount (list 30 500 50)
+            try
+                withdraw amount
+                console.writeline "{1}원을 꺼냈어요. 남은 돈: {2}원" amount balance
+            catch e
+                console.writeline "{1}원을 꺼내지 못했어요: {2}" amount e
+            tried
+        end
+        """;
+
+    const string Rethrow = """
+        struct failure
+            param code
+            param reason
+        endstruct
+
+        func load
+            param name
+            if name == ""
+                throw (failure 400 "이름이 비었어요")
+            end
+            return "{" + name + "}"
+        endfunc
+
+        try
+            try
+                console.writeline (load "jyuno")
+                console.writeline (load "")
+            catch e
+                console.writeline "안쪽 catch: {1}" e
+                throw
+            tried
+        catch e
+            console.writeline "바깥 catch: {1} {2}" e.code e.reason
+        tried
         """;
 
     const string StructOperators = """

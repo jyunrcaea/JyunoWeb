@@ -30,7 +30,9 @@ Blazor WebAssembly 앱이 NuGet의 `Jyuno`, `JyunoSdk.NativeJs` 패키지를 그
   `less`, `greater`, `and`, `or`, `not`, `length`는 Jyuno 1.3.2부터 기본 명령어입니다. 기본 명령어와 같은 이름은 `AddFunction`이 `false`를 반환하고 무시되니 추가하지 마세요.
 - 샌드박스 설정의 **Native JS**를 켜면 C# 인터프리터 대신, [JyunoSdk](https://github.com/jyunrcaea/JyunoSdk)의 `JyunoSdk.NativeJs` 패키지로 코드를 JavaScript로 변환해서 워커의 JS 엔진으로 실행합니다. (기본값은 C#)
   변환은 워커의 .NET이(`JyunoSandbox.CompileNativeJs`), 실행과 호스트 함수는 [`jyuno-worker.js`](wwwroot/js/jyuno-worker.js)가 맡습니다.
-  반복문과 함수 호출이 많은 코드에서 훨씬 빠르지만, 삭제(`x =`), 내장 함수 재정의, 블록 안으로 들어가는 goto는 쓸수 없고 File 명령어는 지원하지 않습니다.
+  반복문과 함수 호출이 많은 코드에서 훨씬 빠르지만, 삭제(`x =`), 내장 함수 재정의, 블록 안으로 들어가는 goto, Jyuno 1.7.0의 `ttl`과 `try`/`catch`/`throw`는 쓸수 없고 File 명령어는 지원하지 않습니다.
+- 스크립트가 붙잡을수 있는 메모리는 C# 인터프리터(Jyuno 1.7.0의 `Interpreter.MemoryLimit`)와 Native JS(`run({ memoryLimit })`) 모두 256MB로 제한합니다. ([`JyunoHost.MemoryLimit`](Engine/JyunoHost.cs))
+  리스트나 문자열이 끝없이 커져도 브라우저 탭이 죽기 전에 Jyuno 오류로 멈추고, 문제 풀기에서는 "메모리 초과"로 채점합니다.
 - 공유 버튼은 코드를 압축해서 주소(`#code=...`)에 담습니다. 작성 중인 코드는 브라우저에 자동 저장됩니다.
 
 ## 로컬에서 실행

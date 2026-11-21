@@ -1064,6 +1064,7 @@ a.problem-row:hover { background: var(--hover); color: var(--text); }
 .verdict-re { color: #a855f7; }
 .verdict-ge { color: #3b82f6; }
 .verdict-ole { color: #ec4899; }
+.verdict-mle { color: #14b8a6; }
 .verdict-pending { color: var(--accent-2); font-weight: 600; }
 .case { border-top: 1px dashed var(--border-strong); padding-top: 10px; display: grid; gap: 8px; }
 .case-head { font-size: 13.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
