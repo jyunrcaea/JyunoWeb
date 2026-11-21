@@ -329,10 +329,35 @@ async function encodeCode(code) {
     return 'b' + toBase64Url(bytes);
 }
 
+// 공유 링크로 열수 있는 코드의 최대 크기 (작은 링크가 아주 큰 코드로 풀려서 탭이 멈추지 않도록)
+const MAX_SHARED_BYTES = 1 << 20;
+
+// 압축을 풀면서 크기를 세고, 최대 크기를 넘으면 중단
+async function inflateLimited(bytes, limit) {
+    const reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+    const chunks = [];
+    let total = 0;
+    for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.length;
+        if (total > limit) {
+            await reader.cancel();
+            throw new Error('shared code is too large');
+        }
+        chunks.push(value);
+    }
+    const out = new Uint8Array(total);
+    let offset = 0;
+    for (const c of chunks) { out.set(c, offset); offset += c.length; }
+    return out;
+}
+
 async function decodeCode(encoded) {
     const kind = encoded[0];
     let bytes = fromBase64Url(encoded.slice(1));
-    if (kind === 'z') bytes = await pipe(bytes, new DecompressionStream('deflate-raw'));
+    if (kind === 'z') bytes = await inflateLimited(bytes, MAX_SHARED_BYTES);
+    if (bytes.length > MAX_SHARED_BYTES) throw new Error('shared code is too large');
     return new TextDecoder().decode(bytes);
 }
 
