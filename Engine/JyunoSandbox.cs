@@ -41,6 +41,7 @@ public static partial class JyunoSandbox
         interpreter.BlockSubstitute = options.BlockSubstitute;
         interpreter.EscapeAnalysis = options.EscapeAnalysis;
         interpreter.Inlining = options.Inlining;
+        interpreter.MemoryLimit = JyunoHost.MemoryLimit;
 
         var result = new SandboxResult();
         var stopwatch = Stopwatch.StartNew();

@@ -122,7 +122,7 @@ class Judge {
     finish(result) {
         clearTimeout(this.watchdog);
         this.busy = false;
-        const failed = (result.cases || []).find(c => c.verdict === 'GE' || c.verdict === 'RE');
+        const failed = (result.cases || []).find(c => c.verdict === 'GE' || c.verdict === 'RE' || c.verdict === 'MLE');
         if (failed && failed.line >= 0) this.editor.setErrorLine(failed.line);
         this.dotnet.invokeMethodAsync('OnFinished', JSON.stringify(result));
     }

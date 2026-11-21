@@ -14,6 +14,12 @@ namespace JyunoWeb.Engine;
 /// </summary>
 internal static class JyunoHost
 {
+    /// <summary>
+    /// 스크립트가 붙잡고 있을수 있는 메모리의 대략적인 최대 크기 (Jyuno 1.7.0의 Interpreter.MemoryLimit).
+    /// 브라우저 탭은 메모리가 가득 차면 예외 없이 통째로 죽으므로, 그 전에 Jyuno 오류로 멈춥니다. (Native JS의 기본 한도와 같음)
+    /// </summary>
+    internal const long MemoryLimit = 256L * 1024 * 1024;
+
     internal static void AddConsole(Runtime runtime , IConsoleSink output , StringReader input , Action exhausted)
     {
         runtime.AddFunction("console.write" , args => {
@@ -112,6 +118,7 @@ internal static class JyunoHost
         AddConsole(runtime , output , input , () => { });
         AddHostFunctions(runtime);
         using Interpreter interpreter = runtime.Create(lines);
+        interpreter.MemoryLimit = MemoryLimit;
 
         var run = new JudgeCase();
         var stopwatch = Stopwatch.StartNew();
@@ -128,6 +135,12 @@ internal static class JyunoHost
         catch (OutputLimitException)
         {
             run.Verdict = Verdicts.OutputLimit;
+        }
+        catch (JyunoLimitException e) when (IsMemoryLimit(e))
+        {
+            run.Verdict = Verdicts.MemoryLimit;
+            run.Line = ErrorLine(interpreter , e);
+            run.Message = e.Message;
         }
         catch (Exception e)
         {
@@ -161,6 +174,9 @@ internal static class JyunoHost
     // 오류가 난 줄 (Jyuno 1.6.2부터 JyunoException.Line과 Interpreter.LastErrorLine, 알수 없다면 -1)
     internal static int ErrorLine(Interpreter interpreter , Exception e)
         => e is JyunoException { Line: >= 0 } jyuno ? jyuno.Line : interpreter.LastErrorLine;
+
+    // 메모리 한도를 넘은 오류 (JyunoLimitException은 함수 호출 깊이 등 다른 한도에도 쓰이므로 메시지로 구별)
+    internal static bool IsMemoryLimit(JyunoLimitException e) => e.Message.StartsWith("메모리 한도를 넘었습니다" , StringComparison.Ordinal);
 
     internal static string Unwrap(Exception e)
     {
@@ -248,6 +264,7 @@ public static class Verdicts
     public const string RuntimeError = "RE";
     public const string GrammarError = "GE";
     public const string OutputLimit = "OLE";
+    public const string MemoryLimit = "MLE";
 }
 
 public sealed class JudgeCase

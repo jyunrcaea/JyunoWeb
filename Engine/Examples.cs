@@ -233,6 +233,88 @@ public static class Examples
         end
         """);
 
+    public static readonly Example MemoryLimit = new(
+        "memory-limit" ,
+        "메모리 한도" ,
+        "이 사이트는 스크립트가 붙잡을수 있는 메모리를 256MB로 제한해요. 문자열을 두배씩 늘려 모으면, 브라우저 탭이 죽기 전에 오류로 멈춰요. 이 오류는 try로 잡을수 없습니다. (1.7.0)" ,
+        """
+        s = "Jyuno!"
+        parts = list
+        try
+            while true
+                s = s + s
+                list.push parts s
+                console.writeline "{1}번째: {2}글자" (length parts) (length s)
+            end
+        catch e
+            console.writeline "이 줄은 실행되지 않아요."
+        tried
+        """);
+
+    public static readonly Example Ttl = new(
+        "ttl" ,
+        "시간 제한 ttl" ,
+        "ttl (초) ~ endttl 사이는 정한 시간 동안만 실행되고, 시간이 지나면 endttl 다음 줄로 넘어가요. 시간 초과는 오류가 아니니 끝났는지는 변수로 확인합니다. (1.7.0)" ,
+        """
+        func sum_to
+            param n
+            total = 0
+            i = 1
+            while i <= n
+                total += i
+                i += 1
+            end
+            return total
+        endfunc
+
+        for n (list 1000 1000000000)
+            done = false
+            ttl 0.3
+                result = sum_to n
+                done = true
+            endttl
+            if done
+                console.writeline "1부터 {1}까지의 합은 {2}" n result
+            else
+                console.writeline "1부터 {1}까지는 0.3초 안에 다 더하지 못했어요." n
+            end
+        end
+        """);
+
+    public static readonly Example TryCatch = new(
+        "try-catch" ,
+        "예외 처리 try / catch" ,
+        "try ~ catch 사이에서 오류가 나면 catch ~ tried 사이를 실행해요. throw로 문자열이나 구조체 값 같은 아무 값이나 던질수 있고, 함수 안에서 던진 값도 바깥의 try가 받습니다. (1.7.0)" ,
+        """
+        balance = 100
+        func withdraw
+            param amount
+            if amount <= 0
+                throw "0원보다 많이 꺼내야 해요."
+            end
+            if amount > balance
+                throw "잔액이 부족합니다. (남은 돈 " + balance + "원)"
+            end
+            balance -= amount
+        endfunc
+
+        for amount (list 30 500 -5 50)
+            try
+                withdraw amount
+                console.writeline "{1}원을 꺼냈어요. 남은 돈: {2}원" amount balance
+            catch e
+                console.writeline "{1}원을 꺼내지 못했어요: {2}" amount e
+            tried
+        end
+
+        try
+            zero = 0
+            console.writeline (10 / zero)
+        catch e
+            console.writeline "내장 함수의 오류도 잡아요: {1}" e
+        tried
+        """);
+
     public static readonly Example Arrays = new(
         "arrays" ,
         "배열과 리스트 (1.2.0)" ,
@@ -600,11 +682,12 @@ public static class Examples
         ("흐름 제어", new[] { Gugudan, FizzBuzz, Goto, Stars }),
         ("함수", new[] { Functions, Math }),
         ("배열과 문자열", new[] { Arrays, Split, BubbleSort, Sieve }),
-        ("연산자 (NEW)", new[] { Operators, StructOperators }),
+        ("시간 제한과 예외 처리 (NEW)", new[] { TryCatch, Ttl }),
+        ("연산자", new[] { Operators, StructOperators }),
         ("구조체", new[] { Structs, Geometry }),
         ("컬렉션과 문자열 함수", new[] { CollectionFunctions, StringFunctions }),
         ("비교와 논리", new[] { Compare, Bits }),
-        ("호스트와 보안", new[] { Host, Sandbox, Infinite }),
+        ("호스트와 보안", new[] { Host, Sandbox, Infinite, MemoryLimit }),
     };
 
     public static IEnumerable<Example> All => Groups.SelectMany(g => g.Items);

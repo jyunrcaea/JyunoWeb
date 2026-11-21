@@ -9,6 +9,7 @@ public static class VerdictInfo
         Verdicts.RuntimeError => "런타임 에러",
         Verdicts.GrammarError => "문법 오류",
         Verdicts.OutputLimit => "출력 초과",
+        Verdicts.MemoryLimit => "메모리 초과",
         _ => "채점 중"
     };
 
