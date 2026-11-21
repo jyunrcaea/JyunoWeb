@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Globalization;
 using System.Text;
 using Jyuno;
@@ -17,7 +19,8 @@ internal static class JyunoHost
         runtime.AddFunction("console.write" , args => {
             if (args.Length is 0)
                 return null;
-            output.Write(args.Length is 1 ? Text(args[0]) ?? "null" : Format(args));
+            //형식 문자열이 null이면 "null" (Jyuno의 console.write와 같음)
+            output.Write(args.Length is 1 ? Text(args[0]) ?? "null" : Format(args[0] ?? "null" , args));
             return null;
         });
         runtime.AddFunction("console.writeline" , args => {
@@ -26,7 +29,7 @@ internal static class JyunoHost
             else if (args.Length is 1)
                 output.Write((Text(args[0]) ?? string.Empty) + "\n");
             else
-                output.Write(Format(args) + "\n");
+                output.Write(Format(args[0] ?? throw JyunoCommands.null_exception , args) + "\n");
             return null;
         });
         runtime.AddFunction("console.readline" , args => {
@@ -37,13 +40,17 @@ internal static class JyunoHost
                 output.Echo(line + "\n");
             return line;
         });
+        //읽은 글자 하나를 문자열로, 입력이 끝났다면 null (Jyuno 1.6.2의 console.read와 같음, 이전에는 .NET의 char)
         runtime.AddFunction("console.read" , args => {
             int c = input.Read();
             if (c < 0)
+            {
                 exhausted();
-            else
-                output.Echo(((char)c).ToString());
-            return (char)c;
+                return null;
+            }
+            string text = ((char)c).ToString();
+            output.Echo(text);
+            return text;
         });
         runtime.AddFunction("console.clear" , args => {
             output.Clear();
@@ -107,7 +114,6 @@ internal static class JyunoHost
         using Interpreter interpreter = runtime.Create(lines);
 
         var run = new JudgeCase();
-        int failedLine = -1;
         var stopwatch = Stopwatch.StartNew();
         try
         {
@@ -123,10 +129,10 @@ internal static class JyunoHost
         {
             run.Verdict = Verdicts.OutputLimit;
         }
-        catch (Exception e) when (Capture(interpreter.CurrentExecuteLine , out failedLine))
+        catch (Exception e)
         {
             run.Verdict = Verdicts.RuntimeError;
-            run.Line = failedLine;
+            run.Line = ErrorLine(interpreter , e);
             run.Message = Unwrap(e);
         }
         stopwatch.Stop();
@@ -152,12 +158,9 @@ internal static class JyunoHost
         return string.Join("\n" , lines);
     }
 
-    // 예외 필터는 finally보다 먼저 실행되므로, Run()이 줄 번호를 지우기 전에 오류가 난 줄을 알수 있음
-    internal static bool Capture(int line , out int captured)
-    {
-        captured = line;
-        return true;
-    }
+    // 오류가 난 줄 (Jyuno 1.6.2부터 JyunoException.Line과 Interpreter.LastErrorLine, 알수 없다면 -1)
+    internal static int ErrorLine(Interpreter interpreter , Exception e)
+        => e is JyunoException { Line: >= 0 } jyuno ? jyuno.Line : interpreter.LastErrorLine;
 
     internal static string Unwrap(Exception e)
     {
@@ -170,27 +173,47 @@ internal static class JyunoHost
         long l => l,
         int i => i,
         double d => (long)d,
-        _ => throw new JyunoException($"'{value ?? "null"}'은/는 정수가 아닙니다.")
+        _ => throw new JyunoException($"'{Show(value)}'은/는 정수가 아닙니다.")
     };
 
-    // Console.Write(object)와 같은 방식으로 문자열로 바꿈
+    // Jyuno의 string 함수와 같은 방식으로 문자열로 바꿈 (null은 null, 1.6.2부터 배열/리스트는 [1, 2, 3])
     static string? Text(object? value) => value switch {
         null => null,
         string s => s,
+        IList list => ListText(list , new(ReferenceEqualityComparer.Instance)),
         _ => Convert.ToString(value , CultureInfo.InvariantCulture)
     };
-
-    // Console.Write(format, args)와 동일하게, 첫번째 인자(형식 문자열)도 {0}으로 포함
-    static string Format(object?[] args)
+    static string Show(object? value) => Text(value) ?? "null";
+    // 원소의 null은 "null", 자기 자신을 담은 배열/리스트는 [...]
+    static string ListText(IList list , HashSet<object> visiting)
     {
-        string format = args[0] as string ?? throw new JyunoException("형식 문자열은 문자열이어야 합니다.");
+        if (!visiting.Add(list))
+            return "[...]";
+        if (!RuntimeHelpers.TryEnsureSufficientExecutionStack())
+            throw new JyunoException("값이 너무 깊게 중첩되어 있어서 문자열로 바꿀수 없습니다.");
+        StringBuilder builder = new("[");
+        for (int i = 0 ; i < list.Count ; i++)
+        {
+            if (i > 0)
+                builder.Append(", ");
+            builder.Append(list[i] is IList inner ? ListText(inner , visiting) : Show(list[i]));
+        }
+        visiting.Remove(list);
+        return builder.Append(']').ToString();
+    }
+
+    // Console.Write(format, args)와 동일하게, 첫번째 인자(형식 문자열)도 {0}으로 포함 (Jyuno 1.6.2의 console.write와 같은 오류)
+    static string Format(object format , object?[] args)
+    {
+        if (format is not string text)
+            throw new JyunoException($"형식 문자열은 문자열이어야 합니다. ('{Show(format)}')");
         try
         {
-            return string.Format(CultureInfo.InvariantCulture , format , args);
+            return string.Format(CultureInfo.InvariantCulture , text , args.Select(o => o is IList ? Text(o) : o).ToArray());
         }
         catch (FormatException)
         {
-            throw new JyunoException($"형식 문자열이 올바르지 않습니다: \"{format}\"");
+            throw new JyunoException($"형식 문자열이 올바르지 않습니다: \"{text}\"");
         }
     }
 

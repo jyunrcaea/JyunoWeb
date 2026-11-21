@@ -13,17 +13,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jyuno" Version="1.6.1" />
+    <PackageReference Include="Jyuno" Version="1.6.2" />
     <!-- Native JS: Jyuno 코드를 JavaScript로 변환해서 .NET 인터프리터 대신 브라우저의 JS 엔진으로 실행 -->
-    <PackageReference Include="JyunoSdk.NativeJs" Version="0.5.0" />
+    <PackageReference Include="JyunoSdk.NativeJs" Version="0.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Jyuno는 dynamic(Microsoft.CSharp)으로 연산하므로 트리밍으로 리플렉션 정보가 사라지지 않게 보존 -->
+    <!-- Jyuno 1.6.2부터 dynamic(Microsoft.CSharp)을 쓰지 않으므로 Microsoft.CSharp는 보존하지 않음 -->
     <TrimmerRootAssembly Include="Jyuno" />
-    <TrimmerRootAssembly Include="Microsoft.CSharp" />
   </ItemGroup>
 
 </Project>

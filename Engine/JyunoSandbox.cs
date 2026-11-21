@@ -43,7 +43,6 @@ public static partial class JyunoSandbox
         interpreter.Inlining = options.Inlining;
 
         var result = new SandboxResult();
-        int failedLine = -1;
         var stopwatch = Stopwatch.StartNew();
         try
         {
@@ -61,10 +60,10 @@ public static partial class JyunoSandbox
                 result.ValueType = TypeName(value);
             }
         }
-        catch (Exception e) when (JyunoHost.Capture(interpreter.CurrentExecuteLine , out failedLine))
+        catch (Exception e)
         {
             result.Status = "error";
-            result.Line = failedLine;
+            result.Line = JyunoHost.ErrorLine(interpreter , e);
             result.Message = JyunoHost.Unwrap(e);
             result.ExceptionType = e is JyunoException ? null : e.GetType().Name;
         }
